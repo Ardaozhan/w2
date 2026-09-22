@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "record_type": "task_spec",
+  "project_id": "w2",
+  "task_id": "",
+  "user_goal": "Implement W2 Phase 03 Execution Safety and Durability: add capability permissions, workspace boundary checks, approval gates, shell controls, redaction, runtime budgets, bounded retries, checkpoints, resume, abort, and safety evidence without starting Phase 04.",
+  "task_type": "feature:safety-durability",
+  "complexity": "C2",
+  "complexity_reasons": ["cross-cutting runtime policy, process controls, persistence, and recovery behavior"],
+  "functional_requirements": [
+    "Declare and enforce minimum capabilities for runtime tools",
+    "Reject traversal, symlink escape, and external workspace writes",
+    "Persist approvals, safety events, budgets, checkpoints, resume, and abort",
+    "Redact secrets from context and traces and bound shell/retry execution",
+    "Provide repeatable security and durability regression tests"
+  ],
+  "nonfunctional_requirements": ["No false secure-sandbox claim", "Denied actions never execute", "Preserve Phase 02 receipt integrity and outcomes"],
+  "constraints": ["Implement only Phase 03 scope", "Do not start benchmark, UI, or submission phases", "No real secrets or external writes"],
+  "unknowns": [],
+  "explicit_out_of_scope": ["Phase 04 benchmarks", "Phase 05 product UI", "Phase 06 submission", "enterprise IAM", "remote fleet sandbox"],
+  "affected_domains": ["backend", "persistence", "security", "testing"],
+  "security_relevance": "APPLICABLE",
+  "persistence_relevance": "APPLICABLE",
+  "auth_relevance": "APPLICABLE",
+  "concurrency_relevance": "APPLICABLE",
+  "time_relevance": "APPLICABLE",
+  "external_dependency_relevance": "NOT_APPLICABLE",
+  "semantic_relevance": [
+    {"name":"security","status":"APPLICABLE","rules":["capability, path, secret, approval and shell controls are fail-closed"]},
+    {"name":"persistence","status":"APPLICABLE","rules":["checkpoints and approvals survive restart"]},
+    {"name":"auth","status":"APPLICABLE","rules":["high-risk operations require explicit approval"]},
+    {"name":"concurrency","status":"APPLICABLE","rules":["bounded retries and resume avoid duplicate destructive work"]},
+    {"name":"time","status":"APPLICABLE","rules":["timeouts and runtime budgets are deterministic"]},
+    {"name":"external_dependency","status":"NOT_APPLICABLE","rules":[]}
+  ],
+  "acceptance_criteria": [
+    {"id":"AC-PERMISSIONS","statement":"Capabilities and approval gates fail closed for high-risk actions","verification_method":"security regression tests with denied actions","required":true},
+    {"id":"AC-BOUNDARY","statement":"Traversal, symlink escape, and external workspace writes are rejected and traced","verification_method":"workspace boundary tests","required":true},
+    {"id":"AC-SHELL","statement":"Shell timeout, output limits, exit codes, filtering, and cleanup are enforced","verification_method":"shell control tests","required":true},
+    {"id":"AC-REDaction","statement":"Secrets are redacted from context, environment, logs, and trace","verification_method":"secret leakage regression test","required":true},
+    {"id":"AC-BUDGET","statement":"Step, tool-call, runtime, and output budgets produce visible exhaustion","verification_method":"budget tests and receipt inspection","required":true},
+    {"id":"AC-DURABILITY","statement":"Checkpoint, resume, and abort preserve identity, continuity, and no replay of completed actions","verification_method":"durability integration tests","required":true},
+    {"id":"AC-EVIDENCE","statement":"Safety events appear in the ordered trace and Run Receipt","verification_method":"receipt safety evidence test","required":true}
+  ],
+  "source": "MODEL_STRUCTURED",
+  "semantic_quality": "PASS",
+  "semantic_authority": "MODEL_STRUCTURED",
+  "regex_semantic_authority": false
+}
