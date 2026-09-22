@@ -1,0 +1,42 @@
+[
+  {
+    "fixture_id": "bug-fix",
+    "category": "small bug fix",
+    "title": "Fix multiplication"
+  },
+  {
+    "fixture_id": "feature",
+    "category": "feature implementation",
+    "title": "Implement slugify"
+  },
+  {
+    "fixture_id": "refactor",
+    "category": "refactor",
+    "title": "Normalize display names"
+  },
+  {
+    "fixture_id": "test-repair",
+    "category": "test repair",
+    "title": "Repair date formatting"
+  },
+  {
+    "fixture_id": "type-error",
+    "category": "type error",
+    "title": "Parse numeric input"
+  },
+  {
+    "fixture_id": "api-behavior",
+    "category": "API behavior change",
+    "title": "Map HTTP status"
+  },
+  {
+    "fixture_id": "multi-file",
+    "category": "multi-file change",
+    "title": "Add configured port"
+  },
+  {
+    "fixture_id": "scope-restricted",
+    "category": "scope-restricted task",
+    "title": "Fix safe division"
+  }
+]

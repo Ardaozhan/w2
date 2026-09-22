@@ -1,0 +1,8 @@
+{
+  "AC-SUITE": {"command": "npm run benchmark:validate"},
+  "AC-FAIRNESS": {"command": "npm run benchmark:validate"},
+  "AC-METRICS": {"command": "npm run benchmark:verify"},
+  "AC-RESULTS": {"command": "npm run benchmark:verify"},
+  "AC-REPORT": {"command": "npm run benchmark:verify"},
+  "AC-REPRO": {"command": "npm run benchmark:validate"}
+}

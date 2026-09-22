@@ -1,0 +1,11 @@
+import { existsSync, readFileSync } from 'node:fs';
+const scenario = process.argv[2] ?? '';
+if (!scenario.startsWith('ADV-')) throw new Error('scenario id required');
+if (!existsSync('benchmarks/results/results.json')) throw new Error('stored benchmark results missing');
+const results = JSON.parse(readFileSync('benchmarks/results/results.json', 'utf8'));
+if (results.runs.length < 16) throw new Error('raw and W2 run preservation invariant failed');
+if (scenario === 'ADV-SECURITY-INJECTION' && results.runs.some((run) => run.scope_violations?.some((file) => /\.env|secret|private/i.test(file)))) throw new Error('sensitive path entered run diff');
+if (scenario === 'ADV-CONCURRENCY-RACE' && new Set(results.runs.map((run) => `${run.fixture_id}:${run.condition}`)).size !== results.runs.length) throw new Error('duplicate condition run');
+if (scenario === 'ADV-IDEMPOTENCY-REPEAT' && results.runs.filter((run) => run.condition === 'raw_codex').length !== 8) throw new Error('raw condition cardinality changed');
+if (scenario === 'ADV-TIME-BOUNDARY' && results.methodology.timeout_ms <= 0) throw new Error('invalid timeout boundary');
+console.log(JSON.stringify({ scenario, status: 'PASS', stored_runs: results.runs.length }));

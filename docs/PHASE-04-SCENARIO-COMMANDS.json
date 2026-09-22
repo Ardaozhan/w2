@@ -1,0 +1,6 @@
+{
+  "ADV-SECURITY-INJECTION": {"command": "node benchmarks/adversarial-scenarios.mjs ADV-SECURITY-INJECTION", "test_selector": "ADV-SECURITY-INJECTION"},
+  "ADV-CONCURRENCY-RACE": {"command": "node benchmarks/adversarial-scenarios.mjs ADV-CONCURRENCY-RACE", "test_selector": "ADV-CONCURRENCY-RACE"},
+  "ADV-IDEMPOTENCY-REPEAT": {"command": "node benchmarks/adversarial-scenarios.mjs ADV-IDEMPOTENCY-REPEAT", "test_selector": "ADV-IDEMPOTENCY-REPEAT"},
+  "ADV-TIME-BOUNDARY": {"command": "node benchmarks/adversarial-scenarios.mjs ADV-TIME-BOUNDARY", "test_selector": "ADV-TIME-BOUNDARY"}
+}

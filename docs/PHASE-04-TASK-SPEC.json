@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "record_type": "task_spec",
+  "project_id": "w2",
+  "task_id": "",
+  "user_goal": "Implement W2 Phase 04 Benchmark and Proof: create eight reproducible benchmark fixtures, execute fair raw-versus-W2 runs with stored external verification, generate results from raw data, and document limitations without starting Phase 05.",
+  "task_type": "feature:benchmark-evidence",
+  "complexity": "C2",
+  "complexity_reasons": ["reproducible fixture suite", "two-condition run harness", "stored metric aggregation and report"],
+  "functional_requirements": [
+    "Define at least eight meaningful fixtures across multiple task categories with reset commands and external verifiers",
+    "Run and preserve both raw Codex and W2 plus Codex condition artifacts without cherry-picking failures",
+    "Capture correctness, evidence coverage, efficiency, and human-effort metrics only when measured",
+    "Generate results JSON and CSV plus a judge-readable benchmark report from stored raw data"
+  ],
+  "nonfunctional_requirements": [
+    "Same task wording, baseline, acceptance criteria, verifier, and local model configuration are used for both conditions",
+    "Infrastructure failures are distinct from task failures",
+    "Public claims trace to stored benchmark results; no fabricated model or token metrics"
+  ],
+  "constraints": [
+    "Implement only Phase 04 scope",
+    "Do not start Phase 05 UI/demo or Phase 06 packaging",
+    "Keep Phase 00-03 regression behavior unchanged"
+  ],
+  "unknowns": [],
+  "explicit_out_of_scope": ["Phase 05 product UX and demo", "Phase 06 judge-ready submission"],
+  "affected_domains": ["backend", "testing", "persistence", "benchmarking"],
+  "security_relevance": "APPLICABLE",
+  "persistence_relevance": "APPLICABLE",
+  "auth_relevance": "NOT_APPLICABLE",
+  "concurrency_relevance": "APPLICABLE",
+  "time_relevance": "APPLICABLE",
+  "external_dependency_relevance": "NOT_APPLICABLE",
+  "semantic_relevance": [
+    {"name":"persistence","status":"APPLICABLE","rules":["all raw runs and verifier output remain addressable on disk"]},
+    {"name":"testing","status":"APPLICABLE","rules":["every fixture has an independent verifier"]},
+    {"name":"security","status":"APPLICABLE","rules":["scope violations are measured, not hidden"]},
+    {"name":"auth","status":"NOT_APPLICABLE","rules":[]},
+    {"name":"concurrency","status":"APPLICABLE","rules":["repeated runs do not mutate the shared baseline"]},
+    {"name":"time","status":"APPLICABLE","rules":["runtime metrics use measured timestamps"]},
+    {"name":"external_dependency","status":"NOT_APPLICABLE","rules":["benchmark runner uses only local stored fixtures"]}
+  ],
+  "acceptance_criteria": [
+    {"id":"AC-SUITE","statement":"At least eight meaningful benchmark fixtures span multiple categories and each contains baseline, task, constraints, allowed paths, acceptance criteria, verifier, and reset command","verification_method":"benchmark fixture validation test","required":true},
+    {"id":"AC-FAIRNESS","statement":"Raw and W2 conditions use the same fixture contract and differences are recorded","verification_method":"benchmark methodology and run metadata validation","required":true},
+    {"id":"AC-METRICS","statement":"False-DONE and evidence coverage are defined and measured fields are captured without invented values","verification_method":"results schema and aggregation test","required":true},
+    {"id":"AC-RESULTS","statement":"Raw and W2 runs including failures are stored and comparative JSON/CSV are generated from them","verification_method":"benchmark execution and result generation","required":true},
+    {"id":"AC-REPORT","statement":"Benchmark report contains methodology, case study, limitations, and claims traceable to stored results","verification_method":"report audit test","required":true},
+    {"id":"AC-REPRO","statement":"Another developer can rerun fixture validation and result generation from documented commands","verification_method":"clean local rerun","required":true}
+  ],
+  "source": "MODEL_STRUCTURED",
+  "semantic_quality": "PASS",
+  "semantic_authority": "MODEL_STRUCTURED",
+  "regex_semantic_authority": false
+}
