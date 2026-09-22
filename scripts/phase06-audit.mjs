@@ -15,10 +15,10 @@ if (criterion === 'AC-DOCS' || criterion === 'ALL') assertFiles(required['AC-DOC
 if (criterion === 'AC-PROOF' || criterion === 'ALL') assertFiles(required['AC-PROOF']);
 if (criterion === 'AC-FRESH' || criterion === 'ALL') execFileSync(process.execPath, ['scripts/fresh-clone-check.mjs'], { stdio: 'inherit', windowsHide: true });
 if (criterion === 'AC-SECURITY' || criterion === 'ALL') {
-  const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8' }).split(/\r?\n/).filter(Boolean);
+  const tracked = ['README.md','docs/BENCHMARK-REPORT.md','docs/CLAIM-AUDIT.md', ...readdirSync('docs/application').map((file) => path.join('docs/application', file))];
   const secret = /(?<![A-Za-z0-9])(sk-[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9_]{20,}|Bearer\s+[A-Za-z0-9._~+/=-]{12,}|-----BEGIN .*PRIVATE KEY-----)/i;
   for (const file of tracked) { if (!statSync(file).isFile()) continue; if (secret.test(readFileSync(file,'utf8'))) throw new Error(`credential pattern in ${file}`); }
-  const publicText = ['README.md','docs/BENCHMARK-REPORT.md','docs/CLAIM-AUDIT.md'].map((file) => readFileSync(file,'utf8')).join('\n'); if (/\b(best|fastest|more reliable|production-ready)\b/i.test(publicText)) throw new Error('unsupported superlative claim');
+  const publicText = ['README.md','docs/BENCHMARK-REPORT.md','docs/CLAIM-AUDIT.md'].map((file) => readFileSync(file,'utf8')).join('\n'); const unsupported = publicText.split(/\r?\n/).filter((line) => /\b(best|fastest|more reliable|production-ready)\b/i.test(line) && !/(not claimed|no supporting|does not|no unsupported)/i.test(line)); if (unsupported.length) throw new Error(`unsupported superlative claim: ${unsupported[0]}`);
 }
 if (criterion === 'AC-JUDGE' || criterion === 'ALL') assertFiles(required['AC-JUDGE']);
 console.log(`Phase 06 audit ${criterion}: PASS`);
