@@ -26,7 +26,7 @@ function fixture() {
   store.transition(runId, "VERIFYING");
   store.transition(runId, "COMPLETED", { finishedAt: "2026-09-22T10:00:02.000Z" });
   const run = store.getRun(runId)!;
-  return { store, task, run };
+  return { store, task, run, databasePath };
 }
 
 describe("evidence and run receipts", () => {
@@ -66,5 +66,18 @@ describe("evidence and run receipts", () => {
     expect(computeOutcome({ runStatus: "ERROR", acceptance: [] })).toBe("ERROR");
     expect(computeOutcome({ runStatus: "ABORTED", acceptance: [] })).toBe("ABORTED");
     store.close();
+  });
+
+  it("persists evidence and acceptance mappings in the SQLite projection", () => {
+    const { store, run, databasePath } = fixture();
+    const receipt = buildRunReceipt(store, run.run_id);
+    expect(receipt.evidence.length).toBeGreaterThan(0);
+    expect(store.getEvidence(run.run_id).map((item) => item.evidence_id).sort()).toEqual(receipt.evidence.map((item) => item.evidence_id).sort());
+    expect(store.getAcceptance(run.run_id)).toEqual(receipt.acceptance);
+    store.close();
+    const reopened = new RunStore(databasePath);
+    expect(reopened.getEvidence(run.run_id).length).toBe(receipt.evidence.length);
+    expect(reopened.getAcceptance(run.run_id)).toEqual(receipt.acceptance);
+    reopened.close();
   });
 });
