@@ -9,8 +9,10 @@
   },
   "scripts": {
     "test": "vitest run",
+    "pretest": "node scripts/ensure-dependencies.mjs",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
+    "prebuild": "node scripts/ensure-dependencies.mjs",
     "w2": "node dist/src/cli.js",
     "fixtures:phase02": "npm run build && node scripts/generate-phase02-fixtures.mjs",
     "verify:phase02": "npm run build && node scripts/verify-phase02-fixtures.mjs"
