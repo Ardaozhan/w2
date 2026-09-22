@@ -5,7 +5,7 @@ import { ToolRuntime } from '../../src/core/runtime.js';
 describe('Phase 03 adversarial scenarios', () => {
   it('ADV-SECURITY-INJECTION rejects traversal and redacts injected secrets', () => {
     expect(() => assertWorkspacePath(process.cwd(), '..\\outside.txt')).toThrow('Path escapes workspace');
-    expect(redactSecrets('token=sk-test-secret')).toContain('[REDACTED]');
+    expect(redactSecrets('token=placeholder-secret')).toContain('[REDACTED]');
   });
 
   it('ADV-AUTH-UNAUTHENTICATED denies a capability without a grant', () => {
@@ -30,7 +30,7 @@ describe('Phase 03 adversarial scenarios', () => {
   });
 
   it('ADV-IDEMPOTENCY-REPEAT produces the same redaction result on repeat', () => {
-    const value = 'Authorization: Bearer repeat-secret';
+    const value = 'Authorization: Bearer demo';
     expect(redactSecrets(value)).toBe(redactSecrets(value));
   });
 

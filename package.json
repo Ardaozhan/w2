@@ -22,7 +22,8 @@
     "benchmark:verify": "node benchmarks/verify-results.mjs",
     "demo": "npm run build && node dist/src/demo-server.js",
     "demo:smoke": "npm run build && node tests/ui/ui-smoke.mjs",
-    "test:ui": "npm run build && node tests/ui/ui-smoke.mjs"
+    "test:ui": "npm run build && node tests/ui/ui-smoke.mjs",
+    "phase06:audit": "node scripts/phase06-audit.mjs ALL"
   },
   "bin": {
     "w2": "dist/src/cli.js"
