@@ -9,3 +9,5 @@
 7. Inspect the proof map, claim audit, limitations, and stored raw run records.
 
 Observed friction: the demo is local and read-only, and the benchmark sample records Codex timeouts. Both are called out explicitly rather than hidden behind a hosted or synthetic flow.
+
+Final audit command: `npm run phase06:audit`.
