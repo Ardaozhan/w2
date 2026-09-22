@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://w2.local/schemas/run-receipt.schema.json",
+  "title": "W2 Run Receipt",
+  "type": "object",
+  "required": ["receipt_version", "run_id", "task", "agent", "context", "actions", "changes", "verification", "evidence", "acceptance", "outcome", "generated_at"],
+  "properties": {
+    "receipt_version": {"const": "1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "task": {"type": "object"},
+    "agent": {"type": "object"},
+    "context": {"type": "object"},
+    "actions": {"type": "object"},
+    "changes": {"type": "object"},
+    "verification": {"type": "object"},
+    "evidence": {"type": "array"},
+    "acceptance": {"type": "array"},
+    "outcome": {"enum": ["PASS", "FAIL", "UNPROVEN", "ABORTED", "ERROR"]},
+    "generated_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}

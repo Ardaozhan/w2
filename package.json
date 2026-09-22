@@ -1,0 +1,29 @@
+{
+  "name": "w2",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Evidence-first engineering harness for coding-agent runs.",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "w2": "node dist/src/cli.js",
+    "fixtures:phase02": "npm run build && node scripts/generate-phase02-fixtures.mjs",
+    "verify:phase02": "npm run build && node scripts/verify-phase02-fixtures.mjs"
+  },
+  "bin": {
+    "w2": "dist/src/cli.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  }
+}

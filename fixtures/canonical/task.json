@@ -1,0 +1,19 @@
+{
+  "task_id": "canonical-discount-bug",
+  "title": "Fix the discount percentage bug",
+  "goal": "Fix applyDiscount so a price of 200 with a 10 percent discount returns 180.",
+  "constraints": [
+    "Keep the public function signature unchanged.",
+    "Only modify src/discount.ts unless the test proves another source change is required."
+  ],
+  "allowed_paths": ["src/discount.ts", "tests/discount.test.ts"],
+  "acceptance_criteria": [
+    "The canonical discount test passes.",
+    "The function computes a percentage rather than subtracting percentage points."
+  ],
+  "verification_commands": [
+    { "name": "canonical tests", "category": "test", "command": "npm test" }
+  ],
+  "workspace": "project",
+  "timeout_ms": 120000
+}

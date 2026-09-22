@@ -1,0 +1,95 @@
+{
+  "evidence": [
+    {
+      "evidence_id": "ev_01df16ad9da063fe31f6",
+      "run_id": "rate-limit-fail",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "0 files supplied from 0 considered",
+      "raw_reference": "run:rate-limit-fail:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:01.000Z",
+      "data": {
+        "files_considered": 0,
+        "files_included": 0,
+        "approximate_tokens": 0
+      }
+    },
+    {
+      "evidence_id": "ev_1f807e90bf8a23927ec3",
+      "run_id": "rate-limit-fail",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "1 files changed (+3/-0)",
+      "raw_reference": "run:rate-limit-fail:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:02.000Z",
+      "data": {
+        "status_before": "",
+        "status_after": "M src/auth.ts",
+        "changed_files": [
+          "src/auth.ts"
+        ],
+        "additions": 3,
+        "deletions": 0,
+        "unified_diff": "fixture diff"
+      }
+    },
+    {
+      "evidence_id": "ev_1370635f0ab4ffc060cb",
+      "run_id": "rate-limit-fail",
+      "type": "TEST_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "auth tests: PASSED",
+      "raw_reference": "run:rate-limit-fail:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:02.000Z",
+      "data": {
+        "name": "auth tests",
+        "category": "test",
+        "command": "npm test",
+        "exit_code": 0,
+        "stdout": "fixture tests passed",
+        "stderr": "",
+        "duration_ms": 4,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_1d41b30d1fe98a5a691c",
+      "run_id": "rate-limit-fail",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "1 ordered events and 0 persisted tool calls",
+      "raw_reference": "run:rate-limit-fail:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:02.000Z",
+      "data": {
+        "events": 1,
+        "tool_calls": 0
+      }
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Maximum five attempts per minute",
+      "required": true,
+      "status": "FAIL",
+      "evidence_ids": [
+        "ev_1370635f0ab4ffc060cb"
+      ],
+      "reason": "External assertion contradicts the limit."
+    },
+    {
+      "criterion_id": "AC-02",
+      "description": "HTTP 429 is returned after the limit",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_1370635f0ab4ffc060cb"
+      ],
+      "reason": "Recorded auth tests cover the response."
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "rate-limit-unproven",
+  "task": {
+    "task_id": "rate-limit-demo",
+    "title": "Implement login rate limiting",
+    "goal": "Limit login attempts to five per minute and return HTTP 429 after the limit.",
+    "constraints": [
+      "Existing auth tests remain green"
+    ],
+    "allowed_paths": [
+      "src/auth.ts",
+      "tests/auth.test.ts"
+    ],
+    "acceptance_criteria": [
+      "Maximum five attempts per minute",
+      "HTTP 429 is returned after the limit"
+    ],
+    "verification_commands": [],
+    "workspace": "C:\\Users\\ardao\\w2",
+    "model": "fixture-model"
+  },
+  "agent": {
+    "model": "fixture-model",
+    "status": "COMPLETED",
+    "error": null
+  },
+  "context": {
+    "files_considered": 0,
+    "files_supplied": 0,
+    "approximate_tokens": 0,
+    "evidence_ids": [
+      "ev_54a01d10e4835747c3fa"
+    ]
+  },
+  "actions": {
+    "events": 1,
+    "tool_calls": 0,
+    "evidence_ids": [
+      "ev_6b41d2724515603247e6"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "src/auth.ts"
+    ],
+    "additions": 3,
+    "deletions": 0,
+    "evidence_ids": [
+      "ev_e22d655c6a1c28f4911f"
+    ]
+  },
+  "verification": {
+    "results": [
+      {
+        "name": "auth tests",
+        "category": "test",
+        "command": "npm test",
+        "exit_code": 0,
+        "stdout": "fixture tests passed",
+        "stderr": "",
+        "duration_ms": 4,
+        "status": "PASSED"
+      }
+    ],
+    "evidence_ids": [
+      "ev_bc74f0f5d117da1fe285"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_54a01d10e4835747c3fa",
+      "run_id": "rate-limit-unproven",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "0 files supplied from 0 considered",
+      "raw_reference": "run:rate-limit-unproven:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:01.000Z",
+      "data": {
+        "files_considered": 0,
+        "files_included": 0,
+        "approximate_tokens": 0
+      }
+    },
+    {
+      "evidence_id": "ev_e22d655c6a1c28f4911f",
+      "run_id": "rate-limit-unproven",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "1 files changed (+3/-0)",
+      "raw_reference": "run:rate-limit-unproven:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:02.000Z",
+      "data": {
+        "status_before": "",
+        "status_after": "M src/auth.ts",
+        "changed_files": [
+          "src/auth.ts"
+        ],
+        "additions": 3,
+        "deletions": 0,
+        "unified_diff": "fixture diff"
+      }
+    },
+    {
+      "evidence_id": "ev_bc74f0f5d117da1fe285",
+      "run_id": "rate-limit-unproven",
+      "type": "TEST_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "auth tests: PASSED",
+      "raw_reference": "run:rate-limit-unproven:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:02.000Z",
+      "data": {
+        "name": "auth tests",
+        "category": "test",
+        "command": "npm test",
+        "exit_code": 0,
+        "stdout": "fixture tests passed",
+        "stderr": "",
+        "duration_ms": 4,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_6b41d2724515603247e6",
+      "run_id": "rate-limit-unproven",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "1 ordered events and 0 persisted tool calls",
+      "raw_reference": "run:rate-limit-unproven:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:02.000Z",
+      "data": {
+        "events": 1,
+        "tool_calls": 0
+      }
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Maximum five attempts per minute",
+      "required": true,
+      "status": "UNPROVEN",
+      "evidence_ids": [],
+      "reason": "No evidence was mapped to this required criterion."
+    },
+    {
+      "criterion_id": "AC-02",
+      "description": "HTTP 429 is returned after the limit",
+      "required": true,
+      "status": "UNPROVEN",
+      "evidence_ids": [],
+      "reason": "No evidence was mapped to this required criterion."
+    }
+  ],
+  "outcome": "UNPROVEN",
+  "generated_at": "2026-09-22T10:00:03.000Z"
+}
