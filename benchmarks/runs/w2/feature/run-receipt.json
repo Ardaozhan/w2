@@ -1,0 +1,283 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+  "task": {
+    "task_id": "feature",
+    "title": "Implement slugify",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/slug.js"
+    ],
+    "acceptance_criteria": [
+      "Implement slugify(text) with lowercase, trim, and hyphen-separated words."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\feature",
+    "timeout_ms": 20000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "FAILED",
+    "error": "Agent failure: Codex process timed out after 20000ms"
+  },
+  "context": {
+    "files_considered": 6,
+    "files_supplied": 1,
+    "approximate_tokens": 12,
+    "evidence_ids": [
+      "ev_f02ab8e57bfd288ec745"
+    ]
+  },
+  "actions": {
+    "events": 22,
+    "tool_calls": 2,
+    "evidence_ids": [
+      "ev_c48d942cf659cff95709",
+      "ev_23dcd8d832c6bcd061ac",
+      "ev_c7eb72f8b89ec4d79514",
+      "ev_ea3e498634ff301cc132",
+      "ev_114844914c37eab23d07",
+      "ev_b337cfb92f7a34796562"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "w2-run.sqlite",
+      "w2-run.sqlite-shm",
+      "w2-run.sqlite-wal"
+    ],
+    "additions": 0,
+    "deletions": 0,
+    "evidence_ids": [
+      "ev_afb0378a751ac9002448"
+    ]
+  },
+  "verification": {
+    "results": [],
+    "evidence_ids": []
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_f02ab8e57bfd288ec745",
+      "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "1 files supplied from 6 considered",
+      "raw_reference": "run:29ee31c9-f374-44f5-9563-0e74a2cd0782:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:58.042Z",
+      "data": {
+        "files_considered": 6,
+        "files_included": 1,
+        "approximate_tokens": 12
+      }
+    },
+    {
+      "evidence_id": "ev_c48d942cf659cff95709",
+      "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:29ee31c9-f374-44f5-9563-0e74a2cd0782:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:58.039Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_23dcd8d832c6bcd061ac",
+      "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:29ee31c9-f374-44f5-9563-0e74a2cd0782:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:34:18.123Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_c7eb72f8b89ec4d79514",
+      "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:29ee31c9-f374-44f5-9563-0e74a2cd0782:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:34:18.155Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_ea3e498634ff301cc132",
+      "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:29ee31c9-f374-44f5-9563-0e74a2cd0782:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:34:18.155Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_afb0378a751ac9002448",
+      "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "3 files changed (+0/-0)",
+      "raw_reference": "run:29ee31c9-f374-44f5-9563-0e74a2cd0782:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:34:18.158Z",
+      "data": {
+        "status_before": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+        "status_after": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+        "changed_files": [
+          "w2-run.sqlite",
+          "w2-run.sqlite-shm",
+          "w2-run.sqlite-wal"
+        ],
+        "additions": 0,
+        "deletions": 0,
+        "unified_diff": ""
+      }
+    },
+    {
+      "evidence_id": "ev_114844914c37eab23d07",
+      "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "22 ordered events and 2 persisted tool calls",
+      "raw_reference": "run:29ee31c9-f374-44f5-9563-0e74a2cd0782:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:34:18.158Z",
+      "data": {
+        "events": 22,
+        "tool_calls": 2
+      }
+    },
+    {
+      "evidence_id": "ev_b337cfb92f7a34796562",
+      "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "3 safety and durability events",
+      "raw_reference": "run:29ee31c9-f374-44f5-9563-0e74a2cd0782:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:34:18.090Z",
+      "data": [
+        {
+          "event_id": "eb327e83-267f-4746-892f-fa547d0771ad",
+          "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+          "sequence": 2,
+          "timestamp": "2026-09-22T14:33:58.006Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "2860a464-7806-4f6b-823a-e96ca0d4c28c",
+          "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+          "sequence": 7,
+          "timestamp": "2026-09-22T14:33:58.043Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "00549585-31e0-44bf-9a08-fb051d382fa4",
+          "run_id": "29ee31c9-f374-44f5-9563-0e74a2cd0782",
+          "sequence": 17,
+          "timestamp": "2026-09-22T14:34:18.090Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 16,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Implement slugify(text) with lowercase, trim, and hyphen-separated words.",
+      "required": true,
+      "status": "UNPROVEN",
+      "evidence_ids": [],
+      "reason": "No evidence was mapped to this required criterion."
+    }
+  ],
+  "outcome": "UNPROVEN",
+  "generated_at": "2026-09-22T14:34:18.162Z"
+}

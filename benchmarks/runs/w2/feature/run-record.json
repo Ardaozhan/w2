@@ -1,0 +1,62 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "feature",
+  "status": "UNPROVEN",
+  "infrastructure_failure": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "FAIL",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/w2/feature/verify.mjs:1\r\nimport { slugify } from './src/slug.js'; if (slugify(' Hello, World! ') !== 'hello-world') throw new Error('slugify failed'); console.log(JSON.stringify({criterion:'slugify',status:'PASS'}));\r\n                                                                                                 ^\r\n\r\nError: slugify failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/w2/feature/verify.mjs:1:98\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
+    "runtime_ms": 43
+  },
+  "runtime_ms": 20202,
+  "model_calls": 1,
+  "tool_calls": 2,
+  "steps": 22,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": {
+      "files_considered": 6,
+      "files_supplied": 1,
+      "approximate_tokens": 12,
+      "evidence_ids": [
+        "ev_f02ab8e57bfd288ec745"
+      ]
+    },
+    "tool_trace": {
+      "events": 22,
+      "tool_calls": 2,
+      "evidence_ids": [
+        "ev_c48d942cf659cff95709",
+        "ev_23dcd8d832c6bcd061ac",
+        "ev_c7eb72f8b89ec4d79514",
+        "ev_ea3e498634ff301cc132",
+        "ev_114844914c37eab23d07",
+        "ev_b337cfb92f7a34796562"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "w2-run.sqlite",
+        "w2-run.sqlite-shm",
+        "w2-run.sqlite-wal"
+      ],
+      "additions": 0,
+      "deletions": 0,
+      "evidence_ids": [
+        "ev_afb0378a751ac9002448"
+      ]
+    },
+    "verification": {
+      "results": [],
+      "evidence_ids": []
+    },
+    "receipt": "benchmarks\\runs\\w2\\feature\\run-receipt.json"
+  },
+  "output": ""
+}

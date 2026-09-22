@@ -1,0 +1,63 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "refactor",
+  "status": "UNPROVEN",
+  "infrastructure_failure": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "FAIL",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/w2/refactor/verify.mjs:1\r\nimport { formatName } from './src/format.js'; if (formatName('  Ada   Lovelace ') !== 'Ada Lovelace') throw new Error('formatName failed'); console.log(JSON.stringify({criterion:'formatName',status:'PASS'}));\r\n                                                                                                            ^\r\n\r\nError: formatName failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/w2/refactor/verify.mjs:1:109\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
+    "runtime_ms": 43
+  },
+  "runtime_ms": 20206,
+  "model_calls": 1,
+  "tool_calls": 3,
+  "steps": 28,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": {
+      "files_considered": 6,
+      "files_supplied": 1,
+      "approximate_tokens": 17,
+      "evidence_ids": [
+        "ev_d3303cc57b8177d12df1"
+      ]
+    },
+    "tool_trace": {
+      "events": 28,
+      "tool_calls": 3,
+      "evidence_ids": [
+        "ev_04ad2f377a5fde442621",
+        "ev_db6b6634db30617479f2",
+        "ev_62df96f000a6e563034d",
+        "ev_103997d25c0971915a9e",
+        "ev_022b077a3be36f67b379",
+        "ev_1f49af19a3175d7c4ca3"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "src/format.js",
+        "w2-run.sqlite",
+        "w2-run.sqlite-shm",
+        "w2-run.sqlite-wal"
+      ],
+      "additions": 1,
+      "deletions": 1,
+      "evidence_ids": [
+        "ev_2f01e88153c88b25fb0c"
+      ]
+    },
+    "verification": {
+      "results": [],
+      "evidence_ids": []
+    },
+    "receipt": "benchmarks\\runs\\w2\\refactor\\run-receipt.json"
+  },
+  "output": ""
+}

@@ -1,0 +1,37 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "bug-fix",
+  "status": "INFRASTRUCTURE_FAILURE",
+  "infrastructure_failure": true,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "FAIL",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/raw/bug-fix/verify.mjs:1\r\nimport { multiply } from './src/math.js'; if (multiply(6, 7) !== 42) throw new Error('multiply failed'); console.log(JSON.stringify({criterion:'multiply',status:'PASS'}));\r\n                                                                           ^\r\n\r\nError: multiply failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/raw/bug-fix/verify.mjs:1:76\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
+    "runtime_ms": 46
+  },
+  "runtime_ms": 20124,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "prompt task contract",
+    "tool_trace": "codex JSON stdout stored",
+    "diff": [],
+    "verification": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/raw/bug-fix/verify.mjs:1\r\nimport { multiply } from './src/math.js'; if (multiply(6, 7) !== 42) throw new Error('multiply failed'); console.log(JSON.stringify({criterion:'multiply',status:'PASS'}));\r\n                                                                           ^\r\n\r\nError: multiply failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/raw/bug-fix/verify.mjs:1:76\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
+      "runtime_ms": 46
+    }
+  },
+  "output": "",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 1
+}

@@ -1,0 +1,23 @@
+{
+  "fixture_id": "bug-fix",
+  "baseline_commit": "ed6dd68a28321adafb1c56e586545337fc5a3d6a",
+  "baseline_kind": "fixture-content-sha1",
+  "task": "Fix multiply(a,b) so it returns the mathematical product.",
+  "title": "Fix multiplication",
+  "category": "small bug fix",
+  "constraints": [
+    "Use only the allowed paths.",
+    "Run node verify.mjs before claiming completion."
+  ],
+  "allowed_paths": [
+    "src/math.js"
+  ],
+  "acceptance_criteria": [
+    "Fix multiply(a,b) so it returns the mathematical product."
+  ],
+  "verification_commands": [
+    "node verify.mjs"
+  ],
+  "external_verifier": "node verify.mjs",
+  "reset_command": "node benchmarks/prepare.mjs"
+}

@@ -1,0 +1,62 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "api-behavior",
+  "status": "UNPROVEN",
+  "infrastructure_failure": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "FAIL",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/w2/api-behavior/verify.mjs:1\r\nimport { statusFor } from './src/http.js'; if (statusFor(200) !== 'success' || statusFor(404) !== 'client-error' || statusFor(503) !== 'server-error') throw new Error('status mapping failed'); console.log(JSON.stringify({criterion:'statusFor',status:'PASS'}));\r\n                                                                                                                                                             ^\r\n\r\nError: status mapping failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/w2/api-behavior/verify.mjs:1:158\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
+    "runtime_ms": 43
+  },
+  "runtime_ms": 20201,
+  "model_calls": 1,
+  "tool_calls": 2,
+  "steps": 22,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": {
+      "files_considered": 6,
+      "files_supplied": 1,
+      "approximate_tokens": 14,
+      "evidence_ids": [
+        "ev_2fac2485c0bb00ef641c"
+      ]
+    },
+    "tool_trace": {
+      "events": 22,
+      "tool_calls": 2,
+      "evidence_ids": [
+        "ev_560d497981d682c8b1ad",
+        "ev_afa08f003b6363b4c0c1",
+        "ev_c955b39936d2c7a04052",
+        "ev_a964527ecdd7933933f7",
+        "ev_ea69670499067b76bc31",
+        "ev_5f2679ccd4880504809a"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "w2-run.sqlite",
+        "w2-run.sqlite-shm",
+        "w2-run.sqlite-wal"
+      ],
+      "additions": 0,
+      "deletions": 0,
+      "evidence_ids": [
+        "ev_5c5f67f9692ad909e8e2"
+      ]
+    },
+    "verification": {
+      "results": [],
+      "evidence_ids": []
+    },
+    "receipt": "benchmarks\\runs\\w2\\api-behavior\\run-receipt.json"
+  },
+  "output": ""
+}

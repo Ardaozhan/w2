@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdirSync, rmSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
@@ -24,11 +25,9 @@ for (const task of tasks) {
     const target = path.join(dir, file); mkdirSync(path.dirname(target), { recursive: true }); writeFileSync(target, content, 'utf8');
   }
   writeFileSync(path.join(dir, 'verify.mjs'), task.verify, 'utf8');
-  const contract = { fixture_id: task.id, baseline_commit: 'pending', task: task.goal, title: task.title, category: task.category, constraints: ['Use only the allowed paths.', 'Run node verify.mjs before claiming completion.'], allowed_paths: task.allowed_paths, acceptance_criteria: [task.goal], verification_commands: ['node verify.mjs'], external_verifier: 'node verify.mjs', reset_command: 'node benchmarks/prepare.mjs' };
+  const baseline_commit = createHash('sha1').update(JSON.stringify({ files: task.files, verify: task.verify })).digest('hex');
+  const contract = { fixture_id: task.id, baseline_commit, baseline_kind: 'fixture-content-sha1', task: task.goal, title: task.title, category: task.category, constraints: ['Use only the allowed paths.', 'Run node verify.mjs before claiming completion.'], allowed_paths: task.allowed_paths, acceptance_criteria: [task.goal], verification_commands: ['node verify.mjs'], external_verifier: 'node verify.mjs', reset_command: 'node benchmarks/prepare.mjs' };
   writeFileSync(path.join(dir, 'task.json'), JSON.stringify(contract, null, 2) + '\n', 'utf8');
-  run('git', ['init', '-b', 'main'], dir); run('git', ['config', 'user.email', 'benchmark@w2.local'], dir); run('git', ['config', 'user.name', 'W2 Benchmark'], dir); run('git', ['add', '.'], dir); run('git', ['commit', '-m', 'fixture baseline'], dir);
-  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim();
-  contract.baseline_commit = commit; writeFileSync(path.join(dir, 'task.json'), JSON.stringify(contract, null, 2) + '\n', 'utf8'); run('git', ['add', 'task.json'], dir); run('git', ['commit', '-m', 'record fixture contract'], dir);
 }
 writeFileSync(path.join(root, 'index.json'), JSON.stringify(tasks.map(({ id, category, title }) => ({ fixture_id: id, category, title })), null, 2) + '\n', 'utf8');
 console.log(`Prepared ${tasks.length} benchmark fixtures.`);

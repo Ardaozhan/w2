@@ -1,0 +1,283 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+  "task": {
+    "task_id": "api-behavior",
+    "title": "Map HTTP status",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/http.js"
+    ],
+    "acceptance_criteria": [
+      "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\api-behavior",
+    "timeout_ms": 20000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "FAILED",
+    "error": "Agent failure: Codex process timed out after 20000ms"
+  },
+  "context": {
+    "files_considered": 6,
+    "files_supplied": 1,
+    "approximate_tokens": 14,
+    "evidence_ids": [
+      "ev_2fac2485c0bb00ef641c"
+    ]
+  },
+  "actions": {
+    "events": 22,
+    "tool_calls": 2,
+    "evidence_ids": [
+      "ev_560d497981d682c8b1ad",
+      "ev_afa08f003b6363b4c0c1",
+      "ev_c955b39936d2c7a04052",
+      "ev_a964527ecdd7933933f7",
+      "ev_ea69670499067b76bc31",
+      "ev_5f2679ccd4880504809a"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "w2-run.sqlite",
+      "w2-run.sqlite-shm",
+      "w2-run.sqlite-wal"
+    ],
+    "additions": 0,
+    "deletions": 0,
+    "evidence_ids": [
+      "ev_5c5f67f9692ad909e8e2"
+    ]
+  },
+  "verification": {
+    "results": [],
+    "evidence_ids": []
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_2fac2485c0bb00ef641c",
+      "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "1 files supplied from 6 considered",
+      "raw_reference": "run:a5a33761-3367-4732-a71b-e3f2752a06c0:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:36:39.612Z",
+      "data": {
+        "files_considered": 6,
+        "files_included": 1,
+        "approximate_tokens": 14
+      }
+    },
+    {
+      "evidence_id": "ev_560d497981d682c8b1ad",
+      "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:a5a33761-3367-4732-a71b-e3f2752a06c0:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:36:39.610Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_afa08f003b6363b4c0c1",
+      "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:a5a33761-3367-4732-a71b-e3f2752a06c0:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:36:59.695Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_c955b39936d2c7a04052",
+      "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:a5a33761-3367-4732-a71b-e3f2752a06c0:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:36:59.726Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_a964527ecdd7933933f7",
+      "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:a5a33761-3367-4732-a71b-e3f2752a06c0:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:36:59.727Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_5c5f67f9692ad909e8e2",
+      "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "3 files changed (+0/-0)",
+      "raw_reference": "run:a5a33761-3367-4732-a71b-e3f2752a06c0:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:36:59.729Z",
+      "data": {
+        "status_before": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+        "status_after": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+        "changed_files": [
+          "w2-run.sqlite",
+          "w2-run.sqlite-shm",
+          "w2-run.sqlite-wal"
+        ],
+        "additions": 0,
+        "deletions": 0,
+        "unified_diff": ""
+      }
+    },
+    {
+      "evidence_id": "ev_ea69670499067b76bc31",
+      "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "22 ordered events and 2 persisted tool calls",
+      "raw_reference": "run:a5a33761-3367-4732-a71b-e3f2752a06c0:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:36:59.729Z",
+      "data": {
+        "events": 22,
+        "tool_calls": 2
+      }
+    },
+    {
+      "evidence_id": "ev_5f2679ccd4880504809a",
+      "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "3 safety and durability events",
+      "raw_reference": "run:a5a33761-3367-4732-a71b-e3f2752a06c0:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:36:59.664Z",
+      "data": [
+        {
+          "event_id": "749d6cfc-3e77-4496-b7c4-dced6b980b13",
+          "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+          "sequence": 2,
+          "timestamp": "2026-09-22T14:36:39.578Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "add24843-ffb3-4ffb-89d5-fd322b77ac17",
+          "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+          "sequence": 7,
+          "timestamp": "2026-09-22T14:36:39.613Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "6ce3a549-044e-4bd1-9f5f-c793bb0d6666",
+          "run_id": "a5a33761-3367-4732-a71b-e3f2752a06c0",
+          "sequence": 17,
+          "timestamp": "2026-09-22T14:36:59.664Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 16,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.",
+      "required": true,
+      "status": "UNPROVEN",
+      "evidence_ids": [],
+      "reason": "No evidence was mapped to this required criterion."
+    }
+  ],
+  "outcome": "UNPROVEN",
+  "generated_at": "2026-09-22T14:36:59.732Z"
+}
