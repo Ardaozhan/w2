@@ -33,3 +33,5 @@ Stored case: **bug-fix / raw_codex**. Status=INFRASTRUCTURE_FAILURE; external ve
 ## Claims
 
 All numbers in this report are generated from `benchmarks/results/results.json`; no unsupported speed, safety, accuracy, or cost claim is made.
+
+Verification rerun: `npm run benchmark:verify` passed against the stored 16-run dataset.
