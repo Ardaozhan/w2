@@ -9,3 +9,5 @@ export { RunEngine } from "./engine.js";
 export { CodexAgentAdapter } from "./agent.js";
 export { buildRunReceipt, computeOutcome, deriveEvidence, mapAcceptanceCriteria, parseEvidence, parseEvidenceMappings, renderReceiptMarkdown, validateReceipt } from "./evidence.js";
 export type { EvidenceMapping } from "./evidence.js";
+export { CAPABILITIES, RetryPolicy, SafetyError, assertCapability, assertWorkspacePath, commandRisk, redactSecrets } from "./safety.js";
+export type { ApprovalRecord, Capability, RetryAttempt, RuntimeBudget } from "./safety.js";

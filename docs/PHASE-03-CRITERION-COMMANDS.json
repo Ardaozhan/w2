@@ -1,0 +1,9 @@
+{
+  "AC-PERMISSIONS": {"command": "npm test -- --run tests/security/security.test.ts"},
+  "AC-BOUNDARY": {"command": "npm test -- --run tests/security/security.test.ts"},
+  "AC-SHELL": {"command": "npm test -- --run tests/security/security.test.ts"},
+  "AC-REDaction": {"command": "npm test -- --run tests/security/security.test.ts"},
+  "AC-BUDGET": {"command": "npm test -- --run tests/security/security.test.ts"},
+  "AC-DURABILITY": {"command": "npm test -- --run tests/durability/durability.test.ts"},
+  "AC-EVIDENCE": {"command": "npm test -- --run tests/durability/durability.test.ts"}
+}

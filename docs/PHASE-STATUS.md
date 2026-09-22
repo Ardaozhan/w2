@@ -3,7 +3,7 @@
 Phase 00 - COMPLETE
 Phase 01 - COMPLETE
 Phase 02 - COMPLETE
-Phase 03 - LOCKED
+Phase 03 - IN PROGRESS
 Phase 04 - LOCKED
 Phase 05 - LOCKED
 Phase 06 - LOCKED

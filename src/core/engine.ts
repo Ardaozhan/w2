@@ -5,19 +5,22 @@ import { CodexAgentAdapter, type AgentAdapter } from "./agent.js";
 import { captureDiff } from "./diff.js";
 import { ToolRuntime } from "./runtime.js";
 import { RunStore } from "./store.js";
-import type { RunRecord, TaskDefinition, VerificationResult } from "./types.js";
+import type { ContextManifest, RunRecord, TaskDefinition, VerificationResult } from "./types.js";
+import type { ToolRuntimeOptions } from "./runtime.js";
 import { runVerifications } from "./verification.js";
 
 export interface RunEngineOptions {
   databasePath: string;
   adapter?: AgentAdapter;
   now?: () => Date;
+  runtime?: Omit<ToolRuntimeOptions, "onSafetyEvent" | "runId">;
 }
 
 export class RunEngine {
   readonly store: RunStore;
   private readonly adapter: AgentAdapter;
   private readonly now: () => Date;
+  private activeRunId?: string;
 
   constructor(private readonly options: RunEngineOptions) {
     this.store = new RunStore(options.databasePath);
@@ -34,11 +37,19 @@ export class RunEngine {
     const runId = randomUUID();
     const startedAt = this.now().toISOString();
     const model = task.model ?? this.adapter.provider;
-    const runtime = new ToolRuntime(workspace);
+    const runtime = new ToolRuntime(workspace, {
+      ...this.options.runtime,
+      capabilities: task.capabilities ?? this.options.runtime?.capabilities,
+      budget: task.runtime_budget ?? this.options.runtime?.budget,
+      runId,
+      onSafetyEvent: (type, payload) => this.store.appendEvent(runId, type, payload),
+    });
+    this.activeRunId = runId;
     let persistedRuntimeCalls = 0;
     this.store.saveTask(task);
     this.store.createRun({ run_id: runId, task_id: task.task_id, started_at: startedAt, model, workspace });
     this.store.appendEvent(runId, "run_created", { task_id: task.task_id });
+    this.saveCheckpoint(runId, runtime, null, 0);
     try {
       this.store.transition(runId, "PREPARING");
       const statusBefore = await runtime.gitStatus();
@@ -46,6 +57,7 @@ export class RunEngine {
       const context = buildContextManifest(task, workspace);
       this.store.updateSnapshots(runId, { contextManifest: context });
       this.store.appendEvent(runId, "context_built", { files_included: context.files_included.length, approximate_tokens: context.approximate_tokens });
+      this.saveCheckpoint(runId, runtime, context, 0);
       this.store.transition(runId, "RUNNING");
       this.store.appendEvent(runId, "agent_started", { provider: this.adapter.provider, model });
       const agentResult = await this.adapter.startRun({ task, workspace, context: JSON.stringify(context, null, 2), timeoutMs: task.timeout_ms ?? 5 * 60 * 1000 });
@@ -53,6 +65,7 @@ export class RunEngine {
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
       for (const call of agentResult.tool_calls) this.persistAgentToolCall(runId, call);
       this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...agentResult.tool_calls] });
+      this.saveCheckpoint(runId, runtime, context, 0);
       if (agentResult.exit_code !== 0) {
         await this.finishFailure(runId, `Agent failure: ${agentResult.error ?? "unknown error"}`, runtime, statusBefore);
         return this.store.getRun(runId)!;
@@ -65,6 +78,7 @@ export class RunEngine {
         this.store.appendVerification(runId, result);
         this.store.appendEvent(runId, "verification_finished", result);
       }
+      this.saveCheckpoint(runId, runtime, context, verificationResults.length);
       const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
       this.store.updateSnapshots(runId, { toolEvents: runtime.calls, verificationResults, diff });
@@ -85,7 +99,34 @@ export class RunEngine {
       this.store.appendEvent(runId, "run_failed", { error: message, infrastructure: true });
       this.store.appendEvent(runId, "run_finished", { status: "ERROR" });
     }
+    this.activeRunId = undefined;
     return this.store.getRun(runId)!;
+  }
+
+  abort(runId: string): RunRecord {
+    const current = this.store.getRun(runId);
+    if (!current) throw new Error(`Run does not exist: ${runId}`);
+    if (!["COMPLETED", "FAILED", "ABORTED", "ERROR"].includes(current.status)) {
+      if (this.activeRunId === runId) this.adapter.cancel();
+      this.store.transition(runId, "ABORTED", { finishedAt: this.now().toISOString(), error: "Aborted by user" });
+      this.store.appendEvent(runId, "run_aborted", { reason: "user_requested" });
+      this.store.appendEvent(runId, "run_finished", { status: "ABORTED" });
+    }
+    return this.store.getRun(runId)!;
+  }
+
+  resume(runId: string): RunRecord {
+    const checkpoint = this.store.getCheckpoint(runId);
+    if (!checkpoint) throw new Error(`No checkpoint exists for run: ${runId}`);
+    this.store.appendEvent(runId, "run_resumed", { sequence: checkpoint.sequence, completed_tool_calls: checkpoint.completed_tool_calls, verification_progress: checkpoint.verification_progress });
+    return this.store.getRun(runId)!;
+  }
+
+  private saveCheckpoint(runId: string, runtime: ToolRuntime, context: ContextManifest | null, verificationProgress: number): void {
+    const run = this.store.getRun(runId);
+    if (!run) return;
+    this.store.saveCheckpoint({ run_id: runId, state: run.status, sequence: this.store.getEvents(runId).length, context_manifest: context, completed_tool_calls: runtime.calls.length, workspace: run.workspace, verification_progress: verificationProgress, pending_approvals: 0, updated_at: this.now().toISOString() });
+    this.store.appendEvent(runId, "run_checkpointed", { sequence: this.store.getEvents(runId).length, completed_tool_calls: runtime.calls.length, verification_progress: verificationProgress });
   }
 
   private persistToolCalls(runId: string, runtime: ToolRuntime, fromIndex: number): number {

@@ -8,6 +8,10 @@ const verificationCommandSchema = z.object({
   command: z.string().min(1),
   category: z.enum(["test", "lint", "typecheck", "build", "custom"]),
 });
+const runtimeBudgetSchema = z.object({
+  max_steps: z.number().int().positive().optional(), max_tool_calls: z.number().int().positive().optional(),
+  max_runtime_ms: z.number().int().positive().optional(), max_output_bytes: z.number().int().positive().optional(), max_context_size: z.number().int().positive().optional(),
+}).strict();
 
 export const taskSchema = z.object({
   task_id: z.string().min(1),
@@ -20,6 +24,8 @@ export const taskSchema = z.object({
   workspace: z.string().min(1).optional(),
   model: z.string().min(1).optional(),
   timeout_ms: z.number().int().positive().max(30 * 60 * 1000).optional(),
+  capabilities: z.array(z.enum(["fs.read", "fs.write", "fs.delete", "shell.execute", "git.read", "git.write", "network.read", "network.write", "secret.read", "external.write"])).optional(),
+  runtime_budget: runtimeBudgetSchema.optional(),
 }).strict();
 
 export function parseTask(value: unknown): TaskDefinition {

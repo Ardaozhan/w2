@@ -14,7 +14,9 @@ import type {
   VerificationResult,
   AcceptanceCriterionResult,
   EvidenceRecord,
+  RunCheckpoint,
 } from "./types.js";
+import type { ApprovalRecord } from "./safety.js";
 import { RUN_STATES } from "./types.js";
 
 const allowedTransitions: Record<RunState, readonly RunState[]> = {
@@ -144,6 +146,33 @@ export class RunStore {
         CREATE INDEX IF NOT EXISTS evidence_run ON evidence(run_id);
       `);
       this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)").run(2, new Date().toISOString());
+    }
+    if (!applied.some((row) => row.version === 3)) {
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS approvals (
+          approval_id TEXT PRIMARY KEY,
+          run_id TEXT NOT NULL REFERENCES runs(run_id),
+          action TEXT NOT NULL,
+          risk TEXT NOT NULL,
+          reason TEXT NOT NULL,
+          status TEXT NOT NULL,
+          requested_at TEXT NOT NULL,
+          resolved_at TEXT
+        );
+        CREATE TABLE IF NOT EXISTS checkpoints (
+          run_id TEXT PRIMARY KEY REFERENCES runs(run_id),
+          state TEXT NOT NULL,
+          sequence INTEGER NOT NULL,
+          context_manifest TEXT,
+          completed_tool_calls INTEGER NOT NULL,
+          workspace TEXT NOT NULL,
+          verification_progress INTEGER NOT NULL,
+          pending_approvals INTEGER NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS approvals_run ON approvals(run_id);
+      `);
+      this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)").run(3, new Date().toISOString());
     }
   }
 
@@ -300,5 +329,34 @@ export class RunStore {
       criterion_id: String(row.criterion_id), description: String(row.description), required: Number(row.required) === 1,
       status: row.status as AcceptanceCriterionResult["status"], evidence_ids: JSON.parse(String(row.evidence_ids)) as string[], reason: String(row.reason),
     }));
+  }
+
+  saveApproval(record: ApprovalRecord): void {
+    this.db.prepare(`
+      INSERT INTO approvals(approval_id, run_id, action, risk, reason, status, requested_at, resolved_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(approval_id) DO UPDATE SET status=excluded.status, resolved_at=excluded.resolved_at
+    `).run(record.approval_id, record.run_id, record.action, record.risk, record.reason, record.status, record.requested_at, record.resolved_at);
+  }
+
+  getApprovals(runId: string): ApprovalRecord[] {
+    return this.db.prepare("SELECT * FROM approvals WHERE run_id = ? ORDER BY requested_at ASC").all(runId) as unknown as ApprovalRecord[];
+  }
+
+  saveCheckpoint(checkpoint: RunCheckpoint): void {
+    this.db.prepare(`
+      INSERT INTO checkpoints(run_id, state, sequence, context_manifest, completed_tool_calls, workspace, verification_progress, pending_approvals, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(run_id) DO UPDATE SET state=excluded.state, sequence=excluded.sequence,
+        context_manifest=excluded.context_manifest, completed_tool_calls=excluded.completed_tool_calls,
+        workspace=excluded.workspace, verification_progress=excluded.verification_progress,
+        pending_approvals=excluded.pending_approvals, updated_at=excluded.updated_at
+    `).run(checkpoint.run_id, checkpoint.state, checkpoint.sequence, checkpoint.context_manifest ? json(checkpoint.context_manifest) : null, checkpoint.completed_tool_calls, checkpoint.workspace, checkpoint.verification_progress, checkpoint.pending_approvals, checkpoint.updated_at);
+  }
+
+  getCheckpoint(runId: string): RunCheckpoint | undefined {
+    const row = this.db.prepare("SELECT * FROM checkpoints WHERE run_id = ?").get(runId) as Record<string, unknown> | undefined;
+    if (!row) return undefined;
+    return { run_id: String(row.run_id), state: row.state as RunCheckpoint["state"], sequence: Number(row.sequence), context_manifest: parseJson<ContextManifest>(row.context_manifest as string | null), completed_tool_calls: Number(row.completed_tool_calls), workspace: String(row.workspace), verification_progress: Number(row.verification_progress), pending_approvals: Number(row.pending_approvals), updated_at: String(row.updated_at) };
   }
 }

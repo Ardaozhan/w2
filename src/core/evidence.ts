@@ -143,7 +143,12 @@ export function buildRunReceipt(store: RunStore, runId: string, options: Receipt
   if (!run) throw new Error(`Run does not exist: ${runId}`);
   const task = store.getTask(run.task_id);
   if (!task) throw new Error(`Task does not exist: ${run.task_id}`);
-  const derived = options.evidence?.map(parseEvidence) ?? deriveEvidence(run, store.getEvents(runId).length, store.getToolCalls(runId).length);
+  const events = store.getEvents(runId);
+  const derived = options.evidence?.map(parseEvidence) ?? deriveEvidence(run, events.length, store.getToolCalls(runId).length);
+  const safetyEvents = events.filter((event) => ["safety_denied", "approval_requested", "approval_resolved", "budget_exhausted", "run_checkpointed", "run_resumed", "run_aborted"].includes(event.type));
+  if (safetyEvents.length > 0 && !derived.some((item) => item.raw_reference === `run:${runId}:safety`)) {
+    derived.push({ evidence_id: idFor(runId, "safety", `run:${runId}:safety`), run_id: runId, type: "ASSERTION_EVIDENCE", source: "sqlite:events", summary: `${safetyEvents.length} safety and durability events`, raw_reference: `run:${runId}:safety`, confidence_class: "DETERMINISTIC", created_at: safetyEvents[safetyEvents.length - 1].timestamp, data: safetyEvents });
+  }
   store.saveEvidence(derived);
   const supplied = options.acceptance ? parseEvidenceMappings(options.acceptance) : [];
   const existing = store.getAcceptance(runId);
@@ -158,7 +163,7 @@ export function buildRunReceipt(store: RunStore, runId: string, options: Receipt
     receipt_version: "1.0", run_id: runId, task,
     agent: { model: run.model, status: run.status, error: run.error },
     context: { files_considered: context?.files_considered.length ?? 0, files_supplied: context?.files_included.length ?? 0, approximate_tokens: context?.approximate_tokens ?? 0, evidence_ids: contextIds },
-    actions: { events: store.getEvents(runId).length, tool_calls: store.getToolCalls(runId).length, evidence_ids: actionIds },
+    actions: { events: events.length, tool_calls: store.getToolCalls(runId).length, evidence_ids: actionIds },
     changes: { changed_files: run.diff?.changed_files ?? [], additions: run.diff?.additions ?? 0, deletions: run.diff?.deletions ?? 0, evidence_ids: changeIds },
     verification: { results: run.verification_results, evidence_ids: verificationIds }, evidence: derived, acceptance,
     outcome: computeOutcome({ runStatus: run.status, acceptance }), generated_at: options.generatedAt ?? new Date().toISOString(),

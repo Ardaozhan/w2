@@ -25,6 +25,12 @@ export const EVENT_TYPES = [
   "run_finished",
   "run_failed",
   "run_aborted",
+  "safety_denied",
+  "approval_requested",
+  "approval_resolved",
+  "budget_exhausted",
+  "run_checkpointed",
+  "run_resumed",
 ] as const;
 
 export type EventType = (typeof EVENT_TYPES)[number];
@@ -48,6 +54,8 @@ export interface TaskDefinition {
   workspace?: string;
   model?: string;
   timeout_ms?: number;
+  capabilities?: import("./safety.js").Capability[];
+  runtime_budget?: import("./safety.js").RuntimeBudget;
 }
 
 export interface ContextEntry {
@@ -189,4 +197,16 @@ export interface RunReceipt {
   acceptance: AcceptanceCriterionResult[];
   outcome: import("./outcomes.js").RunOutcome;
   generated_at: string;
+}
+
+export interface RunCheckpoint {
+  run_id: string;
+  state: RunState;
+  sequence: number;
+  context_manifest: ContextManifest | null;
+  completed_tool_calls: number;
+  workspace: string;
+  verification_progress: number;
+  pending_approvals: number;
+  updated_at: string;
 }

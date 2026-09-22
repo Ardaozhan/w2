@@ -2,43 +2,88 @@ import { execFile } from "node:child_process";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
-import type { ToolCallRecord } from "./types.js";
+import type { EventType, ToolCallRecord } from "./types.js";
+import { assertCapability, assertWorkspacePath, commandRisk, redactSecrets, SafetyError, type ApprovalRecord, type Capability, type RuntimeBudget } from "./safety.js";
 
 const execFileAsync = promisify(execFile);
 
+export interface ToolRuntimeOptions {
+  capabilities?: Capability[];
+  budget?: RuntimeBudget;
+  approval?: (request: Omit<ApprovalRecord, "approval_id" | "run_id" | "requested_at" | "resolved_at">) => Promise<boolean> | boolean;
+  onSafetyEvent?: (type: EventType, payload: unknown) => void;
+  runId?: string;
+}
+
 export class ToolRuntime {
   readonly calls: ToolCallRecord[] = [];
+  readonly startedAt = Date.now();
+  readonly capabilities: ReadonlySet<Capability>;
+  readonly budget: RuntimeBudget;
+  private readonly options: ToolRuntimeOptions;
+  private steps = 0;
 
-  constructor(readonly workspace: string) {
+  constructor(readonly workspace: string, options: ToolRuntimeOptions = {}) {
     this.workspace = path.resolve(workspace);
+    this.capabilities = new Set(options.capabilities ?? ["fs.read", "fs.write", "shell.execute", "git.read"]);
+    this.budget = options.budget ?? {};
+    this.options = options;
   }
 
-  private safePath(relativePath: string): string {
-    const resolved = path.resolve(this.workspace, relativePath);
-    const relative = path.relative(this.workspace, resolved);
-    if (relative.startsWith("..") || path.isAbsolute(relative)) throw new Error(`Path escapes workspace: ${relativePath}`);
-    return resolved;
+  private emit(type: EventType, payload: unknown): void { this.options.onSafetyEvent?.(type, redactSecrets(payload)); }
+
+  private checkBudget(extraOutput = 0): void {
+    this.steps += 1;
+    const exhausted = (this.budget.max_steps !== undefined && this.steps > this.budget.max_steps)
+      || (this.budget.max_tool_calls !== undefined && this.calls.length >= this.budget.max_tool_calls)
+      || (this.budget.max_runtime_ms !== undefined && Date.now() - this.startedAt > this.budget.max_runtime_ms)
+      || (this.budget.max_output_bytes !== undefined && extraOutput > this.budget.max_output_bytes);
+    if (exhausted) {
+      this.emit("budget_exhausted", { steps: this.steps, tool_calls: this.calls.length, budget: this.budget });
+      throw new SafetyError("BUDGET_EXHAUSTED", "Runtime budget exhausted");
+    }
   }
+
+  private require(capability: Capability): void {
+    try { assertCapability(this.capabilities, capability); }
+    catch (error) { this.emit("safety_denied", { capability, reason: error instanceof Error ? error.message : String(error) }); throw error; }
+  }
+
+  private async requireApproval(command: string, args: string[]): Promise<void> {
+    const risk = commandRisk(command, args);
+    if (risk.risk === "LOW") return;
+    const request = { action: risk.action, risk: risk.risk, reason: risk.reason, status: "PENDING" as const };
+    this.emit("approval_requested", request);
+    const approved = this.options.approval ? await this.options.approval(request) : false;
+    this.emit("approval_resolved", { ...request, status: approved ? "APPROVED" : "DENIED" });
+    if (!approved) { this.emit("safety_denied", { action: risk.action, reason: "approval denied" }); throw new SafetyError("APPROVAL_DENIED", `Approval denied: ${risk.action}`); }
+  }
+
+  private safePath(relativePath: string): string { return assertWorkspacePath(this.workspace, relativePath); }
 
   private async record<T>(toolName: string, input: unknown, operation: () => Promise<T>): Promise<T> {
+    this.checkBudget();
     const startedAt = new Date().toISOString();
+    const safeInput = redactSecrets(input);
     try {
       const result = await operation();
-      const call: ToolCallRecord = { tool_name: toolName, input, started_at: startedAt, finished_at: new Date().toISOString(), result };
-      this.calls.push(call);
-      return result;
+      const safeResult = redactSecrets(result) as T;
+      this.calls.push({ tool_name: toolName, input: safeInput, started_at: startedAt, finished_at: new Date().toISOString(), result: safeResult });
+      return safeResult;
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      this.calls.push({ tool_name: toolName, input, started_at: startedAt, finished_at: new Date().toISOString(), error: message });
+      const message = redactSecrets(error instanceof Error ? error.message : String(error)) as string;
+      this.calls.push({ tool_name: toolName, input: safeInput, started_at: startedAt, finished_at: new Date().toISOString(), error: message });
       throw error;
     }
   }
 
   readFile(relativePath: string): Promise<string> {
+    this.require("fs.read");
     return this.record("filesystem.read", { path: relativePath }, () => fs.readFile(this.safePath(relativePath), "utf8"));
   }
 
   async writeFile(relativePath: string, contents: string): Promise<void> {
+    this.require("fs.write");
     await this.record("filesystem.write", { path: relativePath, bytes: Buffer.byteLength(contents) }, async () => {
       const target = this.safePath(relativePath);
       await fs.mkdir(path.dirname(target), { recursive: true });
@@ -46,14 +91,36 @@ export class ToolRuntime {
     });
   }
 
-  shell(command: string, args: string[] = [], timeoutMs?: number): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  async deleteFile(relativePath: string): Promise<void> {
+    this.require("fs.delete");
+    await this.record("filesystem.delete", { path: relativePath }, async () => {
+      const target = this.safePath(relativePath);
+      const approved = this.options.approval ? await this.options.approval({ action: "filesystem.delete", risk: "HIGH", reason: "destructive delete", status: "PENDING" }) : false;
+      if (!approved) throw new SafetyError("APPROVAL_DENIED", "Approval denied: filesystem.delete");
+      await fs.rm(target, { force: true });
+    });
+  }
+
+  async shell(command: string, args: string[] = [], timeoutMs?: number): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+    this.require("shell.execute");
+    await this.requireApproval(command, args);
+    const limit = this.budget.max_output_bytes ?? 1024 * 1024;
     return this.record("shell", { command, args }, async () => {
       try {
-        const result = await execFileAsync(command, args, { cwd: this.workspace, timeout: timeoutMs, windowsHide: true, maxBuffer: 10 * 1024 * 1024 });
-        return { stdout: result.stdout, stderr: result.stderr, exitCode: 0 };
+        const result = await execFileAsync(command, args, { cwd: this.workspace, timeout: timeoutMs ?? this.budget.max_runtime_ms, windowsHide: true, maxBuffer: limit, env: filteredEnvironment() });
+        const stdout = truncate(result.stdout, limit);
+        const stderr = truncate(result.stderr, limit);
+        this.checkBudget(Buffer.byteLength(stdout) + Buffer.byteLength(stderr));
+        return { stdout, stderr, exitCode: 0 };
       } catch (error) {
-        const failure = error as { stdout?: string; stderr?: string; code?: number | string; killed?: boolean };
-        return { stdout: failure.stdout ?? "", stderr: failure.stderr ?? String(error), exitCode: typeof failure.code === "number" ? failure.code : 1 };
+        const failure = error as { stdout?: string; stderr?: string; code?: number | string; killed?: boolean; message?: string };
+        const stdout = truncate(failure.stdout ?? "", limit);
+        const stderr = truncate(failure.stderr ?? failure.message ?? String(error), limit);
+        const timedOut = failure.killed === true || failure.code === "ETIMEDOUT";
+        const outputLimited = /maxbuffer|stdout maxBuffer|stderr maxBuffer/i.test(failure.message ?? "");
+        if (timedOut) this.emit("safety_denied", { reason: "shell timeout", command });
+        if (outputLimited) this.emit("safety_denied", { reason: "shell output limit", command });
+        return { stdout, stderr, exitCode: timedOut ? 124 : outputLimited ? 125 : typeof failure.code === "number" ? failure.code : 1 };
       }
     }).then((result) => {
       if (result.exitCode !== 0) {
@@ -65,17 +132,23 @@ export class ToolRuntime {
   }
 
   async gitStatus(): Promise<string> {
+    this.require("git.read");
     const result = await this.shell("git", ["status", "--porcelain=v1"]);
     if (result.exitCode !== 0) throw new Error(`git status failed: ${result.stderr}`);
     return result.stdout;
   }
 
   async gitDiff(): Promise<{ diff: string; numstat: string }> {
-    const [diff, numstat] = await Promise.all([
-      this.shell("git", ["diff", "HEAD", "--"]),
-      this.shell("git", ["diff", "HEAD", "--numstat"]),
-    ]);
+    this.require("git.read");
+    const [diff, numstat] = await Promise.all([this.shell("git", ["diff", "HEAD", "--"]), this.shell("git", ["diff", "HEAD", "--numstat"])]);
     if (diff.exitCode !== 0 || numstat.exitCode !== 0) throw new Error(`git diff failed: ${diff.stderr || numstat.stderr}`);
     return { diff: diff.stdout, numstat: numstat.stdout };
   }
+}
+
+function truncate(value: string, maxBytes: number): string { return Buffer.byteLength(value) <= maxBytes ? value : `${Buffer.from(value).subarray(0, maxBytes).toString("utf8")}\n[OUTPUT_REDACTED_LIMIT]`; }
+
+function filteredEnvironment(): NodeJS.ProcessEnv {
+  const allowed = new Set(["PATH", "Path", "SystemRoot", "COMSPEC", "ComSpec", "TEMP", "TMP", "NODE_OPTIONS"]);
+  return Object.fromEntries(Object.entries(process.env).filter(([key]) => allowed.has(key)));
 }
