@@ -1,0 +1,30 @@
+{
+  "ADV-SECURITY-INJECTION": {
+    "command": "npm test -- --run tests/security/adversarial.test.ts -t ADV-SECURITY-INJECTION",
+    "test_selector": "ADV-SECURITY-INJECTION"
+  },
+  "ADV-AUTH-UNAUTHENTICATED": {
+    "command": "npm test -- --run tests/security/adversarial.test.ts -t ADV-AUTH-UNAUTHENTICATED",
+    "test_selector": "ADV-AUTH-UNAUTHENTICATED"
+  },
+  "ADV-AUTH-UNAUTHORIZED": {
+    "command": "npm test -- --run tests/security/adversarial.test.ts -t ADV-AUTH-UNAUTHORIZED",
+    "test_selector": "ADV-AUTH-UNAUTHORIZED"
+  },
+  "ADV-AUTH-PRIVILEGE": {
+    "command": "npm test -- --run tests/security/adversarial.test.ts -t ADV-AUTH-PRIVILEGE",
+    "test_selector": "ADV-AUTH-PRIVILEGE"
+  },
+  "ADV-CONCURRENCY-RACE": {
+    "command": "npm test -- --run tests/security/adversarial.test.ts -t ADV-CONCURRENCY-RACE",
+    "test_selector": "ADV-CONCURRENCY-RACE"
+  },
+  "ADV-IDEMPOTENCY-REPEAT": {
+    "command": "npm test -- --run tests/security/adversarial.test.ts -t ADV-IDEMPOTENCY-REPEAT",
+    "test_selector": "ADV-IDEMPOTENCY-REPEAT"
+  },
+  "ADV-TIME-BOUNDARY": {
+    "command": "npm test -- --run tests/security/adversarial.test.ts -t ADV-TIME-BOUNDARY",
+    "test_selector": "ADV-TIME-BOUNDARY"
+  }
+}
