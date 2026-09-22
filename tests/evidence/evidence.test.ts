@@ -80,4 +80,12 @@ describe("evidence and run receipts", () => {
     expect(reopened.getAcceptance(run.run_id)).toEqual(receipt.acceptance);
     reopened.close();
   });
+
+  it("ADV-TIME-BOUNDARY keeps receipt timestamps valid and ordered", () => {
+    const { store, run } = fixture();
+    const receipt = buildRunReceipt(store, run.run_id, { generatedAt: "2026-09-22T10:00:03.000Z" });
+    expect(Date.parse(receipt.generated_at)).toBeGreaterThanOrEqual(Date.parse(run.started_at));
+    expect(receipt.evidence.every((item) => Date.parse(item.created_at) >= Date.parse(run.started_at))).toBe(true);
+    store.close();
+  });
 });
