@@ -1,0 +1,8 @@
+{
+  "AC-RECEIPT-UX": {"command": "npm run test:ui -- AC-RECEIPT-UX"},
+  "AC-INSPECTORS": {"command": "npm run test:ui -- AC-INSPECTORS"},
+  "AC-TRUTH": {"command": "npm run test:ui -- AC-TRUTH"},
+  "AC-DEMO": {"command": "npm run demo:smoke -- AC-DEMO"},
+  "AC-ROBUSTNESS": {"command": "npm run test:ui -- AC-ROBUSTNESS"},
+  "AC-ACCESSIBILITY": {"command": "npm run test:ui -- AC-ACCESSIBILITY"}
+}

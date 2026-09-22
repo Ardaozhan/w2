@@ -19,7 +19,10 @@
     "benchmark:prepare": "node benchmarks/prepare.mjs",
     "benchmark:validate": "npm run benchmark:prepare && node benchmarks/validate.mjs",
     "benchmark": "npm run build && npm run benchmark:prepare && node benchmarks/run.mjs",
-    "benchmark:verify": "node benchmarks/verify-results.mjs"
+    "benchmark:verify": "node benchmarks/verify-results.mjs",
+    "demo": "npm run build && node dist/src/demo-server.js",
+    "demo:smoke": "npm run build && node tests/ui/ui-smoke.mjs",
+    "test:ui": "npm run build && node tests/ui/ui-smoke.mjs"
   },
   "bin": {
     "w2": "dist/src/cli.js"
