@@ -2,7 +2,7 @@
 
 ## Status
 
-Technical gates are being closed on the final checkpoint. This report supersedes conflicting completion/readiness claims in earlier phase and repair reports. The supported V42 lifecycle accepted task `task-847f663dba32890404afcb58`; its readiness artifact records `PROJECT_RESOLUTION_STATUS=RESOLVED`, `GIT_REPOSITORY=true`, `V42_EXECUTION_READY=true`, and security preflight PASS. No gate was bypassed.
+Machine-actionable technical gates PASS for the verified Windows 11 scope. This report supersedes conflicting completion/readiness claims in earlier phase and repair reports. The supported V42 lifecycle accepted task `task-847f663dba32890404afcb58`; its readiness artifact records `PROJECT_RESOLUTION_STATUS=RESOLVED`, `GIT_REPOSITORY=true`, `V42_EXECUTION_READY=true`, and security preflight PASS. No gate was bypassed.
 
 ## False-DONE Parser Fix
 
@@ -73,15 +73,15 @@ Playwright opened the static demo from the local static server. PASS and UNPROVE
 
 ## Fresh Clone
 
-Pending a clean archive verification after the first committed checkpoint. The repository's fresh-clone and Phase 06 scripts read `git archive HEAD`; running them against the pre-repair HEAD correctly exposed that uncommitted scripts were not present in the archive. This is resolved by validating the committed checkpoint, not by weakening the clone test.
+An earlier `npm run phase06:audit` passed all gates at `2def5ba`, but its helper used `npm ci --ignore-scripts`. The fresh-clone helper has since been tightened to use ordinary `npm ci` (with audit/funding output disabled only); re-run Phase 06 and the clean clone after committing this correction before treating fresh-clone status as final.
 
 ## Secret Scan
 
-Final scans for credential patterns and the dangerous Codex bypass are pending after the final checkpoint; no credential is known to have been added. The Phase 06 audit also includes a public-text credential/superlative check.
+Final repository scan: no dangerous Codex bypass match and no high-confidence credential match. The only authorization/bearer-like literal is a security-test redaction fixture (`Authorization: Bearer demo`), not a credential. Phase 06 public-text claim and credential checks PASS.
 
 ## Git State
 
-Final checkpoint and clean worktree are pending. Benchmark failures and earlier data are preserved under `benchmarks/archive/`; current results are regenerated outputs, not cherry-picked rows.
+Functional and evidence checkpoint `2def5ba` is committed. The current worktree has final-report/status documentation awaiting its closeout commit. Benchmark failures and earlier data are preserved under `benchmarks/archive/`; current results are regenerated outputs, not cherry-picked rows.
 
 ## Human Actions Remaining
 
@@ -92,8 +92,8 @@ Final checkpoint and clean worktree are pending. Benchmark failures and earlier 
 
 ## Final Commit
 
-Pending.
+Code/evidence checkpoint: `2def5ba`. Final documentation closeout commit: pending.
 
 ## Final Gate
 
-`W2 TECHNICAL PACKAGE READY: PENDING COMMITTED FRESH-CLONE, PHASE 06, AND CLEAN-GIT VERIFICATION.`
+`W2 TECHNICAL PACKAGE READY: PENDING FINAL ORDINARY-NPM-CI FRESH-CLONE AND FINAL CLEAN-GIT CHECK.` Competition submission also remains pending human actions above.

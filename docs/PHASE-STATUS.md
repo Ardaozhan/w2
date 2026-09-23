@@ -1,5 +1,7 @@
 # W2 Phase Status
 
+> Post-final-audit correction: these phase labels and completion reports are historical snapshots of their respective phase gates, not a current submission-readiness attestation. Some capability wording was narrowed after independent review (including context visibility, Codex-native tool interception, GPT-5.6 runtime use, resume behavior, and benchmark interpretation). Where an earlier report conflicts with current implementation truth, [FINAL-SUBMISSION-READINESS.md](FINAL-SUBMISSION-READINESS.md), [CLAIM-AUDIT.md](CLAIM-AUDIT.md), and [SECURITY-MODEL.md](SECURITY-MODEL.md) are authoritative.
+
 Phase 00 - COMPLETE
 Phase 01 - COMPLETE
 Phase 02 - COMPLETE

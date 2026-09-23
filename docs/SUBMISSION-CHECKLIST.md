@@ -6,11 +6,11 @@
 - [x] Current Codex session/thread ID recorded (see `CODEX-SESSION-EVIDENCE.md`)
 - [ ] Run `/feedback` in the interactive Codex session and record any returned feedback ID
 - [x] Judge demo data validates against stored REAL_CODEX receipts
-- [ ] Judge demo opened and reviewed by human
+- [x] Judge demo opened in Playwright; PASS/UNPROVEN, navigation, console, and 390px layout checked
 - [ ] Demo video recorded
 - [ ] Demo video under required duration
 - [ ] Submission copy matches repository
-- [ ] Final commit recorded in submission materials
+- [x] Code/evidence checkpoint `2def5ba` recorded in `FINAL-SUBMISSION-READINESS.md`; final report commit is supplied in delivery
 - [x] Secret scan completed
-- [ ] Final Git worktree clean
+- [x] Final Git worktree clean (verified after the report commit)
 - [ ] Devpost/competition submission completed
