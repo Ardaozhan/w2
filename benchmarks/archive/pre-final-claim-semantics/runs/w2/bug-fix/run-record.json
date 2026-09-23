@@ -1,0 +1,199 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "bug-fix",
+  "baseline_commit": "caf895eef8e711632f62e2e8dfbd4515337a77a0",
+  "baseline_hash": "ed6dd68a28321adafb1c56e586545337fc5a3d6a",
+  "task_semantics_hash": "34c7363d6e48bf2507f714b8f03426c6a9cce3fb0e83c9504bcaf0555efe2158",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 76
+  },
+  "runtime_ms": 29171,
+  "model_calls": 1,
+  "tool_calls": 8,
+  "steps": 46,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "criterion_evidence_coverage": 1,
+  "evidence": {
+    "context": {
+      "files_considered": 3,
+      "files_supplied": 1,
+      "approximate_tokens": 13,
+      "selected_paths": [
+        "src\\math.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
+      "evidence_ids": [
+        "ev_5b44b86a8796b6c35d9e"
+      ]
+    },
+    "tool_trace": {
+      "events": 46,
+      "tool_calls": 8,
+      "evidence_ids": [
+        "ev_bf9333c424a9c7c78a55",
+        "ev_0b96e7dbc524dfe957b4",
+        "ev_8c32a7e4f5492b037908",
+        "ev_fb447551157786663d4c",
+        "ev_1fcaaf68715a862d08bc",
+        "ev_bd98659776e333595d3d",
+        "ev_2c49a82aca712bedad9e",
+        "ev_72036870f62a8e514e0c"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "src/math.js"
+      ],
+      "additions": 1,
+      "deletions": 1,
+      "evidence_ids": [
+        "ev_c481b48c84864366badc"
+      ]
+    },
+    "verification": {
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 76,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_bd98659776e333595d3d"
+      ]
+    },
+    "receipt": "benchmarks\\runs\\w2\\bug-fix\\run-receipt.json"
+  },
+  "output": "",
+  "agent_message_events": [
+    {
+      "type": "thread.started",
+      "thread_id": "01a0ce0c-2239-7391-9c14-b24253e51d93"
+    },
+    {
+      "type": "turn.started"
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_0",
+        "type": "agent_message",
+        "text": "I’ll inspect the scoped source and workspace instructions, make the smallest fix in `src/math.js`, then run the required `node verify.mjs`."
+      }
+    },
+    {
+      "type": "item.started",
+      "item": {
+        "id": "item_1",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'!'\"\\\\.git'; Get-Content src/math.js; Get-Content verify.mjs\"",
+        "aggregated_output": "",
+        "exit_code": null,
+        "status": "in_progress"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_1",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'!'\"\\\\.git'; Get-Content src/math.js; Get-Content verify.mjs\"",
+        "aggregated_output": "\r\n\r\n    Directory: C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\bug-fix\r\n\r\n\r\nMode                 LastWriteTime         Length Name                                                                 \r\n----                 -------------         ------ ----                                                                 \r\nd--h--         9/23/2026   2:34 PM                .git                                                                 \r\nd-----         9/23/2026   2:34 PM                src                                                                  \r\n-a----         9/23/2026   2:34 PM            837 task.json                                                            \r\n-a----         9/23/2026   2:34 PM            172 verify.mjs                                                           \r\nexport function multiply(a, b) { return a + b; }\r\nimport { multiply } from './src/math.js'; if (multiply(6, 7) !== 42) throw new Error('multiply failed'); console.log(JSON.stringify({criterion:'multiply',status:'PASS'}));\r\n\r\n\r\n",
+        "exit_code": 0,
+        "status": "completed"
+      }
+    },
+    {
+      "type": "item.started",
+      "item": {
+        "id": "item_2",
+        "type": "file_change",
+        "changes": [
+          {
+            "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\bug-fix\\src\\math.js",
+            "kind": "update"
+          }
+        ],
+        "status": "in_progress"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_2",
+        "type": "file_change",
+        "changes": [
+          {
+            "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\bug-fix\\src\\math.js",
+            "kind": "update"
+          }
+        ],
+        "status": "completed"
+      }
+    },
+    {
+      "type": "item.started",
+      "item": {
+        "id": "item_3",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+        "aggregated_output": "",
+        "exit_code": null,
+        "status": "in_progress"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_3",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+        "aggregated_output": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+        "exit_code": 0,
+        "status": "completed"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_4",
+        "type": "agent_message",
+        "text": "Updated [src/math.js](C:/Users/ardao/w2/benchmarks/runs/w2/bug-fix/src/math.js) so `multiply(a, b)` returns `a * b`.\n\nVerification: `node verify.mjs` passed."
+      }
+    },
+    {
+      "type": "turn.completed",
+      "usage": {
+        "input_tokens": 77218,
+        "cached_input_tokens": 71936,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 343,
+        "reasoning_output_tokens": 0
+      }
+    }
+  ],
+  "agent_messages": [
+    "I’ll inspect the scoped source and workspace instructions, make the smallest fix in `src/math.js`, then run the required `node verify.mjs`.",
+    "Updated [src/math.js](C:/Users/ardao/w2/benchmarks/runs/w2/bug-fix/src/math.js) so `multiply(a, b)` returns `a * b`.\n\nVerification: `node verify.mjs` passed."
+  ],
+  "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items"
+}

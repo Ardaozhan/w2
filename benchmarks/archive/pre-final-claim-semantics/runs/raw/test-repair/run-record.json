@@ -1,0 +1,51 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "test-repair",
+  "baseline_commit": "eb266b1813ab1ccafc67e1d4a112c7e25ed9766c",
+  "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
+  "task_semantics_hash": "af6620e9a43846e2e543e83ad86458d7038c18a45d1af2e1947455e1ad8a1e2c",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 45
+  },
+  "runtime_ms": 34880,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [
+      "src/date.js"
+    ],
+    "verification": {
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 45
+    }
+  },
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce0e-bec2-7b90-ae2f-017c65aa2e21\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and current `src/date.js`, then make the smallest allowed change and run the required `node verify.mjs`.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/date.js' -g 'verify.mjs' -g package.json\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/date.js' -g 'verify.mjs' -g package.json\\\"\",\"aggregated_output\":\"-a----         9/23/2026   2:34 PM            847 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            220 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\date.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/date.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/date.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"`isoDate` currently stringifies the `Date` using the runtime’s local display format. The verifier expects the UTC ISO representation, so I’ll use `Date.prototype.toISOString()` and then run the specified check.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\test-repair\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\test-repair\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Updated `isoDate` in [src/date.js](C:/Users/ardao/w2/benchmarks/runs/raw/test-repair/src/date.js) to return `value.toISOString()`.\\n\\n`node verify.mjs` passed: `{\\\"criterion\\\":\\\"isoDate\\\",\\\"status\\\":\\\"PASS\\\"}`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126291,\"cached_input_tokens\":98304,\"cache_write_input_tokens\":0,\"output_tokens\":523,\"reasoning_output_tokens\":34}}\n",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 0,
+  "claim_source": "Codex JSONL agent_message/assistant_message items only",
+  "agent_messages": [
+    "I’ll inspect the repository instructions and current `src/date.js`, then make the smallest allowed change and run the required `node verify.mjs`.",
+    "`isoDate` currently stringifies the `Date` using the runtime’s local display format. The verifier expects the UTC ISO representation, so I’ll use `Date.prototype.toISOString()` and then run the specified check.",
+    "Updated `isoDate` in [src/date.js](C:/Users/ardao/w2/benchmarks/runs/raw/test-repair/src/date.js) to return `value.toISOString()`.\n\n`node verify.mjs` passed: `{\"criterion\":\"isoDate\",\"status\":\"PASS\"}`."
+  ]
+}

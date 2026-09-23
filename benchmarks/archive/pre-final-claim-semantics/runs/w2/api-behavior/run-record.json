@@ -1,0 +1,221 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "api-behavior",
+  "baseline_commit": "cfc008171f3322e18a1a5a50751bb53935d58680",
+  "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+  "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 60
+  },
+  "runtime_ms": 30503,
+  "model_calls": 1,
+  "tool_calls": 9,
+  "steps": 51,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "criterion_evidence_coverage": 1,
+  "evidence": {
+    "context": {
+      "files_considered": 3,
+      "files_supplied": 1,
+      "approximate_tokens": 14,
+      "selected_paths": [
+        "src\\http.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
+      "evidence_ids": [
+        "ev_e7e3c4307ecc99a31780"
+      ]
+    },
+    "tool_trace": {
+      "events": 51,
+      "tool_calls": 9,
+      "evidence_ids": [
+        "ev_f46703f6d3ca74430a4b",
+        "ev_619c720b98762930cbc2",
+        "ev_813dec7b762289d5d750",
+        "ev_7e42b31d4a1bcdc0f338",
+        "ev_51eff3cd6511f383320c",
+        "ev_166dce98197c24db92df",
+        "ev_278f29cbbb969ee8ef04",
+        "ev_a6cc805bbb8cc953c6db"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "src/http.js"
+      ],
+      "additions": 5,
+      "deletions": 1,
+      "evidence_ids": [
+        "ev_023cc250cb3cefc81128"
+      ]
+    },
+    "verification": {
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 60,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_166dce98197c24db92df"
+      ]
+    },
+    "receipt": "benchmarks\\runs\\w2\\api-behavior\\run-receipt.json"
+  },
+  "output": "",
+  "agent_message_events": [
+    {
+      "type": "thread.started",
+      "thread_id": "01a0ce11-7e0b-7ab0-a6a3-8f6d667f0b9b"
+    },
+    {
+      "type": "turn.started"
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_0",
+        "type": "agent_message",
+        "text": "I’ll inspect the scoped file and repository guidance, make the smallest allowed edit, then run `node verify.mjs`."
+      }
+    },
+    {
+      "type": "item.started",
+      "item": {
+        "id": "item_1",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-Content -Raw src/http.js; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'! .git'\"'\"",
+        "aggregated_output": "",
+        "exit_code": null,
+        "status": "in_progress"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_1",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-Content -Raw src/http.js; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'! .git'\"'\"",
+        "aggregated_output": "",
+        "exit_code": 1,
+        "status": "failed"
+      }
+    },
+    {
+      "type": "item.started",
+      "item": {
+        "id": "item_2",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json;'",
+        "aggregated_output": "",
+        "exit_code": null,
+        "status": "in_progress"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_2",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json;'",
+        "aggregated_output": "import { statusFor } from './src/http.js'; if (statusFor(200) !== 'success' || statusFor(404) !== 'client-error' || statusFor(503) !== 'server-error') throw new Error('status mapping failed'); console.log(JSON.stringify({criterion:'statusFor',status:'PASS'}));\n\r\n{\n  \"fixture_id\": \"api-behavior\",\n  \"baseline_hash\": \"cca7197876239f0cd7e90ba92ba29fe78b2147aa\",\n  \"baseline_kind\": \"fixture-content-sha1\",\n  \"baseline_files\": [\n    \"src/http.js\"\n  ],\n  \"task\": {\n    \"title\": \"Map HTTP status\",\n    \"goal\": \"Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.\",\n    \"constraints\": [\n      \"Use only the allowed paths.\",\n      \"Run node verify.mjs before claiming completion.\"\n    ],\n    \"acceptance_criteria\": [\n      {\n        \"id\": \"AC-01\",\n        \"statement\": \"Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.\",\n        \"required\": true\n      }\n    ],\n    \"verification_commands\": [\n      \"node verify.mjs\"\n    ]\n  },\n  \"category\": \"API behavior change\",\n  \"allowed_paths\": [\n    \"src/http.js\"\n  ],\n  \"external_verifier\": \"node verify.mjs\",\n  \"reset_command\": \"node benchmarks/prepare.mjs\"\n}\n\r\n",
+        "exit_code": 0,
+        "status": "completed"
+      }
+    },
+    {
+      "type": "item.started",
+      "item": {
+        "id": "item_3",
+        "type": "file_change",
+        "changes": [
+          {
+            "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\api-behavior\\src\\http.js",
+            "kind": "update"
+          }
+        ],
+        "status": "in_progress"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_3",
+        "type": "file_change",
+        "changes": [
+          {
+            "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\api-behavior\\src\\http.js",
+            "kind": "update"
+          }
+        ],
+        "status": "completed"
+      }
+    },
+    {
+      "type": "item.started",
+      "item": {
+        "id": "item_4",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+        "aggregated_output": "",
+        "exit_code": null,
+        "status": "in_progress"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_4",
+        "type": "command_execution",
+        "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+        "aggregated_output": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+        "exit_code": 0,
+        "status": "completed"
+      }
+    },
+    {
+      "type": "item.completed",
+      "item": {
+        "id": "item_5",
+        "type": "agent_message",
+        "text": "Updated [src/http.js](/C:/Users/ardao/w2/benchmarks/runs/w2/api-behavior/src/http.js) so 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\n\nVerification: `node verify.mjs` — PASS."
+      }
+    },
+    {
+      "type": "turn.completed",
+      "usage": {
+        "input_tokens": 103557,
+        "cached_input_tokens": 98304,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 511,
+        "reasoning_output_tokens": 52
+      }
+    }
+  ],
+  "agent_messages": [
+    "I’ll inspect the scoped file and repository guidance, make the smallest allowed edit, then run `node verify.mjs`.",
+    "Updated [src/http.js](/C:/Users/ardao/w2/benchmarks/runs/w2/api-behavior/src/http.js) so 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\n\nVerification: `node verify.mjs` — PASS."
+  ],
+  "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items"
+}

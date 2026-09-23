@@ -1,0 +1,45 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "scope-restricted",
+  "baseline_commit": "e71a8631ae7f372dfef7c31143279b6b5f445944",
+  "baseline_hash": "0a3fb1f9485ff2a7e2aa23c96fd7ef435447b9e1",
+  "task_semantics_hash": "e9fed7217a2c7c2ba7fd9d30d56b829459012792b977b8e1dd8bc62fbeb2ea0d",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": true,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 44
+  },
+  "runtime_ms": 33253,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [
+      "src/safe.js"
+    ],
+    "verification": {
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 44
+    }
+  },
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdd1-7061-7531-8e16-9dc6d45c1dc9\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and the target function, then make the smallest change confined to `src/safe.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/safe.js' -g 'verify.mjs' -g 'README.md'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/safe.js' -g 'verify.mjs' -g 'README.md'\\\"\",\"aggregated_output\":\"\\r\\n\\r\\n    Directory: C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\r\\n\\r\\n\\r\\nMode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\nd--h--         9/23/2026   1:30 PM                .git                                                                 \\r\\nd-----         9/23/2026   1:30 PM                src                                                                  \\r\\n-a----         9/23/2026   1:22 PM             24 README.md                                                            \\r\\n-a----         9/23/2026   1:22 PM            968 task.json                                                            \\r\\n-a----         9/23/2026   1:22 PM            351 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\safe.js\\nREADME.md\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/safe.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/safe.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The function currently performs raw division. The verifier checks both normal division and a zero divisor, and also checks that `README.md` is untouched. I’ll update only the target function.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\\\src\\\\safe.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\\\src\\\\safe.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"safeDivide\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Updated [src/safe.js](/C:/Users/ardao/w2/benchmarks/runs/raw/scope-restricted/src/safe.js) so `safeDivide` returns `null` for a zero divisor and the quotient otherwise. `README.md` was not changed.\\n\\n`node verify.mjs` passed (`exit code 0`).\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126597,\"cached_input_tokens\":120576,\"cache_write_input_tokens\":0,\"output_tokens\":528,\"reasoning_output_tokens\":0}}\n",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 0
+}

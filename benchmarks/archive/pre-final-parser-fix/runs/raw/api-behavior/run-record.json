@@ -1,0 +1,45 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "api-behavior",
+  "baseline_commit": "cfc008171f3322e18a1a5a50751bb53935d58680",
+  "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+  "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": true,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 44
+  },
+  "runtime_ms": 29372,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [
+      "src/http.js"
+    ],
+    "verification": {
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 44
+    }
+  },
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdcf-5976-7500-8d43-e6c49852baca\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and `src/http.js`, make the smallest allowed change, then run the required verifier and report its actual result.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/http.js' -g 'verify.mjs' -g 'package.json'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/http.js' -g 'verify.mjs' -g 'package.json'\\\"\",\"aggregated_output\":\"-a----         9/23/2026   1:22 PM            261 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\http.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/http.js; Get-Content verify.mjs; git status --short'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/http.js; Get-Content verify.mjs; git status --short'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\api-behavior\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\api-behavior\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"agent_message\",\"text\":\"Implemented `statusFor` in [src/http.js](C:/Users/ardao/w2/benchmarks/runs/raw/api-behavior/src/http.js): 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\\n\\n`node verify.mjs` passed (`status: PASS`, exit code 0).\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":100917,\"cached_input_tokens\":95232,\"cache_write_input_tokens\":0,\"output_tokens\":544,\"reasoning_output_tokens\":60}}\n",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 0
+}

@@ -1,12 +1,15 @@
 # W2 Competition Matrix
 
-| Criterion | Implemented capability | Real evidence | Artifact | Remaining limitation |
-|---|---|---|---|---|
-| Technical implementation | Persisted run, observed events, diff, verifier, receipt validation | Tests and current real Codex run records | `src/core/`, `benchmarks/runs/`, `docs/FINAL-REPAIR-REPORT.md` | Codex events do not expose every action |
-| Product clarity | Receipt views for task, selected context, trace, diff, verification and criteria | Current demo smoke and browser capture | `src/demo-server.ts`, `evidence/screenshots/` | Local stored-data demo |
-| Evidence integrity | Deterministic outcome plus referenced acceptance evidence | Receipt integrity tests and real run receipt | `tests/evidence/`, `benchmarks/runs/w2/` | Semantic mapping is supplied, not produced by GPT-5.6 |
-| Benchmark rigor | Eight paired fixtures, shared normalized contract/verifier/timeout | Validated rerun artifacts and generated report | `benchmarks/results/`, `docs/BENCHMARK-REPORT.md` | One run per task and condition; descriptive only |
-| Safety transparency | W2-owned ToolRuntime controls and Codex workspace-write boundary described separately | CLI help, source invocation and security regression tests | `docs/SECURITY-MODEL.md`, `src/core/agent.ts` | Not an OS/container boundary or complete native tool broker |
-| Reproducibility | Clean-copy install, tests, typecheck, build, validators and demo smoke | Fresh clone log in final report | `scripts/fresh-clone-check.mjs`, `docs/FINAL-REPAIR-REPORT.md` | Verified on Windows 11 only |
+This matrix reports implemented capabilities and linked evidence, not feature aspirations. The current authority for final pass/fail state is `FINAL-SUBMISSION-READINESS.md`.
 
-No criterion is marked proven without current evidence. This matrix supersedes earlier phase-level completion summaries where they describe broader capabilities.
+| Criterion | Implemented capability | Real evidence | Artifact path | Remaining limitation |
+|---|---|---|---|---|
+| Technical implementation | Persisted runs, recognized events, diff, verifier, deterministic receipt | Real Raw and W2 Codex benchmark artifacts; test suite | `benchmarks/runs/`, `src/core/`, `tests/` | Codex events do not expose every native action |
+| Product clarity | Receipt, context, trace, diff, verification, acceptance evidence, benchmark views | Playwright captures from the static stored-data demo | `judge-demo/`, `evidence/screenshots/` | Local replay, not hosted/live execution |
+| Evidence integrity | Typed references and verification-backed deterministic outcomes | Receipt integrity tests and real receipts | `tests/evidence/`, `benchmarks/runs/w2/` | No runtime GPT-5.6 evidence mapping |
+| Benchmark rigor | Eight paired fixtures, canonical normalized task, baseline, verifier, and timeout | Sixteen REAL_CODEX run records plus result validator | `benchmarks/results/`, `docs/BENCHMARK-REPORT.md` | One run per task/condition; descriptive only |
+| Safety transparency | W2-owned ToolRuntime checks separated from Codex sandbox and observation | Active adapter configuration, safety tests, documentation | `src/core/agent.ts`, `docs/SECURITY-MODEL.md` | Not an OS/container boundary or universal native-tool broker |
+| Reproducibility | Clean archive install, tests, typecheck, build, validators, and demo checks | Fresh-clone result in final readiness report | `scripts/fresh-clone-check.mjs`, `docs/FINAL-SUBMISSION-READINESS.md` | Verified on Windows 11 only |
+| AI contribution | Real Codex runs/development plus independently recorded GPT-5.6 final review | Stored run metadata and review provenance | `docs/GPT56-CONTRIBUTION.md`, `docs/GPT56-FINAL-REVIEW.md` | GPT-5.6 was not used at runtime |
+
+No criterion is marked proven without current linked evidence. Earlier phase-level summaries do not supersede these limits.

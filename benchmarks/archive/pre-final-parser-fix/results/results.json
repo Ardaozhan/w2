@@ -1,0 +1,1077 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-23T10:31:50.916Z",
+  "methodology": {
+    "fixtures": 8,
+    "conditions": [
+      "raw_codex",
+      "w2_codex"
+    ],
+    "model_config": "local Codex configuration",
+    "sandbox": "workspace-write",
+    "timeout_ms": 90000,
+    "task_contract": "normalized nested task contract"
+  },
+  "runs": [
+    {
+      "condition": "raw_codex",
+      "fixture_id": "bug-fix",
+      "baseline_commit": "caf895eef8e711632f62e2e8dfbd4515337a77a0",
+      "baseline_hash": "ed6dd68a28321adafb1c56e586545337fc5a3d6a",
+      "task_semantics_hash": "34c7363d6e48bf2507f714b8f03426c6a9cce3fb0e83c9504bcaf0555efe2158",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": true,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 45
+      },
+      "runtime_ms": 28870,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/math.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 45
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdca-2ee0-7e41-b305-97785222a6be\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository guidance and the target function, then make the smallest change in `src/math.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw AGENTS.md; Get-Content -Raw src/math.js; Get-ChildItem -Force | Select-Object Name,Mode'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw AGENTS.md; Get-Content -Raw src/math.js; Get-ChildItem -Force | Select-Object Name,Mode'\",\"aggregated_output\":\"Get-Content : Cannot find path 'C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\bug-fix\\\\AGENTS.md' because it does not exist.\\r\\nAt line:2 char:1\\r\\n+ Get-Content -Raw AGENTS.md; Get-Content -Raw src/math.js; Get-ChildIt ...\\r\\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~\\r\\n    + CategoryInfo          : ObjectNotFound: (C:\\\\Users\\\\ardao\\\\...g-fix\\\\AGENTS.md:String) [Get-Content], ItemNotFoundEx \\r\\n   ception\\r\\n    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand\\r\\n \\r\\nexport function multiply(a, b) { return a + b; }\\n\\r\\n\\r\\nName       Mode  \\r\\n----       ----  \\r\\n.git       d--h--\\r\\nsrc        d-----\\r\\ntask.json  -a----\\r\\nverify.mjs -a----\\r\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content -Raw verify.mjs; Get-Content -Raw task.json; Get-ChildItem src -Force | Select-Object Name,Mode; rg --files -g AGENTS.md -g '\\\"'!node_modules'\\\"' ..\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content -Raw verify.mjs; Get-Content -Raw task.json; Get-ChildItem src -Force | Select-Object Name,Mode; rg --files -g AGENTS.md -g '\\\"'!node_modules'\\\"' ..\\\"\",\"aggregated_output\":\"{\\n  \\\"fixture_id\\\": \\\"bug-fix\\\",\\n  \\\"baseline_hash\\\": \\\"ed6dd68a28321adafb1c56e586545337fc5a3d6a\\\",\\n  \\\"baseline_kind\\\": \\\"fixture-content-sha1\\\",\\n  \\\"baseline_files\\\": [\\n    \\\"src/math.js\\\"\\n  ],\\n  \\\"task\\\": {\\n    \\\"title\\\": \\\"Fix multiplication\\\",\\n    \\\"goal\\\": \\\"Fix multiply(a,b) so it returns the mathematical product.\\\",\\n    \\\"constraints\\\": [\\n      \\\"Use only the allowed paths.\\\",\\n      \\\"Run node verify.mjs before claiming completion.\\\"\\n    ],\\n    \\\"acceptance_criteria\\\": [\\n      {\\n        \\\"id\\\": \\\"AC-01\\\",\\n        \\\"statement\\\": \\\"Fix multiply(a,b) so it returns the mathematical product.\\\",\\n        \\\"required\\\": true\\n      }\\n    ],\\n    \\\"verification_commands\\\": [\\n      \\\"node verify.mjs\\\"\\n    ]\\n  },\\n  \\\"category\\\": \\\"small bug fix\\\",\\n  \\\"allowed_paths\\\": [\\n    \\\"src/math.js\\\"\\n  ],\\n  \\\"external_verifier\\\": \\\"node verify.mjs\\\",\\n  \\\"reset_command\\\": \\\"node benchmarks/prepare.mjs\\\"\\n}\\n\\r\\n\\r\\nName    Mode  \\r\\n----    ----  \\r\\nmath.js -a----\\r\\n\\r\\n\\r\\n\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The defect is isolated: `multiply` currently adds its inputs. I’m changing only that expression, then I’ll run `node verify.mjs` as required.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\bug-fix\\\\src\\\\math.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\bug-fix\\\\src\\\\math.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"multiply\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Updated `multiply(a, b)` to return `a * b` in [src/math.js](/C:/Users/ardao/w2/benchmarks/runs/raw/bug-fix/src/math.js).\\n\\n`node verify.mjs` passed: `{\\\"criterion\\\":\\\"multiply\\\",\\\"status\\\":\\\"PASS\\\"}`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":127047,\"cached_input_tokens\":121600,\"cache_write_input_tokens\":0,\"output_tokens\":486,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "bug-fix",
+      "baseline_commit": "caf895eef8e711632f62e2e8dfbd4515337a77a0",
+      "baseline_hash": "ed6dd68a28321adafb1c56e586545337fc5a3d6a",
+      "task_semantics_hash": "34c7363d6e48bf2507f714b8f03426c6a9cce3fb0e83c9504bcaf0555efe2158",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 62
+      },
+      "runtime_ms": 26235,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 47,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 13,
+          "selected_paths": [
+            "src\\math.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_3fb109b3d77e3eaf529a"
+          ]
+        },
+        "tool_trace": {
+          "events": 47,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_b66b9d6ae122850341dc",
+            "ev_c560d82c7a6d0beea8f3",
+            "ev_468d7cad56bbdf0927f7",
+            "ev_928a955c93ab18810f62",
+            "ev_2af4759683c388d9bae0",
+            "ev_99e309980a48fef086b2",
+            "ev_2e92da578b11a16e35df",
+            "ev_2476f9806452573fb447"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/math.js"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_de1a6843db5351bbb9c9"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 62,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_99e309980a48fef086b2"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\bug-fix\\run-receipt.json"
+      },
+      "output": ""
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "feature",
+      "baseline_commit": "85c5e4f89af88ed62c96ebe9109f69ff82e6417f",
+      "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
+      "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": true,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 46
+      },
+      "runtime_ms": 40969,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/slug.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 46
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdcb-077b-7333-acc6-3e37c8be811b\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and current source/verification setup, then make the smallest change confined to `src/slug.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/slug.js' -g package.json -g '*.md'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/slug.js' -g package.json -g '*.md'\\\"\",\"aggregated_output\":\"verify.mjs\\nsrc\\\\slug.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/slug.js; Get-Content verify.mjs; Get-Content task.json; git status --short; rg --files'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/slug.js; Get-Content verify.mjs; Get-Content task.json; git status --short; rg --files'\",\"aggregated_output\":\"  \\\"baseline_files\\\": [\\r\\n    \\\"src/slug.js\\\"\\r\\n  ],\\r\\n  \\\"task\\\": {\\r\\n    \\\"title\\\": \\\"Implement slugify\\\",\\r\\n    \\\"goal\\\": \\\"Implement slugify(text) with lowercase, trim, and hyphen-separated words.\\\",\\r\\n    \\\"constraints\\\": [\\r\\n      \\\"Use only the allowed paths.\\\",\\r\\n      \\\"Run node verify.mjs before claiming completion.\\\"\\r\\n    ],\\r\\n    \\\"acceptance_criteria\\\": [\\r\\n      {\\r\\n        \\\"id\\\": \\\"AC-01\\\",\\r\\n        \\\"statement\\\": \\\"Implement slugify(text) with lowercase, trim, and hyphen-separated words.\\\",\\r\\n        \\\"required\\\": true\\r\\n      }\\r\\n    ],\\r\\n    \\\"verification_commands\\\": [\\r\\n      \\\"node verify.mjs\\\"\\r\\n    ]\\r\\n  },\\r\\n  \\\"category\\\": \\\"feature implementation\\\",\\r\\n  \\\"allowed_paths\\\": [\\r\\n    \\\"src/slug.js\\\"\\r\\n  ],\\r\\n  \\\"external_verifier\\\": \\\"node verify.mjs\\\",\\r\\n  \\\"reset_command\\\": \\\"node benchmarks/prepare.mjs\\\"\\r\\n}\\r\\nverify.mjs\\ntask.json\\nsrc\\\\slug.js\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The verifier’s example establishes that punctuation should be removed and whitespace normalized into a single hyphen. I’m implementing that behavior with a compact ASCII slug transform in the allowed source file.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Implemented `slugify` in [src/slug.js](C:/Users/ardao/w2/benchmarks/runs/raw/feature/src/slug.js): it lowercases and trims the input, removes punctuation, and joins words with hyphens.\\n\\n`node verify.mjs` passed (`AC-01: PASS`).\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126943,\"cached_input_tokens\":107264,\"cache_write_input_tokens\":0,\"output_tokens\":537,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "feature",
+      "baseline_commit": "85c5e4f89af88ed62c96ebe9109f69ff82e6417f",
+      "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
+      "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 56
+      },
+      "runtime_ms": 27410,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 46,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 12,
+          "selected_paths": [
+            "src\\slug.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_2f1cba2ec43939b24669"
+          ]
+        },
+        "tool_trace": {
+          "events": 46,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_39a82e9a22059ad7d756",
+            "ev_f7f244ffc6d33cfc8d44",
+            "ev_816737675d5e1f54b8e7",
+            "ev_1e60e5087a63c4eccc8f",
+            "ev_c699b2a68e5897ec0ae0",
+            "ev_7ea9fcba83d7b2eaba51",
+            "ev_9c851be77f8412fb9ff3",
+            "ev_c3910f94470f2f7dcd7a"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/slug.js"
+          ],
+          "additions": 3,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_15769afd720590a39bc6"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 56,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_7ea9fcba83d7b2eaba51"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\feature\\run-receipt.json"
+      },
+      "output": ""
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "refactor",
+      "baseline_commit": "43972809a401f3a703b863dd79b57d2967351986",
+      "baseline_hash": "c877c10902e9546fe87e172576579c76e21c9f50",
+      "task_semantics_hash": "868cfc0475507fa33111ab5ae0adf39d206ce243e200723d7b22cfc7b35ee857",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": true,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 44
+      },
+      "runtime_ms": 37820,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/format.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 44
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdcc-13fc-75a1-af25-e1863d6d6f63\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"Önce izin verilen dosyayı ve mevcut davranışı inceleyip yalnızca `src/format.js` üzerinde gerekli değişikliği yapacağım; ardından istenen `node verify.mjs` komutunu çalıştıracağım.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw src/format.js; Get-ChildItem -Force | Select-Object Name,Mode'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw src/format.js; Get-ChildItem -Force | Select-Object Name,Mode'\",\"aggregated_output\":\"\\r\\nName       Mode  \\r\\n----       ----  \\r\\n.git       d--h--\\r\\nsrc        d-----\\r\\ntask.json  -a----\\r\\nverify.mjs -a----\\r\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"`formatName` artık baştaki/sondaki whitespace’i temizliyor ve whitespace dizilerini tek boşluğa indiriyor; mevcut büyük harfe çevirme davranışı korunuyor. Şimdi istenen doğrulama komutunu çalıştırıyorum.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"file:///C:/Users/ardao/w2/benchmarks/runs/raw/refactor/verify.mjs:1\\r\\nimport { formatName } from './src/format.js'; if (formatName('  Ada   Lovelace ') !== 'Ada Lovelace') throw new Error('formatName failed'); console.log(JSON.stringify({criterion:'formatName',status:'PASS'}));\\r\\n                                                                                                            ^\\r\\n\\r\\nError: formatName failed\\r\\n    at file:///C:/Users/ardao/w2/benchmarks/runs/raw/refactor/verify.mjs:1:109\\r\\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\\r\\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\\r\\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\\r\\n\\r\\nNode.js v22.13.1\\r\\n\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"agent_message\",\"text\":\"İlk doğrulama başarısız oldu çünkü doğrulayıcı `Ada Lovelace` bekliyor; mevcut `toUpperCase()` davranışı bu kabul ölçütüyle uyuşmuyor. Fonksiyonu doğrulayıcının belirttiği biçimde normalize edip tekrar çalıştıracağım.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_6\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_7\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_7\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"formatName\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_8\",\"type\":\"agent_message\",\"text\":\"`src/format.js` içindeki `formatName` çevredeki boşlukları temizliyor ve tekrarlanan iç boşlukları tek boşluğa indiriyor.\\n\\n`node verify.mjs` başarıyla tamamlandı: `PASS`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":152345,\"cached_input_tokens\":145920,\"cache_write_input_tokens\":0,\"output_tokens\":749,\"reasoning_output_tokens\":73}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "refactor",
+      "baseline_commit": "43972809a401f3a703b863dd79b57d2967351986",
+      "baseline_hash": "c877c10902e9546fe87e172576579c76e21c9f50",
+      "task_semantics_hash": "868cfc0475507fa33111ab5ae0adf39d206ce243e200723d7b22cfc7b35ee857",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 64
+      },
+      "runtime_ms": 43158,
+      "model_calls": 1,
+      "tool_calls": 10,
+      "steps": 57,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 17,
+          "selected_paths": [
+            "src\\format.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_8eaf84a1fde9df324eca"
+          ]
+        },
+        "tool_trace": {
+          "events": 57,
+          "tool_calls": 10,
+          "evidence_ids": [
+            "ev_b148d2fa66517785fd43",
+            "ev_341f33eec380bccabce6",
+            "ev_e4864c416ea7321400d1",
+            "ev_41819904a6534292bbfc",
+            "ev_0d0cb58d484143e77175",
+            "ev_babc2661a6fb78aa5ebd",
+            "ev_e5b7fe0313fb7529307f",
+            "ev_0f4a9e24e59c920e8192"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/format.js"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_709cd30297da8e255430"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 64,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_babc2661a6fb78aa5ebd"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\refactor\\run-receipt.json"
+      },
+      "output": ""
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "test-repair",
+      "baseline_commit": "eb266b1813ab1ccafc67e1d4a112c7e25ed9766c",
+      "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
+      "task_semantics_hash": "af6620e9a43846e2e543e83ad86458d7038c18a45d1af2e1947455e1ad8a1e2c",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": true,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 45
+      },
+      "runtime_ms": 38306,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/date.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 45
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdcd-5836-76b1-9c62-daf6c44e020b\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and the current date helper, then make the smallest change limited to `src/date.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/date.js' -g package.json\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/date.js' -g package.json\\\"\",\"aggregated_output\":\"-a----         9/23/2026   1:22 PM            847 task.json                                                            \\r\\n-a----         9/23/2026   1:22 PM            220 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\date.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/date.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName; git status --short'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/date.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName; git status --short'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The helper currently stringifies the Date using the default Date representation, while the verifier expects `toISOString()` output. I’ll update only the allowed source file and then run the exact verification command.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\test-repair\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\test-repair\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"isoDate\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Updated [src/date.js](C:/Users/ardao/w2/benchmarks/runs/raw/test-repair/src/date.js) so `isoDate` returns `Date.toISOString()`.\\n\\n`node verify.mjs` passed: `{\\\"criterion\\\":\\\"isoDate\\\",\\\"status\\\":\\\"PASS\\\"}`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126302,\"cached_input_tokens\":120576,\"cache_write_input_tokens\":0,\"output_tokens\":499,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "test-repair",
+      "baseline_commit": "eb266b1813ab1ccafc67e1d4a112c7e25ed9766c",
+      "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
+      "task_semantics_hash": "af6620e9a43846e2e543e83ad86458d7038c18a45d1af2e1947455e1ad8a1e2c",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 56
+      },
+      "runtime_ms": 28273,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 46,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 15,
+          "selected_paths": [
+            "src\\date.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_c5469c67387e9df428d0"
+          ]
+        },
+        "tool_trace": {
+          "events": 46,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_fa550b513dc07a370889",
+            "ev_2b2551497ee763be2762",
+            "ev_90cf67b61ae2db0093c3",
+            "ev_c050dbcc0eeac29d1204",
+            "ev_d96feea9946c10268142",
+            "ev_5e27950264be454d9743",
+            "ev_377cd399e614af2438c7",
+            "ev_861ffddacbbe21505c1e"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/date.js"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_171e8b902658630091ed"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 56,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_5e27950264be454d9743"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\test-repair\\run-receipt.json"
+      },
+      "output": ""
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "type-error",
+      "baseline_commit": "a122556ee6523a50703bfbec176189b76e1217be",
+      "baseline_hash": "e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46",
+      "task_semantics_hash": "c04589684dc15fb485db5bc374ed1435a029b291fc7bab15ba38a8229b91f40c",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": true,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 44
+      },
+      "runtime_ms": 31661,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/parse.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 44
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdce-5774-7112-9153-85e67b82b587\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and the current parser, then make the smallest change in `src/parse.js` and run the required verification command.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/parse.js' -g package.json -g '*.md'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/parse.js' -g package.json -g '*.md'\\\"\",\"aggregated_output\":\"\\r\\n\\r\\n    Directory: C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\r\\n\\r\\n\\r\\nMode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\nd--h--         9/23/2026   1:27 PM                .git                                                                 \\r\\nd-----         9/23/2026   1:27 PM                src                                                                  \\r\\n-a----         9/23/2026   1:22 PM            902 task.json                                                            \\r\\n-a----         9/23/2026   1:22 PM            317 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\parse.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/parse.js; Get-Content verify.mjs; Get-Content task.json; git status --short; rg --files -g AGENTS.md ..'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/parse.js; Get-Content verify.mjs; Get-Content task.json; git status --short; rg --files -g AGENTS.md ..'\",\"aggregated_output\":\"\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The parser currently returns its input unchanged. I’ll coerce to a number and reject non-finite results, which covers both nonnumeric strings and values such as `\\\"Infinity\\\"`.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\\\src\\\\parse.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\\\src\\\\parse.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"parseNumber\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Implemented `parseNumber` in [src/parse.js](C:/Users/ardao/w2/benchmarks/runs/raw/type-error/src/parse.js). It converts input to a number, returns finite results, and throws `TypeError` for non-finite results.\\n\\n`node verify.mjs` passed: `{\\\"criterion\\\":\\\"parseNumber\\\",\\\"status\\\":\\\"PASS\\\"}`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":127090,\"cached_input_tokens\":106240,\"cache_write_input_tokens\":0,\"output_tokens\":532,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "type-error",
+      "baseline_commit": "a122556ee6523a50703bfbec176189b76e1217be",
+      "baseline_hash": "e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46",
+      "task_semantics_hash": "c04589684dc15fb485db5bc374ed1435a029b291fc7bab15ba38a8229b91f40c",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 55
+      },
+      "runtime_ms": 34069,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 47,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 14,
+          "selected_paths": [
+            "src\\parse.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_91fbbbef4c44cb4574f2"
+          ]
+        },
+        "tool_trace": {
+          "events": 47,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_14559f2d0686c2c37d22",
+            "ev_794507299896210c08f3",
+            "ev_26ea6cecb3a3bdbdaccf",
+            "ev_7f48db07ee6c7a533a81",
+            "ev_b3de71562c10ec0b99ff",
+            "ev_413fb49217359209aa36",
+            "ev_5ca5c3ee3aa97fc275b5",
+            "ev_b16512b4969b200e0a6f"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/parse.js"
+          ],
+          "additions": 12,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_e2a26c5a5685310bddb9"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 55,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_413fb49217359209aa36"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\type-error\\run-receipt.json"
+      },
+      "output": ""
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "api-behavior",
+      "baseline_commit": "cfc008171f3322e18a1a5a50751bb53935d58680",
+      "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+      "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": true,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 44
+      },
+      "runtime_ms": 29372,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/http.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 44
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdcf-5976-7500-8d43-e6c49852baca\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and `src/http.js`, make the smallest allowed change, then run the required verifier and report its actual result.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/http.js' -g 'verify.mjs' -g 'package.json'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/http.js' -g 'verify.mjs' -g 'package.json'\\\"\",\"aggregated_output\":\"-a----         9/23/2026   1:22 PM            261 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\http.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/http.js; Get-Content verify.mjs; git status --short'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/http.js; Get-Content verify.mjs; git status --short'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\api-behavior\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\api-behavior\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"agent_message\",\"text\":\"Implemented `statusFor` in [src/http.js](C:/Users/ardao/w2/benchmarks/runs/raw/api-behavior/src/http.js): 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\\n\\n`node verify.mjs` passed (`status: PASS`, exit code 0).\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":100917,\"cached_input_tokens\":95232,\"cache_write_input_tokens\":0,\"output_tokens\":544,\"reasoning_output_tokens\":60}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "api-behavior",
+      "baseline_commit": "cfc008171f3322e18a1a5a50751bb53935d58680",
+      "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+      "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 55
+      },
+      "runtime_ms": 34711,
+      "model_calls": 1,
+      "tool_calls": 10,
+      "steps": 57,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 14,
+          "selected_paths": [
+            "src\\http.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_edcaba1dfe6605dda29d"
+          ]
+        },
+        "tool_trace": {
+          "events": 57,
+          "tool_calls": 10,
+          "evidence_ids": [
+            "ev_1514158ef291eece2861",
+            "ev_be30bef3f69e423fc028",
+            "ev_85eabec1599b0261a09d",
+            "ev_afa6d07f51e019adf38a",
+            "ev_5c7743189ac4d88ccd0b",
+            "ev_b94cb6b33605762cf169",
+            "ev_71e9d03dfc38e26defc6",
+            "ev_829a44326b937532cae0"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/http.js"
+          ],
+          "additions": 5,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_c7e01e2998cc708ddc00"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 55,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_b94cb6b33605762cf169"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\api-behavior\\run-receipt.json"
+      },
+      "output": ""
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "multi-file",
+      "baseline_commit": "d4636b03d17396b10b3ee89222d70776a2c86e1c",
+      "baseline_hash": "1448a1da0e4822bd8f51fc3350cf033e96f0efdb",
+      "task_semantics_hash": "906c1a1381e500b93da41610c8b89d1f24b992e0d8101868b5a374bf3ffeded6",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": true,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 45
+      },
+      "runtime_ms": 37269,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "README.md",
+          "src/config.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 45
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdd0-5529-7d20-8b78-188905de0125\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository guidance and the two allowed files, then make the smallest scoped change and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content C:\\\\\\\\Users\\\\\\\\ardao\\\\\\\\.codex\\\\\\\\memories\\\\\\\\MEMORY.md | Select-String -Pattern 'w2|multi-file|benchmark' -Context 1,2; Get-ChildItem -Force; rg --files -g AGENTS.md -g README.md -g config.js -g verify.mjs\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content C:\\\\\\\\Users\\\\\\\\ardao\\\\\\\\.codex\\\\\\\\memories\\\\\\\\MEMORY.md | Select-String -Pattern 'w2|multi-file|benchmark' -Context 1,2; Get-ChildItem -Force; rg --files -g AGENTS.md -g README.md -g config.js -g verify.mjs\\\"\",\"aggregated_output\":\"\\r\\n> # Task Group: C:\\\\Users\\\\ardao\\\\w2 W2 competition build and V42 phase workflow\\r\\n> scope: Use for auditing, continuing, or packaging the W2 Phase 00â€“06 competition build. Treat the V42 lifecycle, \\r\\nphase-status contract, evidence records, receipts, benchmark limits, and fresh-clone proof as checkout-specific \\r\\nevidence that must be rechecked before a new mutation or claim.\\r\\n> applies_to: cwd=C:\\\\Users\\\\ardao\\\\w2; reuse_rule=reuse the phase discipline and verification order for comparable work, \\r\\nbut re-read `.codex-project`, `docs/PHASE-STATUS.md`, current V42 readiness, worktree, task identity, and phase \\r\\ncontracts before acting.\\r\\n  \\r\\n  ## Task 1: Independently audit Phase 01; Phase 02 blocked by the V42 gate\\r\\n  \\r\\n> - rollout_summaries/2026-09-22T13-14-20-yZPa-phase_02_blocked_by_v42_execution_gate.md (cwd=\\\\\\\\?\\\\C:\\\\Users\\\\ardao\\\\w2, ro\\r\\nllout_path=C:\\\\Users\\\\ardao\\\\.codex\\\\sessions\\\\2026\\\\09\\\\22\\\\rollout-2026-09-22T16-14-20-01a0c940-c5e7-7e31-9e37-6adf3aa03968.j\\r\\nsonl, updated_at=2026-09-22T13:21:13+00:00, thread_id=01a0c940-c5e7-7e31-9e37-6adf3aa03968, historical gate block; \\r\\nPhase 01 independently verified)\\r\\n  \\r\\n  ### keywords\\r\\n  \\r\\n> - W2, Phase 01, Phase 02, V42_EXECUTION_READY=false, final.sqlite, canonical.sqlite, \\r\\nea0d0b0b-ad36-4666-acb0-4c636cfa7778, npm test, applyDiscount\\r\\n  \\r\\n> ## Task 2: Complete and package the W2 Phase 00â€“06 competition build\\r\\n  \\r\\n  ### rollout_summary_files\\r\\n  \\r\\n> - rollout_summaries/2026-09-22T13-24-47-5JSp-w2_full_competition_build_phase_00_06.md (cwd=\\\\\\\\?\\\\C:\\\\Users\\\\ardao\\\\w2, rol\\r\\nlout_path=C:\\\\Users\\\\ardao\\\\.codex\\\\sessions\\\\2026\\\\09\\\\22\\\\rollout-2026-09-22T16-24-47-01a0c94a-5564-7c52-8425-2630ed000889.js\\r\\nonl, updated_at=2026-09-22T15:11:08+00:00, thread_id=01a0c94a-5564-7c52-8425-2630ed000889, final verified Phase \\r\\n00â€“06 build)\\r\\n  \\r\\n  ### keywords\\r\\n  \\r\\n> - W2, Phase 00â€“06, Run Receipt, Evidence Engine, prepare-execution.ps1, task-checkpoint.ps1, \\r\\nauto-complete-task.ps1, npm run verify:phase02, benchmark:validate, fresh-clone, Playwright\\r\\n  \\r\\n  ## User preferences\\r\\n  \\r\\n> - W2 is `C:\\\\Users\\\\ardao\\\\w2`; `.codex-project` identifies project `w2`, and `docs/PHASE-STATUS.md` is the canonical \\r\\nphase tracker. The official V42 lifecycle uses `prepare-execution.ps1`, `task-checkpoint.ps1`, and \\r\\n`auto-complete-task.ps1`; completed tasks are terminal and new phase work needs a new accepted task identity. [Task 2]\\r\\n> - The Phase 01 audit independently passed `npm test`, `npm run typecheck`, and `npm run build`. \\r\\n`fixtures/.w2/final.sqlite` recorded completed run `ea0d0b0b-ad36-4666-acb0-4c636cfa7778` with ordered events, tool \\r\\ncalls, persisted diff, and passed verification; `fixtures/.w2/canonical.sqlite` held five completed canonical runs \\r\\nwithout `run_failed` events/tool errors. [Task 1]\\r\\n  - The nested canonical fixture is `fixtures/canonical/project`; its baseline failure is expected: \\r\\n`applyDiscount(200, 10)` returns 190 while the test expects 180. Treat that fixture behavior as a known baseline, not \\r\\na Phase 01 regression. [Task 1]\\r\\n> - Final Phase 00â€“06 evidence reported all phases COMPLETE, a clean worktree, and passing `npm ci --ignore-scripts \\r\\n--no-audit --no-fund`, 25-test suite, typecheck, build, Phase 02 integrity, eight-fixture benchmark validation, 16 \\r\\nstored benchmark runs, demo smoke, Phase 06 audit, and fresh-clone simulation. Re-check current Git state before \\r\\nrepeating that claim. [Task 2]\\r\\n> - Phase 04 benchmark timeouts are `INFRASTRUCTURE_FAILURE`, not positive speed/safety/reliability evidence. Phase 05 \\r\\nis a local read-only receipt projection; Playwright validated the hero receipt and Acceptance Evidence tab. [Task 2]\\r\\n  - For Node/SQLite audits in PowerShell, pipe a here-string to `node --input-type=module -` to avoid embedded-script \\r\\nquoting failures. [Task 1]\\r\\n  \\r\\n  scope: Use for W1â€™s thin native-Codex documentation/verification layer and its global PowerShell launcher. Reuse \\r\\nthe gate discipline and non-overwrite behavior; do not turn W1 into a custom Codex runtime.\\r\\n> applies_to: cwd=C:\\\\Users\\\\ardao\\\\w1; reuse_rule=re-check the installed profile, launcher path, native Codex \\r\\navailability, and current project directory before launcher support; W1 phase benchmark evidence is historical.\\r\\n  \\r\\n  ## Task 1: Validate six gated CODEX-W1 phases\\r\\n  \\r\\n> - CODEX-W1, codex-cli, phase gates, hidden E2E, exact decimal arithmetic, 1.2000000000000002, phase5-benchmark.json, \\r\\nObsidian, personal context default-off\\r\\n  \\r\\n  ## Task 2: Add `w1`, `w1 init`, and `w1 doctor` global PowerShell commands\\r\\n\\r\\nPSPath            : Microsoft.PowerShell.Core\\\\FileSystem::C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\.git\\r\\nPSParentPath      : Microsoft.PowerShell.Core\\\\FileSystem::C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\r\\nPSChildName       : .git\\r\\nPSDrive           : C\\r\\nPSProvider        : Microsoft.PowerShell.Core\\\\FileSystem\\r\\nPSIsContainer     : True\\r\\nName              : .git\\r\\nFullName          : C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\.git\\r\\nParent            : multi-file\\r\\nExists            : True\\r\\nRoot              : C:\\\\\\r\\nExtension         : .git\\r\\nCreationTime      : 9/23/2026 1:29:37 PM\\r\\nCreationTimeUtc   : 9/23/2026 10:29:37 AM\\r\\nLastAccessTime    : 9/23/2026 1:29:50 PM\\r\\nLastAccessTimeUtc : 9/23/2026 10:29:50 AM\\r\\nLastWriteTime     : 9/23/2026 1:29:37 PM\\r\\nLastWriteTimeUtc  : 9/23/2026 10:29:37 AM\\r\\nAttributes        : Hidden, Directory\\r\\nMode              : d--h--\\r\\nBaseName          : .git\\r\\nTarget            : {}\\r\\nLinkType          : \\r\\n\\r\\n\\r\\nPSPath            : Microsoft.PowerShell.Core\\\\FileSystem::C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\src\\r\\nPSParentPath      : Microsoft.PowerShell.Core\\\\FileSystem::C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\r\\nPSChildName       : src\\r\\nPSDrive           : C\\r\\nPSProvider        : Microsoft.PowerShell.Core\\\\FileSystem\\r\\nPSIsContainer     : True\\r\\nName              : src\\r\\nFullName          : C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\src\\r\\nParent            : multi-file\\r\\nExists            : True\\r\\nRoot              : C:\\\\\\r\\nExtension         : \\r\\nCreationTime      : 9/23/2026 1:29:37 PM\\r\\nCreationTimeUtc   : 9/23/2026 10:29:37 AM\\r\\nLastAccessTime    : 9/23/2026 1:29:50 PM\\r\\nLastAccessTimeUtc : 9/23/2026 10:29:50 AM\\r\\nLastWriteTime     : 9/23/2026 1:29:37 PM\\r\\nLastWriteTimeUtc  : 9/23/2026 10:29:37 AM\\r\\nAttributes        : Directory\\r\\nMode              : d-----\\r\\nBaseName          : src\\r\\nTarget            : {}\\r\\nLinkType          : \\r\\n\\r\\n\\r\\nLastWriteTime : 9/23/2026 1:22:54 PM\\r\\nLength        : 10\\r\\nName          : README.md\\r\\n\\r\\n\\r\\nLastWriteTime : 9/23/2026 1:22:54 PM\\r\\nLength        : 1007\\r\\nName          : task.json\\r\\n\\r\\n\\r\\nLastWriteTime : 9/23/2026 1:22:54 PM\\r\\nLength        : 338\\r\\nName          : verify.mjs\\r\\n\\r\\nverify.mjs\\nsrc\\\\config.js\\nREADME.md\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content src/config.js; Get-Content README.md; Get-Content verify.mjs; Get-Content task.json; git status --short; rg --files -g AGENTS.md -g '\\\"'!node_modules'\\\"'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content src/config.js; Get-Content README.md; Get-Content verify.mjs; Get-Content task.json; git status --short; rg --files -g AGENTS.md -g '\\\"'!node_modules'\\\"'\\\"\",\"aggregated_output\":\"export function getPort(config) { return config.port; }\\r\\n# Fixture\\r\\nimport { getPort } from './src/config.js'; if (getPort({port:8080}) !== 8080 || getPort({port:'bad'}) !== 3000) throw new Error('port failed'); const fs = await import('node:fs'); if (!fs.readFileSync('README.md','utf8').includes('3000')) throw new Error('docs missing'); console.log(JSON.stringify({criterion:'getPort',status:'PASS'}));\\r\\n{\\r\\n  \\\"fixture_id\\\": \\\"multi-file\\\",\\r\\n  \\\"baseline_hash\\\": \\\"1448a1da0e4822bd8f51fc3350cf033e96f0efdb\\\",\\r\\n  \\\"baseline_kind\\\": \\\"fixture-content-sha1\\\",\\r\\n  \\\"baseline_files\\\": [\\r\\n    \\\"src/config.js\\\",\\r\\n    \\\"README.md\\\"\\r\\n  ],\\r\\n  \\\"task\\\": {\\r\\n    \\\"title\\\": \\\"Add configured port\\\",\\r\\n    \\\"goal\\\": \\\"Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md.\\\",\\r\\n    \\\"constraints\\\": [\\r\\n      \\\"Use only the allowed paths.\\\",\\r\\n      \\\"Run node verify.mjs before claiming completion.\\\"\\r\\n    ],\\r\\n    \\\"acceptance_criteria\\\": [\\r\\n      {\\r\\n        \\\"id\\\": \\\"AC-01\\\",\\r\\n        \\\"statement\\\": \\\"Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md.\\\",\\r\\n        \\\"required\\\": true\\r\\n      }\\r\\n    ],\\r\\n    \\\"verification_commands\\\": [\\r\\n      \\\"node verify.mjs\\\"\\r\\n    ]\\r\\n  },\\r\\n  \\\"category\\\": \\\"multi-file change\\\",\\r\\n  \\\"allowed_paths\\\": [\\r\\n    \\\"src/config.js\\\",\\r\\n    \\\"README.md\\\"\\r\\n  ],\\r\\n  \\\"external_verifier\\\": \\\"node verify.mjs\\\",\\r\\n  \\\"reset_command\\\": \\\"node benchmarks/prepare.mjs\\\"\\r\\n}\\r\\n\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The existing function returns `config.port` without validation, and the README only has a fixture heading. I’ll accept integer ports in the valid TCP/UDP range (1–65535) and use 3000 for missing, non-integer, or out-of-range values.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\README.md\",\"kind\":\"update\"},{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\src\\\\config.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\README.md\",\"kind\":\"update\"},{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\src\\\\config.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs; git diff -- src/config.js README.md; git status --short'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs; git diff -- src/config.js README.md; git status --short'\",\"aggregated_output\":\"warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it\\nwarning: in the working copy of 'src/config.js', LF will be replaced by CRLF the next time Git touches it\\ndiff --git a/README.md b/README.md\\nindex ca69e6d..4e57846 100644\\n--- a/README.md\\n+++ b/README.md\\n@@ -1 +1,3 @@\\n # Fixture\\n+\\n+The server uses port 3000 by default when no valid port is configured.\\ndiff --git a/src/config.js b/src/config.js\\nindex 79fd202..69f5057 100644\\n--- a/src/config.js\\n+++ b/src/config.js\\n@@ -1 +1,4 @@\\n-export function getPort(config) { return config.port; }\\n+export function getPort(config) {\\n+  const port = config?.port;\\n+  return Number.isInteger(port) && port >= 1 && port <= 65535 ? port : 3000;\\n+}\\n M README.md\\n M src/config.js\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Implemented `getPort(config)` with integer range validation (1–65535) and a 3000 fallback. Documented the default in [README.md](C:/Users/ardao/w2/benchmarks/runs/raw/multi-file/README.md) and updated [config.js](C:/Users/ardao/w2/benchmarks/runs/raw/multi-file/src/config.js).\\n\\n`node verify.mjs` passed: `{\\\"criterion\\\":\\\"getPort\\\",\\\"status\\\":\\\"PASS\\\"}`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":119686,\"cached_input_tokens\":105216,\"cache_write_input_tokens\":0,\"output_tokens\":814,\"reasoning_output_tokens\":109}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "multi-file",
+      "baseline_commit": "d4636b03d17396b10b3ee89222d70776a2c86e1c",
+      "baseline_hash": "1448a1da0e4822bd8f51fc3350cf033e96f0efdb",
+      "task_semantics_hash": "906c1a1381e500b93da41610c8b89d1f24b992e0d8101868b5a374bf3ffeded6",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 57
+      },
+      "runtime_ms": 34379,
+      "model_calls": 1,
+      "tool_calls": 9,
+      "steps": 52,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 4,
+          "files_supplied": 2,
+          "approximate_tokens": 17,
+          "selected_paths": [
+            "README.md",
+            "src\\config.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_ec0c2336ed2cda0a31e2"
+          ]
+        },
+        "tool_trace": {
+          "events": 52,
+          "tool_calls": 9,
+          "evidence_ids": [
+            "ev_ddef316d322a326e874d",
+            "ev_46f39e80b75fbea01398",
+            "ev_31d22b7cc187eb9476af",
+            "ev_ad49b318bbf832c58037",
+            "ev_536345693c61c2d8a42d",
+            "ev_d5a94dfeb63c9898651a",
+            "ev_965988a1cda87a85747a",
+            "ev_25d41063c1fa900b83a3"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "README.md",
+            "src/config.js"
+          ],
+          "additions": 6,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_2f0fa5d63ffe30c5e7ac"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 57,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_d5a94dfeb63c9898651a"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\multi-file\\run-receipt.json"
+      },
+      "output": ""
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "scope-restricted",
+      "baseline_commit": "e71a8631ae7f372dfef7c31143279b6b5f445944",
+      "baseline_hash": "0a3fb1f9485ff2a7e2aa23c96fd7ef435447b9e1",
+      "task_semantics_hash": "e9fed7217a2c7c2ba7fd9d30d56b829459012792b977b8e1dd8bc62fbeb2ea0d",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": true,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 44
+      },
+      "runtime_ms": 33253,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/safe.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 44
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdd1-7061-7531-8e16-9dc6d45c1dc9\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and the target function, then make the smallest change confined to `src/safe.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/safe.js' -g 'verify.mjs' -g 'README.md'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/safe.js' -g 'verify.mjs' -g 'README.md'\\\"\",\"aggregated_output\":\"\\r\\n\\r\\n    Directory: C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\r\\n\\r\\n\\r\\nMode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\nd--h--         9/23/2026   1:30 PM                .git                                                                 \\r\\nd-----         9/23/2026   1:30 PM                src                                                                  \\r\\n-a----         9/23/2026   1:22 PM             24 README.md                                                            \\r\\n-a----         9/23/2026   1:22 PM            968 task.json                                                            \\r\\n-a----         9/23/2026   1:22 PM            351 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\safe.js\\nREADME.md\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/safe.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/safe.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The function currently performs raw division. The verifier checks both normal division and a zero divisor, and also checks that `README.md` is untouched. I’ll update only the target function.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\\\src\\\\safe.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\\\src\\\\safe.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"safeDivide\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Updated [src/safe.js](/C:/Users/ardao/w2/benchmarks/runs/raw/scope-restricted/src/safe.js) so `safeDivide` returns `null` for a zero divisor and the quotient otherwise. `README.md` was not changed.\\n\\n`node verify.mjs` passed (`exit code 0`).\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126597,\"cached_input_tokens\":120576,\"cache_write_input_tokens\":0,\"output_tokens\":528,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "scope-restricted",
+      "baseline_commit": "e71a8631ae7f372dfef7c31143279b6b5f445944",
+      "baseline_hash": "0a3fb1f9485ff2a7e2aa23c96fd7ef435447b9e1",
+      "task_semantics_hash": "e9fed7217a2c7c2ba7fd9d30d56b829459012792b977b8e1dd8bc62fbeb2ea0d",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 56
+      },
+      "runtime_ms": 27857,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 46,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 4,
+          "files_supplied": 2,
+          "approximate_tokens": 19,
+          "selected_paths": [
+            "README.md",
+            "src\\safe.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_60ddf891e36e2180ab84"
+          ]
+        },
+        "tool_trace": {
+          "events": 46,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_27b91cc059c456fc7cff",
+            "ev_b8de4945d260bf31ae09",
+            "ev_0619b863612c13fdeec9",
+            "ev_753d69f1df35f82b3620",
+            "ev_23d63a895951b47e65f0",
+            "ev_0bf9f8056d3c16598b3f",
+            "ev_6d50a25fce42f3bdb2b3",
+            "ev_bb0201650523b3a13bf5"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/safe.js"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_1b948363fbf80a9a873b"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 56,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_0bf9f8056d3c16598b3f"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\scope-restricted\\run-receipt.json"
+      },
+      "output": ""
+    }
+  ]
+}

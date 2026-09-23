@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light"><title>W2 — Run Receipt Inspector</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./assets/demo.css">
+  <script src="./assets/demo-data.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="#top"><span class="brand-mark">W2</span><span>Run Receipt Inspector<small>Local evidence viewer</small></span></a><span class="offline">STATIC · OFFLINE · NO BUILD</span></header>
+  <main id="top">
+    <section class="intro"><p class="eyebrow">INDEPENDENTLY INSPECTABLE RUNS</p><h1>Completion is a claim.<br><em>Evidence is the receipt.</em></h1><p>Switch between two verified, stored Codex runs. This page replays persisted artifacts; it does not run an agent.</p></section>
+    <section class="case-switch" aria-label="Choose a stored run">
+      <button class="case-button active" data-case="pass"><span>01 / VERIFIED RUN</span><strong>PASS</strong><small>All required evidence attached</small></button>
+      <button class="case-button" data-case="unproven"><span>02 / EVIDENCE GAP</span><strong>UNPROVEN</strong><small>Required criterion lacks evidence</small></button>
+    </section>
+    <section class="receipt-head" aria-live="polite"><div><p class="eyebrow" id="provenance"></p><h2 id="task-title"></h2><p id="task-goal"></p></div><div class="outcome" id="outcome"></div></section>
+    <p class="replay-label" id="replay-label"></p>
+    <nav class="tabs" aria-label="Receipt sections">
+      <button class="tab active" data-panel="overview">Receipt</button><button class="tab" data-panel="context">Context</button><button class="tab" data-panel="trace">Trace</button><button class="tab" data-panel="diff">Diff</button><button class="tab" data-panel="verification">Verification</button><button class="tab" data-panel="acceptance">Acceptance Evidence</button><button class="tab" data-panel="benchmark">Benchmark</button>
+    </nav>
+    <section id="panel" class="panel" tabindex="-1"></section>
+    <footer>W2 is a local control and evidence layer, not an OS/container security boundary. Stored evidence is shown as recorded; it is not a guarantee of general agent behavior.</footer>
+  </main>
+  <script>
+    (() => {
+      const data = window.W2_JUDGE_DATA;
+      let activeCase = 'pass';
+      let activePanel = 'overview';
+      const text = (node, value) => { node.textContent = value ?? 'Not recorded'; };
+      const pre = (value) => { const el = document.createElement('pre'); el.textContent = typeof value === 'string' ? value : JSON.stringify(value ?? null, null, 2); return el; };
+      const card = (title, value) => { const box = document.createElement('article'); box.className = 'data-card'; const h = document.createElement('h3'); h.textContent = title; box.append(h, pre(value)); return box; };
+      function render() {
+        const current = data.cases[activeCase]; const receipt = current.receipt; const task = receipt.task;
+        text(document.querySelector('#provenance'), `${current.provenance} · VERIFIED STORED RUN`);
+        text(document.querySelector('#task-title'), task.title); text(document.querySelector('#task-goal'), task.goal);
+        const outcome = document.querySelector('#outcome'); outcome.textContent = receipt.outcome; outcome.className = `outcome ${receipt.outcome.toLowerCase()}`;
+        text(document.querySelector('#replay-label'), `${current.replay} · ${current.receipt_path}`);
+        const panel = document.querySelector('#panel'); panel.replaceChildren();
+        if (activePanel === 'overview') {
+          panel.append(card('Run identity', { run_id: receipt.run_id, task_id: task.task_id, execution_mode: current.provenance, outcome: receipt.outcome, generated_at: current.record.generated_at }), card('Receipt explanation', { summary: receipt.summary, acceptance: receipt.acceptance?.map(({ criterion_id, status, reason }) => ({ criterion_id, status, reason })) }));
+        } else if (activePanel === 'context') panel.append(card('Context W2 selected / provided', receipt.context), card('Access boundary', 'The receipt records W2-selected context and observable events. Exact Codex file-read access is not claimed unless an explicit access event is present.'));
+        else if (activePanel === 'trace') panel.append(card('Observed actions and events', receipt.actions));
+        else if (activePanel === 'diff') panel.append(card('Captured repository changes', receipt.changes));
+        else if (activePanel === 'verification') panel.append(card('Verifier results', receipt.verification));
+        else if (activePanel === 'acceptance') panel.append(card('Required criteria and linked evidence', receipt.acceptance), card('Evidence records', receipt.evidence));
+        else if (activePanel === 'benchmark') {
+          const rows = data.benchmark.runs; const table = document.createElement('table'); table.innerHTML = '<thead><tr><th>Fixture</th><th>Condition</th><th>Outcome</th><th>False DONE</th><th>Coverage</th></tr></thead>';
+          const body = document.createElement('tbody'); for (const run of rows) { const tr = document.createElement('tr'); for (const value of [run.fixture_id, run.condition, run.status, run.false_done, run.criterion_evidence_coverage]) { const td = document.createElement('td'); td.textContent = value == null ? '—' : String(value); tr.append(td); } body.append(tr); } table.append(body); panel.append(table);
+          const note = document.createElement('p'); note.className = 'muted'; note.textContent = `Generated ${data.benchmark.generated_at}. Eight fixtures, Raw Codex and W2 + Codex. These are descriptive observations, not a statistical advantage claim.`; panel.append(note);
+        }
+      }
+      document.querySelectorAll('.case-button').forEach((button) => button.addEventListener('click', () => { activeCase = button.dataset.case; document.querySelectorAll('.case-button').forEach((el) => el.classList.toggle('active', el === button)); render(); }));
+      document.querySelectorAll('.tab').forEach((button) => button.addEventListener('click', () => { activePanel = button.dataset.panel; document.querySelectorAll('.tab').forEach((el) => el.classList.toggle('active', el === button)); render(); }));
+      render();
+    })();
+  </script>
+</body>
+</html>

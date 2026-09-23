@@ -1,0 +1,87 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "test-repair",
+  "baseline_commit": "eb266b1813ab1ccafc67e1d4a112c7e25ed9766c",
+  "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
+  "task_semantics_hash": "af6620e9a43846e2e543e83ad86458d7038c18a45d1af2e1947455e1ad8a1e2c",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 56
+  },
+  "runtime_ms": 28273,
+  "model_calls": 1,
+  "tool_calls": 8,
+  "steps": 46,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "criterion_evidence_coverage": 1,
+  "evidence": {
+    "context": {
+      "files_considered": 3,
+      "files_supplied": 1,
+      "approximate_tokens": 15,
+      "selected_paths": [
+        "src\\date.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
+      "evidence_ids": [
+        "ev_c5469c67387e9df428d0"
+      ]
+    },
+    "tool_trace": {
+      "events": 46,
+      "tool_calls": 8,
+      "evidence_ids": [
+        "ev_fa550b513dc07a370889",
+        "ev_2b2551497ee763be2762",
+        "ev_90cf67b61ae2db0093c3",
+        "ev_c050dbcc0eeac29d1204",
+        "ev_d96feea9946c10268142",
+        "ev_5e27950264be454d9743",
+        "ev_377cd399e614af2438c7",
+        "ev_861ffddacbbe21505c1e"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "src/date.js"
+      ],
+      "additions": 1,
+      "deletions": 1,
+      "evidence_ids": [
+        "ev_171e8b902658630091ed"
+      ]
+    },
+    "verification": {
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 56,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_5e27950264be454d9743"
+      ]
+    },
+    "receipt": "benchmarks\\runs\\w2\\test-repair\\run-receipt.json"
+  },
+  "output": ""
+}

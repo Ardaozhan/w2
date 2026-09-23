@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { RunEngine, buildRunReceipt, deriveEvidence, renderReceiptMarkdown } from '../dist/src/core/index.js';
+import { hasCompletionClaim } from './completion-claim.mjs';
 
 const id = new Date().toISOString().replace(/[-:.TZ]/g, '');
 const workspace = path.resolve('benchmarks/runs/demo-unproven', id, 'workspace');
@@ -38,7 +39,7 @@ try {
   writeFileSync(path.join(artifactDir, 'run-receipt.json'), JSON.stringify(receipt, null, 2) + '\n');
   writeFileSync(path.join(artifactDir, 'run-receipt.md'), renderReceiptMarkdown(receipt));
   const agentMessages = events.filter((event) => event.type === 'agent_output').map((event) => event.payload).filter((payload) => payload && typeof payload === 'object');
-  const record = { execution_mode: receipt.agent.execution_mode, run_id: run.run_id, task_id: task.task_id, status: receipt.outcome, agent_run_status: run.status, external_verification: run.verification_results, acceptance: receipt.acceptance, claim_done: agentMessages.some((payload) => /\b(done|complete|completed|finished)\b/i.test(String(payload.text ?? ''))), receipt: path.relative(process.cwd(), path.join(artifactDir, 'run-receipt.json')), workspace: path.relative(process.cwd(), workspace), generated_at: new Date().toISOString() };
+  const record = { execution_mode: receipt.agent.execution_mode, run_id: run.run_id, task_id: task.task_id, status: receipt.outcome, agent_run_status: run.status, external_verification: run.verification_results, acceptance: receipt.acceptance, claim_done: hasCompletionClaim(agentMessages.map((payload) => payload.raw)), receipt: path.relative(process.cwd(), path.join(artifactDir, 'run-receipt.json')), workspace: path.relative(process.cwd(), workspace), generated_at: new Date().toISOString() };
   writeFileSync(path.join(artifactDir, 'run-record.json'), JSON.stringify(record, null, 2) + '\n');
   if (receipt.agent.execution_mode !== 'REAL_CODEX' || run.status === 'ERROR' || !run.verification_results.some((item) => item.status === 'PASSED') || receipt.outcome !== 'UNPROVEN') throw new Error(`Live demo did not produce a real task-evidence UNPROVEN case (mode=${receipt.agent.execution_mode}, run=${run.status}, outcome=${receipt.outcome})`);
 

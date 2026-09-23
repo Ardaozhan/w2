@@ -1,5 +1,7 @@
 # W2 Final Repair Report
 
+> Historical report from the previous repair task. Its `W2 COMPETITION READY: YES` was issued before the independent final GPT-5.6 review found completion-claim undercounting. It is superseded for current status by [FINAL-SUBMISSION-READINESS.md](FINAL-SUBMISSION-READINESS.md), which is the source of truth for this submission pass.
+
 This report supersedes conflicting claims in earlier phase completion reports. Only current artifacts and commands are treated as proof.
 
 ## Overall Status

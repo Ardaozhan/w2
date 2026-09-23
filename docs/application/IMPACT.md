@@ -1,5 +1,5 @@
 # Impact
 
-W2 targets developers and reviewers who need to trust coding-agent changes. A receipt reduces the gap between an agent’s completion message and an auditable engineering result: context, trace, diff, verification, and criterion evidence are adjacent and inspectable.
+W2 targets developers and reviewers who need to inspect coding-agent changes. A receipt puts the task, W2-selected context, recognized trace events, diff, verification, and criterion evidence together for review. It makes missing evidence visible; it does not guarantee agent correctness or security.
 
-The current benchmark is deliberately modest: eight tasks, one run per condition, and timeout-heavy local Codex execution. It demonstrates reproducible measurement and failure visibility, not a generalized performance claim.
+The benchmark is deliberately modest: eight tasks, one run per condition, with errors and timeouts retained. It is descriptive measurement and failure visibility, not a generalized performance claim.

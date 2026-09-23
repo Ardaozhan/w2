@@ -64,13 +64,19 @@ describe("evidence and run receipts", () => {
   it("computes criterion coverage only from attached deterministic evidence", () => {
     const { store, task, run } = fixture();
     const evidence = deriveEvidence(run, 1, 0);
+    const verifierEvidence = evidence.find((item) => item.type === "TEST_EVIDENCE")!;
     const mappings = mapAcceptanceCriteria(task, evidence, [
-      { criterion_id: "AC-01", description: "first", required: true, status: "PASS", evidence_ids: [evidence[0].evidence_id], reason: "attached" },
+      { criterion_id: "AC-01", description: "first", required: true, status: "PASS", evidence_ids: [verifierEvidence.evidence_id], reason: "attached" },
       { criterion_id: "AC-02", description: "second", required: true, status: "UNPROVEN", evidence_ids: [], reason: "none" },
     ]);
     expect(computeCriterionEvidenceCoverage(mappings, evidence)).toBe(0.5);
-    const interpreted = { ...evidence[0], confidence_class: "INTERPRETED" as const };
+    const interpreted = { ...verifierEvidence, confidence_class: "INTERPRETED" as const };
     expect(computeCriterionEvidenceCoverage([{ ...mappings[0], evidence_ids: [interpreted.evidence_id] }], [interpreted])).toBe(0);
+    expect(computeCriterionEvidenceCoverage([{ ...mappings[0], evidence_ids: ["ev_nonexistent"] }], evidence)).toBe(0);
+    const unrelatedDeterministic = evidence.find((item) => item.type === "DIFF_EVIDENCE")!;
+    expect(computeCriterionEvidenceCoverage([{ ...mappings[0], evidence_ids: [unrelatedDeterministic.evidence_id] }], evidence)).toBe(0);
+    const failedVerifier = { ...verifierEvidence, data: { ...(verifierEvidence.data as Record<string, unknown>), status: "FAILED" } };
+    expect(computeCriterionEvidenceCoverage([{ ...mappings[0], evidence_ids: [failedVerifier.evidence_id] }], [failedVerifier])).toBe(1);
     expect(computeCriterionEvidenceCoverage([], evidence)).toBe(0);
     store.close();
   });

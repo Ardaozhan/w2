@@ -1,0 +1,1 @@
+import { isoDate } from './src/date.js'; if (isoDate(new Date('2025-01-02T03:04:05Z')) !== '2025-01-02T03:04:05.000Z') throw new Error('isoDate failed'); console.log(JSON.stringify({criterion:'isoDate',status:'PASS'}));

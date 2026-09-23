@@ -48,7 +48,14 @@ export type EvidenceMapping = z.infer<typeof mappingSchema>;
 export function computeCriterionEvidenceCoverage(acceptance: AcceptanceCriterionResult[], evidence: EvidenceRecord[]): number {
   const required = acceptance.filter((item) => item.required);
   if (required.length === 0) return 0;
-  const valid = new Set(evidence.filter((item) => item.confidence_class === "DETERMINISTIC").map((item) => item.evidence_id));
+  const valid = new Set(evidence.filter((item) => {
+    if (item.confidence_class !== "DETERMINISTIC") return false;
+    const verificationType = ["TEST_EVIDENCE", "LINT_EVIDENCE", "TYPECHECK_EVIDENCE", "BUILD_EVIDENCE"].includes(item.type);
+    const verifierAssertion = item.type === "ASSERTION_EVIDENCE" && item.raw_reference.includes(":verification:");
+    if (!verificationType && !verifierAssertion) return false;
+    const status = (item.data as { status?: unknown } | undefined)?.status;
+    return status === "PASSED" || status === "FAILED";
+  }).map((item) => item.evidence_id));
   return required.filter((item) => item.evidence_ids.some((id) => valid.has(id))).length / required.length;
 }
 

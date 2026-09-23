@@ -1,6 +1,6 @@
 {
   "receipt_version": "1.0",
-  "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+  "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
   "task": {
     "task_id": "api-behavior",
     "title": "Map HTTP status",
@@ -41,21 +41,21 @@
     "accessed_files": null,
     "access_observation": "UNAVAILABLE",
     "evidence_ids": [
-      "ev_edcaba1dfe6605dda29d"
+      "ev_cb0d3f5dc55717bbcef2"
     ]
   },
   "actions": {
     "events": 57,
     "tool_calls": 10,
     "evidence_ids": [
-      "ev_1514158ef291eece2861",
-      "ev_be30bef3f69e423fc028",
-      "ev_85eabec1599b0261a09d",
-      "ev_afa6d07f51e019adf38a",
-      "ev_5c7743189ac4d88ccd0b",
-      "ev_b94cb6b33605762cf169",
-      "ev_71e9d03dfc38e26defc6",
-      "ev_829a44326b937532cae0"
+      "ev_847539133a9f49c16b51",
+      "ev_b8c7b10dfbddfbe13fb1",
+      "ev_9f8db4afb468892e0022",
+      "ev_65d1a6a5fdadf946b07d",
+      "ev_0cc64b924e30c502b5e3",
+      "ev_5547b040f427b80006b3",
+      "ev_36a55f73b432c9cfb8a2",
+      "ev_fe57403a6a80e9baa86c"
     ]
   },
   "changes": {
@@ -65,7 +65,7 @@
     "additions": 5,
     "deletions": 1,
     "evidence_ids": [
-      "ev_c7e01e2998cc708ddc00"
+      "ev_09ac55b77bea8198e969"
     ]
   },
   "verification": {
@@ -77,24 +77,24 @@
         "exit_code": 0,
         "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
         "stderr": "",
-        "duration_ms": 55,
+        "duration_ms": 60,
         "status": "PASSED"
       }
     ],
     "evidence_ids": [
-      "ev_b94cb6b33605762cf169"
+      "ev_5547b040f427b80006b3"
     ]
   },
   "evidence": [
     {
-      "evidence_id": "ev_edcaba1dfe6605dda29d",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_cb0d3f5dc55717bbcef2",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "CONTEXT_EVIDENCE",
       "source": "sqlite:runs.context_manifest",
       "summary": "1 files supplied from 3 considered",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:context",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:context",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:02.772Z",
+      "created_at": "2026-09-23T11:57:06.739Z",
       "data": {
         "files_considered": 3,
         "files_included": 1,
@@ -102,14 +102,14 @@
       }
     },
     {
-      "evidence_id": "ev_1514158ef291eece2861",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_847539133a9f49c16b51",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:tool:0",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:0",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:02.770Z",
+      "created_at": "2026-09-23T11:57:06.736Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -127,14 +127,14 @@
       }
     },
     {
-      "evidence_id": "ev_be30bef3f69e423fc028",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_b8c7b10dfbddfbe13fb1",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:tool:1",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:1",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:37.332Z",
+      "created_at": "2026-09-23T11:57:45.428Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -154,14 +154,14 @@
       }
     },
     {
-      "evidence_id": "ev_85eabec1599b0261a09d",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_9f8db4afb468892e0022",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:tool:2",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:2",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:37.370Z",
+      "created_at": "2026-09-23T11:57:45.466Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -179,14 +179,14 @@
       }
     },
     {
-      "evidence_id": "ev_afa6d07f51e019adf38a",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_65d1a6a5fdadf946b07d",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:tool:3",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:3",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:37.405Z",
+      "created_at": "2026-09-23T11:57:45.511Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -205,14 +205,14 @@
       }
     },
     {
-      "evidence_id": "ev_5c7743189ac4d88ccd0b",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_0cc64b924e30c502b5e3",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:tool:4",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:4",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:37.405Z",
+      "created_at": "2026-09-23T11:57:45.511Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -231,14 +231,14 @@
       }
     },
     {
-      "evidence_id": "ev_c7e01e2998cc708ddc00",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_09ac55b77bea8198e969",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "DIFF_EVIDENCE",
       "source": "sqlite:runs.diff",
       "summary": "1 files changed (+5/-1)",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:diff",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:diff",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:37.412Z",
+      "created_at": "2026-09-23T11:57:45.520Z",
       "data": {
         "status_before": "",
         "status_after": " M src/http.js\n",
@@ -251,14 +251,14 @@
       }
     },
     {
-      "evidence_id": "ev_b94cb6b33605762cf169",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_5547b040f427b80006b3",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:verification_results",
       "summary": "external-verifier: PASSED",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:verification:0",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:verification:0",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:37.412Z",
+      "created_at": "2026-09-23T11:57:45.520Z",
       "data": {
         "name": "external-verifier",
         "category": "custom",
@@ -266,39 +266,39 @@
         "exit_code": 0,
         "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
         "stderr": "",
-        "duration_ms": 55,
+        "duration_ms": 60,
         "status": "PASSED"
       }
     },
     {
-      "evidence_id": "ev_71e9d03dfc38e26defc6",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_36a55f73b432c9cfb8a2",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
       "summary": "57 ordered events and 10 persisted tool calls",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:events",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:events",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:37.412Z",
+      "created_at": "2026-09-23T11:57:45.520Z",
       "data": {
         "events": 57,
         "tool_calls": 10
       }
     },
     {
-      "evidence_id": "ev_829a44326b937532cae0",
-      "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+      "evidence_id": "ev_fe57403a6a80e9baa86c",
+      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
       "summary": "4 safety and durability events",
-      "raw_reference": "run:a6ae31ee-c414-4f0c-8797-3512bef8d322:safety",
+      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:safety",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:29:37.336Z",
+      "created_at": "2026-09-23T11:57:45.431Z",
       "data": [
         {
-          "event_id": "86f00227-6f52-4ea5-8748-0a69b44c79b2",
-          "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+          "event_id": "1b0521e4-0f1d-4f67-84ab-d929d45a843a",
+          "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
           "sequence": 2,
-          "timestamp": "2026-09-23T10:29:02.738Z",
+          "timestamp": "2026-09-23T11:57:06.694Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 1,
@@ -307,10 +307,10 @@
           }
         },
         {
-          "event_id": "03a5a9c0-7e32-4271-a6ac-3715626c24a8",
-          "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+          "event_id": "180492d0-c141-400c-a70c-6cf7026c6406",
+          "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
           "sequence": 7,
-          "timestamp": "2026-09-23T10:29:02.774Z",
+          "timestamp": "2026-09-23T11:57:06.740Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 6,
@@ -319,10 +319,10 @@
           }
         },
         {
-          "event_id": "5219b95f-8a1b-4a9b-905b-0058decbaa2b",
-          "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+          "event_id": "5fecd239-250e-41dd-a155-403b227b6333",
+          "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
           "sequence": 40,
-          "timestamp": "2026-09-23T10:29:37.275Z",
+          "timestamp": "2026-09-23T11:57:45.367Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 39,
@@ -331,10 +331,10 @@
           }
         },
         {
-          "event_id": "4ddc6004-40b5-40e8-80d2-fc15d739a9ae",
-          "run_id": "a6ae31ee-c414-4f0c-8797-3512bef8d322",
+          "event_id": "a1f07160-7371-43fc-8250-2bec4453aa85",
+          "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
           "sequence": 46,
-          "timestamp": "2026-09-23T10:29:37.336Z",
+          "timestamp": "2026-09-23T11:57:45.431Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 45,
@@ -352,11 +352,11 @@
       "required": true,
       "status": "PASS",
       "evidence_ids": [
-        "ev_b94cb6b33605762cf169"
+        "ev_5547b040f427b80006b3"
       ],
       "reason": "External verifier PASS."
     }
   ],
   "outcome": "PASS",
-  "generated_at": "2026-09-23T10:29:37.419Z"
+  "generated_at": "2026-09-23T11:57:45.529Z"
 }

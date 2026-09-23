@@ -1,0 +1,366 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+  "task": {
+    "task_id": "multi-file",
+    "title": "Add configured port",
+    "goal": "Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/config.js",
+      "README.md"
+    ],
+    "acceptance_criteria": [
+      "Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\multi-file",
+    "timeout_ms": 90000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "COMPLETED",
+    "error": null,
+    "execution_mode": "REAL_CODEX"
+  },
+  "context": {
+    "files_considered": 4,
+    "files_supplied": 2,
+    "approximate_tokens": 17,
+    "selected_paths": [
+      "README.md",
+      "src\\config.js"
+    ],
+    "accessed_files": null,
+    "access_observation": "UNAVAILABLE",
+    "evidence_ids": [
+      "ev_a1c40d65814f8e4a3807"
+    ]
+  },
+  "actions": {
+    "events": 57,
+    "tool_calls": 10,
+    "evidence_ids": [
+      "ev_8d4a158af06e345d2987",
+      "ev_f24ddae6f0c97f03b21f",
+      "ev_a960c6cc9e541a46316d",
+      "ev_522bf451c4e9223a4314",
+      "ev_ed3168b5686b7a080c15",
+      "ev_fa644734e7c3a6fdf15f",
+      "ev_5be7c17bfc12ec49a11d",
+      "ev_9647ed142c9f72a33282"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "README.md",
+      "src/config.js"
+    ],
+    "additions": 6,
+    "deletions": 1,
+    "evidence_ids": [
+      "ev_ed79d84ea8c77b7f16cc"
+    ]
+  },
+  "verification": {
+    "results": [
+      {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 57,
+        "status": "PASSED"
+      }
+    ],
+    "evidence_ids": [
+      "ev_fa644734e7c3a6fdf15f"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_a1c40d65814f8e4a3807",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "2 files supplied from 4 considered",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:02.767Z",
+      "data": {
+        "files_considered": 4,
+        "files_included": 2,
+        "approximate_tokens": 17
+      }
+    },
+    {
+      "evidence_id": "ev_8d4a158af06e345d2987",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:02.764Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_f24ddae6f0c97f03b21f",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:51.371Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "cmd.exe",
+          "args": [
+            "/d",
+            "/s",
+            "/c",
+            "node verify.mjs"
+          ]
+        },
+        "result": {
+          "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_a960c6cc9e541a46316d",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:51.415Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": " M README.md\n M src/config.js\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_522bf451c4e9223a4314",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:51.456Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "2\t0\tREADME.md\n4\t1\tsrc/config.js\n",
+          "stderr": "warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/config.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_ed3168b5686b7a080c15",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:tool:4",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:51.456Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "diff --git a/README.md b/README.md\nindex ca69e6d..266d466 100644\n--- a/README.md\n+++ b/README.md\n@@ -1 +1,3 @@\n # Fixture\n+\n+The default port is `3000` when the configured port is invalid or outside the valid port range.\ndiff --git a/src/config.js b/src/config.js\nindex 79fd202..41d7fca 100644\n--- a/src/config.js\n+++ b/src/config.js\n@@ -1 +1,4 @@\n-export function getPort(config) { return config.port; }\n+export function getPort(config) {\n+  const port = Number(config?.port);\n+  return Number.isInteger(port) && port >= 1 && port <= 65535 ? port : 3000;\n+}\n",
+          "stderr": "warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/config.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_ed79d84ea8c77b7f16cc",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "2 files changed (+6/-1)",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:51.463Z",
+      "data": {
+        "status_before": "",
+        "status_after": " M README.md\n M src/config.js\n",
+        "changed_files": [
+          "README.md",
+          "src/config.js"
+        ],
+        "additions": 6,
+        "deletions": 1,
+        "unified_diff": "diff --git a/README.md b/README.md\nindex ca69e6d..266d466 100644\n--- a/README.md\n+++ b/README.md\n@@ -1 +1,3 @@\n # Fixture\n+\n+The default port is `3000` when the configured port is invalid or outside the valid port range.\ndiff --git a/src/config.js b/src/config.js\nindex 79fd202..41d7fca 100644\n--- a/src/config.js\n+++ b/src/config.js\n@@ -1 +1,4 @@\n-export function getPort(config) { return config.port; }\n+export function getPort(config) {\n+  const port = Number(config?.port);\n+  return Number.isInteger(port) && port >= 1 && port <= 65535 ? port : 3000;\n+}\n"
+      }
+    },
+    {
+      "evidence_id": "ev_fa644734e7c3a6fdf15f",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "external-verifier: PASSED",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:51.463Z",
+      "data": {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 57,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_5be7c17bfc12ec49a11d",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "57 ordered events and 10 persisted tool calls",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:51.463Z",
+      "data": {
+        "events": 57,
+        "tool_calls": 10
+      }
+    },
+    {
+      "evidence_id": "ev_9647ed142c9f72a33282",
+      "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "4 safety and durability events",
+      "raw_reference": "run:224bbe3f-4ef0-4ecd-8252-510a41ccacca:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:42:51.376Z",
+      "data": [
+        {
+          "event_id": "9e1bf50e-042e-44fe-b5d8-638b09c4db66",
+          "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+          "sequence": 2,
+          "timestamp": "2026-09-23T11:42:02.731Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "e39ef849-82b7-4ef4-81a4-03606a0f085e",
+          "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+          "sequence": 7,
+          "timestamp": "2026-09-23T11:42:02.769Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "587c0458-7b46-4a0a-bf7d-f481c798548e",
+          "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+          "sequence": 39,
+          "timestamp": "2026-09-23T11:42:51.313Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 38,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "63e60c60-89b6-4261-ae78-3d13a86c8788",
+          "run_id": "224bbe3f-4ef0-4ecd-8252-510a41ccacca",
+          "sequence": 45,
+          "timestamp": "2026-09-23T11:42:51.376Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 44,
+            "completed_tool_calls": 2,
+            "verification_progress": 1
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_fa644734e7c3a6fdf15f"
+      ],
+      "reason": "External verifier PASS."
+    }
+  ],
+  "outcome": "PASS",
+  "generated_at": "2026-09-23T11:42:51.470Z"
+}

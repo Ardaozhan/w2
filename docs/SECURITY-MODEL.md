@@ -20,4 +20,4 @@ W2 does not broker, intercept, or authorize every Codex-native filesystem/shell 
 
 ## Evidence boundary
 
-An outcome is calculated from persisted run state and required criterion evidence. Model-generated completion text cannot directly set a `PASS`. Infrastructure failures are classified as `ERROR`; missing criterion evidence after a completed execution is `UNPROVEN`.
+At the receipt layer, a Codex process failure/timeout produces `ERROR`; after a successful execution, missing required criterion evidence produces `UNPROVEN`. At the benchmark aggregation layer, the same process failure/timeout is classified as `INFRASTRUCTURE_FAILURE` and excluded from task-outcome rates. These labels belong to different layers. Model-generated completion text cannot directly set a receipt `PASS`.

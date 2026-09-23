@@ -1,9 +1,9 @@
 # W2 RUN RECEIPT
 
 - Receipt version: 1.0
-- Run: `14cc361e-2a4c-4bb4-b48f-5d2150673d1b`
+- Run: `116e1b81-0223-42ea-9e9f-78c965a9f749`
 - Execution mode: REAL_CODEX
-- Generated: 2026-09-23T10:26:19.918Z
+- Generated: 2026-09-23T11:54:07.948Z
 
 ## Task
 **Normalize display names**
@@ -16,8 +16,8 @@ Refactor formatName so it trims surrounding whitespace and collapses repeated in
 - Exact repository files accessed by Codex: not captured by this adapter
 
 ## What the agent did
-- 10 observable tool calls
-- 57 ordered events
+- 8 observable tool calls
+- 47 ordered events
 - 1 changed files
 
 ## Verification

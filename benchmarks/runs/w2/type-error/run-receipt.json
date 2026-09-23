@@ -1,6 +1,6 @@
 {
   "receipt_version": "1.0",
-  "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+  "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
   "task": {
     "task_id": "type-error",
     "title": "Parse numeric input",
@@ -41,31 +41,31 @@
     "accessed_files": null,
     "access_observation": "UNAVAILABLE",
     "evidence_ids": [
-      "ev_91fbbbef4c44cb4574f2"
+      "ev_43f951acd57b52e55407"
     ]
   },
   "actions": {
     "events": 47,
     "tool_calls": 8,
     "evidence_ids": [
-      "ev_14559f2d0686c2c37d22",
-      "ev_794507299896210c08f3",
-      "ev_26ea6cecb3a3bdbdaccf",
-      "ev_7f48db07ee6c7a533a81",
-      "ev_b3de71562c10ec0b99ff",
-      "ev_413fb49217359209aa36",
-      "ev_5ca5c3ee3aa97fc275b5",
-      "ev_b16512b4969b200e0a6f"
+      "ev_6222e0508bbbc540d913",
+      "ev_7e7917fad2f7aa8576f6",
+      "ev_c4d05552d4402d74dfb2",
+      "ev_baf74fe648bd966fb7c4",
+      "ev_fe959df96a1c76c5e1f6",
+      "ev_5b65a74cbfbffaf840a5",
+      "ev_d9202f4d9c5bc04b808b",
+      "ev_99ac8df63055e262a90e"
     ]
   },
   "changes": {
     "changed_files": [
       "src/parse.js"
     ],
-    "additions": 12,
+    "additions": 5,
     "deletions": 1,
     "evidence_ids": [
-      "ev_e2a26c5a5685310bddb9"
+      "ev_61d862872889bd7d2614"
     ]
   },
   "verification": {
@@ -77,24 +77,24 @@
         "exit_code": 0,
         "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
         "stderr": "",
-        "duration_ms": 55,
+        "duration_ms": 56,
         "status": "PASSED"
       }
     ],
     "evidence_ids": [
-      "ev_413fb49217359209aa36"
+      "ev_5b65a74cbfbffaf840a5"
     ]
   },
   "evidence": [
     {
-      "evidence_id": "ev_91fbbbef4c44cb4574f2",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_43f951acd57b52e55407",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "CONTEXT_EVIDENCE",
       "source": "sqlite:runs.context_manifest",
       "summary": "1 files supplied from 3 considered",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:context",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:context",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:27:58.982Z",
+      "created_at": "2026-09-23T11:56:00.757Z",
       "data": {
         "files_considered": 3,
         "files_included": 1,
@@ -102,14 +102,14 @@
       }
     },
     {
-      "evidence_id": "ev_14559f2d0686c2c37d22",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_6222e0508bbbc540d913",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:tool:0",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:tool:0",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:27:58.978Z",
+      "created_at": "2026-09-23T11:56:00.755Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -127,14 +127,14 @@
       }
     },
     {
-      "evidence_id": "ev_794507299896210c08f3",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_7e7917fad2f7aa8576f6",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:tool:1",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:tool:1",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:28:32.895Z",
+      "created_at": "2026-09-23T11:56:32.540Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -154,14 +154,14 @@
       }
     },
     {
-      "evidence_id": "ev_26ea6cecb3a3bdbdaccf",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_c4d05552d4402d74dfb2",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:tool:2",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:tool:2",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:28:32.935Z",
+      "created_at": "2026-09-23T11:56:32.576Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -179,14 +179,14 @@
       }
     },
     {
-      "evidence_id": "ev_7f48db07ee6c7a533a81",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_baf74fe648bd966fb7c4",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:tool:3",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:tool:3",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:28:32.968Z",
+      "created_at": "2026-09-23T11:56:32.611Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -198,21 +198,21 @@
           ]
         },
         "result": {
-          "stdout": "diff --git a/src/parse.js b/src/parse.js\nindex 43352c8..4a1c9eb 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -1 +1,12 @@\n-export function parseNumber(value) { return value; }\n+export function parseNumber(value) {\n+  if (typeof value !== 'string' || value.trim() === '') {\n+    throw new TypeError('Expected a numeric string');\n+  }\n+\n+  const number = Number(value);\n+  if (!Number.isFinite(number)) {\n+    throw new TypeError('Expected a finite number');\n+  }\n+\n+  return number;\n+}\n",
+          "stdout": "diff --git a/src/parse.js b/src/parse.js\nindex 43352c8..e7f5816 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -1 +1,5 @@\n-export function parseNumber(value) { return value; }\n+export function parseNumber(value) {\n+  const number = Number(value);\n+  if (!Number.isFinite(number)) throw new TypeError('Invalid number');\n+  return number;\n+}\n",
           "stderr": "warning: in the working copy of 'src/parse.js', LF will be replaced by CRLF the next time Git touches it\n",
           "exitCode": 0
         }
       }
     },
     {
-      "evidence_id": "ev_b3de71562c10ec0b99ff",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_fe959df96a1c76c5e1f6",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:tool:4",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:tool:4",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:28:32.971Z",
+      "created_at": "2026-09-23T11:56:32.611Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -224,41 +224,41 @@
           ]
         },
         "result": {
-          "stdout": "12\t1\tsrc/parse.js\n",
+          "stdout": "5\t1\tsrc/parse.js\n",
           "stderr": "warning: in the working copy of 'src/parse.js', LF will be replaced by CRLF the next time Git touches it\n",
           "exitCode": 0
         }
       }
     },
     {
-      "evidence_id": "ev_e2a26c5a5685310bddb9",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_61d862872889bd7d2614",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "DIFF_EVIDENCE",
       "source": "sqlite:runs.diff",
-      "summary": "1 files changed (+12/-1)",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:diff",
+      "summary": "1 files changed (+5/-1)",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:diff",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:28:32.978Z",
+      "created_at": "2026-09-23T11:56:32.620Z",
       "data": {
         "status_before": "",
         "status_after": " M src/parse.js\n",
         "changed_files": [
           "src/parse.js"
         ],
-        "additions": 12,
+        "additions": 5,
         "deletions": 1,
-        "unified_diff": "diff --git a/src/parse.js b/src/parse.js\nindex 43352c8..4a1c9eb 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -1 +1,12 @@\n-export function parseNumber(value) { return value; }\n+export function parseNumber(value) {\n+  if (typeof value !== 'string' || value.trim() === '') {\n+    throw new TypeError('Expected a numeric string');\n+  }\n+\n+  const number = Number(value);\n+  if (!Number.isFinite(number)) {\n+    throw new TypeError('Expected a finite number');\n+  }\n+\n+  return number;\n+}\n"
+        "unified_diff": "diff --git a/src/parse.js b/src/parse.js\nindex 43352c8..e7f5816 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -1 +1,5 @@\n-export function parseNumber(value) { return value; }\n+export function parseNumber(value) {\n+  const number = Number(value);\n+  if (!Number.isFinite(number)) throw new TypeError('Invalid number');\n+  return number;\n+}\n"
       }
     },
     {
-      "evidence_id": "ev_413fb49217359209aa36",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_5b65a74cbfbffaf840a5",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:verification_results",
       "summary": "external-verifier: PASSED",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:verification:0",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:verification:0",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:28:32.978Z",
+      "created_at": "2026-09-23T11:56:32.620Z",
       "data": {
         "name": "external-verifier",
         "category": "custom",
@@ -266,39 +266,39 @@
         "exit_code": 0,
         "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
         "stderr": "",
-        "duration_ms": 55,
+        "duration_ms": 56,
         "status": "PASSED"
       }
     },
     {
-      "evidence_id": "ev_5ca5c3ee3aa97fc275b5",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_d9202f4d9c5bc04b808b",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
       "summary": "47 ordered events and 8 persisted tool calls",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:events",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:events",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:28:32.978Z",
+      "created_at": "2026-09-23T11:56:32.620Z",
       "data": {
         "events": 47,
         "tool_calls": 8
       }
     },
     {
-      "evidence_id": "ev_b16512b4969b200e0a6f",
-      "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+      "evidence_id": "ev_99ac8df63055e262a90e",
+      "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
       "summary": "4 safety and durability events",
-      "raw_reference": "run:481045ee-39be-4c88-bee3-c417d864634c:safety",
+      "raw_reference": "run:d6f55b85-97a3-4b87-a179-3c08be84b0c8:safety",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T10:28:32.901Z",
+      "created_at": "2026-09-23T11:56:32.544Z",
       "data": [
         {
-          "event_id": "f40c9f37-14f5-4dc3-9afb-8830a98df3c1",
-          "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+          "event_id": "bd77621c-842e-4b7b-8ce5-2b861483bfdd",
+          "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
           "sequence": 2,
-          "timestamp": "2026-09-23T10:27:58.946Z",
+          "timestamp": "2026-09-23T11:56:00.723Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 1,
@@ -307,10 +307,10 @@
           }
         },
         {
-          "event_id": "9d6d040d-4d51-4e6b-b932-f8133a99e655",
-          "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+          "event_id": "d361f38c-31eb-4eaa-a727-9ca84ada3087",
+          "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
           "sequence": 7,
-          "timestamp": "2026-09-23T10:27:58.983Z",
+          "timestamp": "2026-09-23T11:56:00.759Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 6,
@@ -319,10 +319,10 @@
           }
         },
         {
-          "event_id": "e47de5ac-7e74-4919-a06d-52b80b538c3d",
-          "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+          "event_id": "dd4560b1-cef7-46d3-b0ea-881ded198a90",
+          "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
           "sequence": 30,
-          "timestamp": "2026-09-23T10:28:32.838Z",
+          "timestamp": "2026-09-23T11:56:32.482Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 29,
@@ -331,10 +331,10 @@
           }
         },
         {
-          "event_id": "da3def43-a04b-44da-b007-f385b32b0179",
-          "run_id": "481045ee-39be-4c88-bee3-c417d864634c",
+          "event_id": "fe81d661-3bfa-4b13-a4b7-677db845fa0b",
+          "run_id": "d6f55b85-97a3-4b87-a179-3c08be84b0c8",
           "sequence": 36,
-          "timestamp": "2026-09-23T10:28:32.901Z",
+          "timestamp": "2026-09-23T11:56:32.544Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 35,
@@ -352,11 +352,11 @@
       "required": true,
       "status": "PASS",
       "evidence_ids": [
-        "ev_413fb49217359209aa36"
+        "ev_5b65a74cbfbffaf840a5"
       ],
       "reason": "External verifier PASS."
     }
   ],
   "outcome": "PASS",
-  "generated_at": "2026-09-23T10:28:32.984Z"
+  "generated_at": "2026-09-23T11:56:32.627Z"
 }

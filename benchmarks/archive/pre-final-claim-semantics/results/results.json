@@ -1,0 +1,2192 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-23T11:44:01.743Z",
+  "methodology": {
+    "fixtures": 8,
+    "conditions": [
+      "raw_codex",
+      "w2_codex"
+    ],
+    "model_config": "local Codex configuration",
+    "sandbox": "workspace-write",
+    "timeout_ms": 90000,
+    "task_contract": "normalized nested task contract"
+  },
+  "runs": [
+    {
+      "condition": "raw_codex",
+      "fixture_id": "bug-fix",
+      "baseline_commit": "caf895eef8e711632f62e2e8dfbd4515337a77a0",
+      "baseline_hash": "ed6dd68a28321adafb1c56e586545337fc5a3d6a",
+      "task_semantics_hash": "34c7363d6e48bf2507f714b8f03426c6a9cce3fb0e83c9504bcaf0555efe2158",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 50
+      },
+      "runtime_ms": 41237,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/math.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 50
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce0b-825e-7112-b33f-bd5793da2679\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"Önce izin verilen dosyayı ve depo talimatlarını inceleyip çarpma hatasını belirleyeceğim; ardından yalnızca `src/math.js` dosyasını düzelterek istenen doğrulamayı çalıştıracağım.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/math.js' -g 'verify.mjs' -g 'package.json' -g 'README*'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/math.js' -g 'verify.mjs' -g 'package.json' -g 'README*'\\\"\",\"aggregated_output\":\"d--h--         9/23/2026   2:34 PM                .git                                                                 \\r\\nd-----         9/23/2026   2:34 PM                src                                                                  \\r\\n-a----         9/23/2026   2:34 PM            837 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            172 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\math.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/math.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/math.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\bug-fix\\\\src\\\\math.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\bug-fix\\\\src\\\\math.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"agent_message\",\"text\":\"`multiply` toplama yapıyordu; operatörü çarpma olarak düzelttim. Şimdi talep edilen doğrulama komutunu çalıştırıp sonucunu kontrol ediyorum.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"`src/math.js` içindeki `multiply(a, b)` fonksiyonunu çarpma yapacak şekilde düzelttim. `node verify.mjs` başarıyla çalıştı: `PASS`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126256,\"cached_input_tokens\":119552,\"cache_write_input_tokens\":0,\"output_tokens\":503,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0,
+      "agent_messages": [
+        "Önce izin verilen dosyayı ve depo talimatlarını inceleyip çarpma hatasını belirleyeceğim; ardından yalnızca `src/math.js` dosyasını düzelterek istenen doğrulamayı çalıştıracağım.",
+        "`multiply` toplama yapıyordu; operatörü çarpma olarak düzelttim. Şimdi talep edilen doğrulama komutunu çalıştırıp sonucunu kontrol ediyorum.",
+        "`src/math.js` içindeki `multiply(a, b)` fonksiyonunu çarpma yapacak şekilde düzelttim. `node verify.mjs` başarıyla çalıştı: `PASS`."
+      ],
+      "claim_source": "Codex JSONL agent_message/assistant_message items only"
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "bug-fix",
+      "baseline_commit": "caf895eef8e711632f62e2e8dfbd4515337a77a0",
+      "baseline_hash": "ed6dd68a28321adafb1c56e586545337fc5a3d6a",
+      "task_semantics_hash": "34c7363d6e48bf2507f714b8f03426c6a9cce3fb0e83c9504bcaf0555efe2158",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 76
+      },
+      "runtime_ms": 29171,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 46,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 13,
+          "selected_paths": [
+            "src\\math.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_5b44b86a8796b6c35d9e"
+          ]
+        },
+        "tool_trace": {
+          "events": 46,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_bf9333c424a9c7c78a55",
+            "ev_0b96e7dbc524dfe957b4",
+            "ev_8c32a7e4f5492b037908",
+            "ev_fb447551157786663d4c",
+            "ev_1fcaaf68715a862d08bc",
+            "ev_bd98659776e333595d3d",
+            "ev_2c49a82aca712bedad9e",
+            "ev_72036870f62a8e514e0c"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/math.js"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_c481b48c84864366badc"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 76,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_bd98659776e333595d3d"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\bug-fix\\run-receipt.json"
+      },
+      "output": "",
+      "agent_messages": [
+        "I’ll inspect the scoped source and workspace instructions, make the smallest fix in `src/math.js`, then run the required `node verify.mjs`.",
+        "Updated [src/math.js](C:/Users/ardao/w2/benchmarks/runs/w2/bug-fix/src/math.js) so `multiply(a, b)` returns `a * b`.\n\nVerification: `node verify.mjs` passed."
+      ],
+      "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items",
+      "agent_message_events": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0ce0c-2239-7391-9c14-b24253e51d93"
+        },
+        {
+          "type": "turn.started"
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_0",
+            "type": "agent_message",
+            "text": "I’ll inspect the scoped source and workspace instructions, make the smallest fix in `src/math.js`, then run the required `node verify.mjs`."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'!'\"\\\\.git'; Get-Content src/math.js; Get-Content verify.mjs\"",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'!'\"\\\\.git'; Get-Content src/math.js; Get-Content verify.mjs\"",
+            "aggregated_output": "\r\n\r\n    Directory: C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\bug-fix\r\n\r\n\r\nMode                 LastWriteTime         Length Name                                                                 \r\n----                 -------------         ------ ----                                                                 \r\nd--h--         9/23/2026   2:34 PM                .git                                                                 \r\nd-----         9/23/2026   2:34 PM                src                                                                  \r\n-a----         9/23/2026   2:34 PM            837 task.json                                                            \r\n-a----         9/23/2026   2:34 PM            172 verify.mjs                                                           \r\nexport function multiply(a, b) { return a + b; }\r\nimport { multiply } from './src/math.js'; if (multiply(6, 7) !== 42) throw new Error('multiply failed'); console.log(JSON.stringify({criterion:'multiply',status:'PASS'}));\r\n\r\n\r\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_2",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\bug-fix\\src\\math.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_2",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\bug-fix\\src\\math.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_3",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_3",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_4",
+            "type": "agent_message",
+            "text": "Updated [src/math.js](C:/Users/ardao/w2/benchmarks/runs/w2/bug-fix/src/math.js) so `multiply(a, b)` returns `a * b`.\n\nVerification: `node verify.mjs` passed."
+          }
+        },
+        {
+          "type": "turn.completed",
+          "usage": {
+            "input_tokens": 77218,
+            "cached_input_tokens": 71936,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 343,
+            "reasoning_output_tokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "feature",
+      "baseline_commit": "85c5e4f89af88ed62c96ebe9109f69ff82e6417f",
+      "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
+      "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 49
+      },
+      "runtime_ms": 43172,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/slug.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 49
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce0c-94d8-7e03-86d6-504505a66982\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and the existing source/verifier, then make the smallest change in `src/slug.js` and run the required `node verify.mjs`.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g verify.mjs -g 'slug.js' -g package.json\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g verify.mjs -g 'slug.js' -g package.json\\\"\",\"aggregated_output\":\"-a----         9/23/2026   2:34 PM            877 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            192 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\slug.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content src/slug.js; Get-Content verify.mjs; rg --files -g AGENTS.md -g '*.md' -g package.json; git status --short\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content src/slug.js; Get-Content verify.mjs; rg --files -g AGENTS.md -g '*.md' -g package.json; git status --short\\\"\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"agent_message\",\"text\":\"Implemented `slugify(text)` in [src/slug.js](C:/Users/ardao/w2/benchmarks/runs/raw/feature/src/slug.js): it lowercases and trims the text, replaces runs of non-letter/digit characters with hyphens, and removes leading or trailing hyphens.\\n\\n`node verify.mjs` passed.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126343,\"cached_input_tokens\":122624,\"cache_write_input_tokens\":0,\"output_tokens\":621,\"reasoning_output_tokens\":120}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0,
+      "agent_messages": [
+        "I’ll inspect the repository instructions and the existing source/verifier, then make the smallest change in `src/slug.js` and run the required `node verify.mjs`.",
+        "Implemented `slugify(text)` in [src/slug.js](C:/Users/ardao/w2/benchmarks/runs/raw/feature/src/slug.js): it lowercases and trims the text, replaces runs of non-letter/digit characters with hyphens, and removes leading or trailing hyphens.\n\n`node verify.mjs` passed."
+      ],
+      "claim_source": "Codex JSONL agent_message/assistant_message items only"
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "feature",
+      "baseline_commit": "85c5e4f89af88ed62c96ebe9109f69ff82e6417f",
+      "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
+      "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 57
+      },
+      "runtime_ms": 28312,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 46,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 12,
+          "selected_paths": [
+            "src\\slug.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_4238e68d8d3a93588066"
+          ]
+        },
+        "tool_trace": {
+          "events": 46,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_59af4d659057bd32b343",
+            "ev_c7e4819eb0c1c30ac22d",
+            "ev_cfddefaaa4e7e110ef02",
+            "ev_b3b17092d19253472e99",
+            "ev_fabd73a32359a328a76c",
+            "ev_ba50eacd4af71ceb4945",
+            "ev_2aeb09c677fea20b8a89",
+            "ev_d66d644fa5801f1b8457"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/slug.js"
+          ],
+          "additions": 7,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_759ea2ba2b716e2e10e4"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 57,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_ba50eacd4af71ceb4945"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\feature\\run-receipt.json"
+      },
+      "output": "",
+      "agent_messages": [
+        "I’ll inspect the selected source and repository instructions, then make the smallest allowed edit and run `node verify.mjs`.",
+        "Implemented `slugify(text)` in [src/slug.js](/C:/Users/ardao/w2/benchmarks/runs/w2/feature/src/slug.js): it lowercases and trims the text, replaces runs of non-alphanumeric characters with hyphens, and removes leading or trailing hyphens.\n\nVerification: `node verify.mjs` — PASS."
+      ],
+      "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items",
+      "agent_message_events": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0ce0d-3e53-7400-a61c-8924cccc4fcf"
+        },
+        {
+          "type": "turn.started"
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_0",
+            "type": "agent_message",
+            "text": "I’ll inspect the selected source and repository instructions, then make the smallest allowed edit and run `node verify.mjs`."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\"'!node_modules'\"'; Get-Content src/slug.js; Get-Content verify.mjs\"",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\"'!node_modules'\"'; Get-Content src/slug.js; Get-Content verify.mjs\"",
+            "aggregated_output": "-a----         9/23/2026   2:34 PM            192 verify.mjs                                                           \r\nexport function slugify(text) { return text; }\r\nimport { slugify } from './src/slug.js'; if (slugify(' Hello, World! ') !== 'hello-world') throw new Error('slugify failed'); console.log(JSON.stringify({criterion:'slugify',status:'PASS'}));\r\n\r\n\r\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_2",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\feature\\src\\slug.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_2",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\feature\\src\\slug.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_3",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_3",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_4",
+            "type": "agent_message",
+            "text": "Implemented `slugify(text)` in [src/slug.js](/C:/Users/ardao/w2/benchmarks/runs/w2/feature/src/slug.js): it lowercases and trims the text, replaces runs of non-alphanumeric characters with hyphens, and removes leading or trailing hyphens.\n\nVerification: `node verify.mjs` — PASS."
+          }
+        },
+        {
+          "type": "turn.completed",
+          "usage": {
+            "input_tokens": 77273,
+            "cached_input_tokens": 71936,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 496,
+            "reasoning_output_tokens": 109
+          }
+        }
+      ]
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "refactor",
+      "baseline_commit": "43972809a401f3a703b863dd79b57d2967351986",
+      "baseline_hash": "c877c10902e9546fe87e172576579c76e21c9f50",
+      "task_semantics_hash": "868cfc0475507fa33111ab5ae0adf39d206ce243e200723d7b22cfc7b35ee857",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 47
+      },
+      "runtime_ms": 25160,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/format.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 47
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce0d-ae34-73c2-a611-bbecedbd5dd3\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the allowed source file and the verification setup, then make the smallest change within `src/format.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-ChildItem -Force; Get-Content -Raw src/format.js; Get-Content -Raw verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-ChildItem -Force; Get-Content -Raw src/format.js; Get-Content -Raw verify.mjs'\",\"aggregated_output\":\"Mode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\nd--h--         9/23/2026   2:36 PM                .git                                                                 \\r\\nd-----         9/23/2026   2:36 PM                src                                                                  \\r\\n-a----         9/23/2026   2:34 PM            916 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            209 verify.mjs                                                           \\r\\nexport function formatName(value) { return value.toUpperCase(); }\\n\\r\\nimport { formatName } from './src/format.js'; if (formatName('  Ada   Lovelace ') !== 'Ada Lovelace') throw new Error('formatName failed'); console.log(JSON.stringify({criterion:'formatName',status:'PASS'}));\\n\\r\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"formatName\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"agent_message\",\"text\":\"Updated [src/format.js](/C:/Users/ardao/w2/benchmarks/runs/raw/refactor/src/format.js) so `formatName` trims surrounding whitespace and collapses repeated whitespace to single spaces.\\n\\n`node verify.mjs` passed (`formatName: PASS`, exit code 0).\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":75300,\"cached_input_tokens\":70912,\"cache_write_input_tokens\":0,\"output_tokens\":349,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0,
+      "agent_messages": [
+        "I’ll inspect the allowed source file and the verification setup, then make the smallest change within `src/format.js` and run the required verifier.",
+        "Updated [src/format.js](/C:/Users/ardao/w2/benchmarks/runs/raw/refactor/src/format.js) so `formatName` trims surrounding whitespace and collapses repeated whitespace to single spaces.\n\n`node verify.mjs` passed (`formatName: PASS`, exit code 0)."
+      ],
+      "claim_source": "Codex JSONL agent_message/assistant_message items only"
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "refactor",
+      "baseline_commit": "43972809a401f3a703b863dd79b57d2967351986",
+      "baseline_hash": "c877c10902e9546fe87e172576579c76e21c9f50",
+      "task_semantics_hash": "868cfc0475507fa33111ab5ae0adf39d206ce243e200723d7b22cfc7b35ee857",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 55
+      },
+      "runtime_ms": 44229,
+      "model_calls": 1,
+      "tool_calls": 10,
+      "steps": 57,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 17,
+          "selected_paths": [
+            "src\\format.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_eb468fb6b301d7ba1354"
+          ]
+        },
+        "tool_trace": {
+          "events": 57,
+          "tool_calls": 10,
+          "evidence_ids": [
+            "ev_6c13ed1c87b4f0027eac",
+            "ev_a37fbf31893d15ea21f6",
+            "ev_20a6d6af1ba7c99292f5",
+            "ev_693de0353168b6895709",
+            "ev_f16af0f4666cacb38e64",
+            "ev_bc7d8cbe60faad45f487",
+            "ev_00bdd042012bb8b0bb23",
+            "ev_b26ce726b063bb4d665c"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/format.js"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_a79e82c5d8eee068dc55"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 55,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_bc7d8cbe60faad45f487"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\refactor\\run-receipt.json"
+      },
+      "output": "",
+      "agent_messages": [
+        "I’ll inspect the permitted source file and repository guidance, make the minimal edit in `src/format.js`, then run the required verifier.",
+        "The verifier exposed an existing behavior mismatch: it expects the normalized input casing (`Ada Lovelace`), while the old function uppercased everything. I’ll remove that transformation and rerun the declared check.",
+        "Updated [src/format.js](/C:/Users/ardao/w2/benchmarks/runs/w2/refactor/src/format.js) to trim surrounding whitespace and collapse repeated whitespace to a single space, preserving the input’s casing.\n\nVerification: `node verify.mjs` — PASS."
+      ],
+      "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items",
+      "agent_message_events": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0ce0e-11cc-7f42-b372-5df7fd50db35"
+        },
+        {
+          "type": "turn.started"
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_0",
+            "type": "agent_message",
+            "text": "I’ll inspect the permitted source file and repository guidance, make the minimal edit in `src/format.js`, then run the required verifier."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-Content -Raw src/format.js; rg --files -g AGENTS.md -g package.json -g '\"'!node_modules'\"'\"",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-Content -Raw src/format.js; rg --files -g AGENTS.md -g package.json -g '\"'!node_modules'\"'\"",
+            "aggregated_output": "",
+            "exit_code": 1,
+            "status": "failed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_2",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\refactor\\src\\format.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_2",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\refactor\\src\\format.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_3",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_3",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "file:///C:/Users/ardao/w2/benchmarks/runs/w2/refactor/verify.mjs:1\r\nimport { formatName } from './src/format.js'; if (formatName('  Ada   Lovelace ') !== 'Ada Lovelace') throw new Error('formatName failed'); console.log(JSON.stringify({criterion:'formatName',status:'PASS'}));\r\n                                                                                                            ^\r\n\r\nError: formatName failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/w2/refactor/verify.mjs:1:109\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
+            "exit_code": 1,
+            "status": "failed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_4",
+            "type": "agent_message",
+            "text": "The verifier exposed an existing behavior mismatch: it expects the normalized input casing (`Ada Lovelace`), while the old function uppercased everything. I’ll remove that transformation and rerun the declared check."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_5",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\refactor\\src\\format.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_5",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\refactor\\src\\format.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_6",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_6",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_7",
+            "type": "agent_message",
+            "text": "Updated [src/format.js](/C:/Users/ardao/w2/benchmarks/runs/w2/refactor/src/format.js) to trim surrounding whitespace and collapse repeated whitespace to a single space, preserving the input’s casing.\n\nVerification: `node verify.mjs` — PASS."
+          }
+        },
+        {
+          "type": "turn.completed",
+          "usage": {
+            "input_tokens": 156041,
+            "cached_input_tokens": 147968,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 763,
+            "reasoning_output_tokens": 177
+          }
+        }
+      ]
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "test-repair",
+      "baseline_commit": "eb266b1813ab1ccafc67e1d4a112c7e25ed9766c",
+      "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
+      "task_semantics_hash": "af6620e9a43846e2e543e83ad86458d7038c18a45d1af2e1947455e1ad8a1e2c",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 45
+      },
+      "runtime_ms": 34880,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/date.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 45
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce0e-bec2-7b90-ae2f-017c65aa2e21\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and current `src/date.js`, then make the smallest allowed change and run the required `node verify.mjs`.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/date.js' -g 'verify.mjs' -g package.json\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'src/date.js' -g 'verify.mjs' -g package.json\\\"\",\"aggregated_output\":\"-a----         9/23/2026   2:34 PM            847 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            220 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\date.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/date.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/date.js; Get-Content verify.mjs; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"`isoDate` currently stringifies the `Date` using the runtime’s local display format. The verifier expects the UTC ISO representation, so I’ll use `Date.prototype.toISOString()` and then run the specified check.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\test-repair\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\test-repair\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Updated `isoDate` in [src/date.js](C:/Users/ardao/w2/benchmarks/runs/raw/test-repair/src/date.js) to return `value.toISOString()`.\\n\\n`node verify.mjs` passed: `{\\\"criterion\\\":\\\"isoDate\\\",\\\"status\\\":\\\"PASS\\\"}`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126291,\"cached_input_tokens\":98304,\"cache_write_input_tokens\":0,\"output_tokens\":523,\"reasoning_output_tokens\":34}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0,
+      "agent_messages": [
+        "I’ll inspect the repository instructions and current `src/date.js`, then make the smallest allowed change and run the required `node verify.mjs`.",
+        "`isoDate` currently stringifies the `Date` using the runtime’s local display format. The verifier expects the UTC ISO representation, so I’ll use `Date.prototype.toISOString()` and then run the specified check.",
+        "Updated `isoDate` in [src/date.js](C:/Users/ardao/w2/benchmarks/runs/raw/test-repair/src/date.js) to return `value.toISOString()`.\n\n`node verify.mjs` passed: `{\"criterion\":\"isoDate\",\"status\":\"PASS\"}`."
+      ],
+      "claim_source": "Codex JSONL agent_message/assistant_message items only"
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "test-repair",
+      "baseline_commit": "eb266b1813ab1ccafc67e1d4a112c7e25ed9766c",
+      "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
+      "task_semantics_hash": "af6620e9a43846e2e543e83ad86458d7038c18a45d1af2e1947455e1ad8a1e2c",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 56
+      },
+      "runtime_ms": 46378,
+      "model_calls": 1,
+      "tool_calls": 9,
+      "steps": 52,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 15,
+          "selected_paths": [
+            "src\\date.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_4e362b6c4f3921cef936"
+          ]
+        },
+        "tool_trace": {
+          "events": 52,
+          "tool_calls": 9,
+          "evidence_ids": [
+            "ev_df77918665f5e1b74e10",
+            "ev_bb49e9043bf1a5b64dc3",
+            "ev_a8f336339d4d2aca8925",
+            "ev_0d4d65ad5f830e9e1c8a",
+            "ev_74135252fa490ac49b39",
+            "ev_208cfeb55f08236287cf",
+            "ev_7a6156f3dcf50d6de96a",
+            "ev_7ec55880517987740f81"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/date.js"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_4549b1d61f5ef9fa1ffb"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 56,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_208cfeb55f08236287cf"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\test-repair\\run-receipt.json"
+      },
+      "output": "",
+      "agent_messages": [
+        "I’ll inspect the scoped source and repository instructions, make the smallest edit in `src/date.js`, then run `node verify.mjs` as required.",
+        "The verifier expects the full UTC ISO timestamp (`...Z`), so I’ll have `isoDate` return `Date.prototype.toISOString()` directly. That preserves the input instant while removing the current string-coercion bug.",
+        "Updated [src/date.js](C:/Users/ardao/w2/benchmarks/runs/w2/test-repair/src/date.js) so `isoDate` returns the Date’s UTC ISO string via `toISOString()`.\n\nVerification: `node verify.mjs` — PASS."
+      ],
+      "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items",
+      "agent_message_events": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0ce0f-4ac8-7bc3-860c-90d7fb03c0bc"
+        },
+        {
+          "type": "turn.started"
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_0",
+            "type": "agent_message",
+            "text": "I’ll inspect the scoped source and repository instructions, make the smallest edit in `src/date.js`, then run `node verify.mjs` as required."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g 'src/date.js' -g 'verify.mjs'; Get-Content -Raw src/date.js\"",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g 'src/date.js' -g 'verify.mjs'; Get-Content -Raw src/date.js\"",
+            "aggregated_output": "-a----         9/23/2026   2:34 PM            847 task.json                                                            \r\n-a----         9/23/2026   2:34 PM            220 verify.mjs                                                           \r\nverify.mjs\nsrc\\date.js\nexport function isoDate(value) { return String(value); }\n\r\n\r\n\r\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_2",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json; rg --files -g AGENTS.md ..'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_2",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json; rg --files -g AGENTS.md ..'",
+            "aggregated_output": "",
+            "exit_code": 1,
+            "status": "failed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_3",
+            "type": "agent_message",
+            "text": "The verifier expects the full UTC ISO timestamp (`...Z`), so I’ll have `isoDate` return `Date.prototype.toISOString()` directly. That preserves the input instant while removing the current string-coercion bug."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_4",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\test-repair\\src\\date.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_4",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\test-repair\\src\\date.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_5",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs; git diff -- src/date.js'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_5",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs; git diff -- src/date.js'",
+            "aggregated_output": "warning: in the working copy of 'src/date.js', LF will be replaced by CRLF the next time Git touches it\ndiff --git a/src/date.js b/src/date.js\nindex 0d0f160..1a54ce7 100644\n--- a/src/date.js\n+++ b/src/date.js\n@@ -1 +1 @@\n-export function isoDate(value) { return String(value); }\n+export function isoDate(value) { return value.toISOString(); }\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_6",
+            "type": "agent_message",
+            "text": "Updated [src/date.js](C:/Users/ardao/w2/benchmarks/runs/w2/test-repair/src/date.js) so `isoDate` returns the Date’s UTC ISO string via `toISOString()`.\n\nVerification: `node verify.mjs` — PASS."
+          }
+        },
+        {
+          "type": "turn.completed",
+          "usage": {
+            "input_tokens": 130522,
+            "cached_input_tokens": 122624,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 577,
+            "reasoning_output_tokens": 80
+          }
+        }
+      ]
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "type-error",
+      "baseline_commit": "a122556ee6523a50703bfbec176189b76e1217be",
+      "baseline_hash": "e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46",
+      "task_semantics_hash": "c04589684dc15fb485db5bc374ed1435a029b291fc7bab15ba38a8229b91f40c",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 46
+      },
+      "runtime_ms": 33766,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/parse.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 46
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce0f-fdbc-7d73-ace7-196eec9a57d7\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repo instructions and the current parser, then make the smallest change within `src/parse.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\\\"'!*node_modules*'\\\"'; Get-Content -Raw src/parse.js; Get-Content -Raw package.json\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g '\\\"'!*node_modules*'\\\"'; Get-Content -Raw src/parse.js; Get-Content -Raw package.json\\\"\",\"aggregated_output\":\"-a----         9/23/2026   2:34 PM            902 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            317 verify.mjs                                                           \\r\\nexport function parseNumber(value) { return value; }\\n\\r\\nGet-Content : Cannot find path 'C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\\\package.json' because it does not \\r\\nexist.\\r\\nAt line:2 char:100\\r\\n+ ... dules*'; Get-Content -Raw src/parse.js; Get-Content -Raw package.json\\r\\n+                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\r\\n    + CategoryInfo          : ObjectNotFound: (C:\\\\Users\\\\ardao\\\\...or\\\\package.json:String) [Get-Content], ItemNotFoundEx \\r\\n   ception\\r\\n    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand\\r\\n \\r\\n\\r\\n\\r\\n\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw task.json; Get-Content -Raw verify.mjs; Get-ChildItem src -Force'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw task.json; Get-Content -Raw verify.mjs; Get-ChildItem src -Force'\",\"aggregated_output\":\"\\r\\n\\r\\n    Directory: C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\\\src\\r\\n\\r\\n\\r\\nMode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\n-a----         9/23/2026   2:34 PM             53 parse.js                                                             \\r\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The verifier checks decimal parsing and rejection of invalid text. I’ll also reject empty strings and non-finite results, which prevents JavaScript’s `Number('')` and `Number('Infinity')` from being treated as valid input.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\\\src\\\\parse.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\\\src\\\\parse.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"parseNumber\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Implemented `parseNumber` in [src/parse.js](C:/Users/ardao/w2/benchmarks/runs/raw/type-error/src/parse.js) to convert numeric strings to finite numbers and throw for empty, invalid, or non-string input.\\n\\n`node verify.mjs` passed: `{\\\"criterion\\\":\\\"parseNumber\\\",\\\"status\\\":\\\"PASS\\\"}`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":102045,\"cached_input_tokens\":96256,\"cache_write_input_tokens\":0,\"output_tokens\":666,\"reasoning_output_tokens\":75}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0,
+      "agent_messages": [
+        "I’ll inspect the repo instructions and the current parser, then make the smallest change within `src/parse.js` and run the required verifier.",
+        "The verifier checks decimal parsing and rejection of invalid text. I’ll also reject empty strings and non-finite results, which prevents JavaScript’s `Number('')` and `Number('Infinity')` from being treated as valid input.",
+        "Implemented `parseNumber` in [src/parse.js](C:/Users/ardao/w2/benchmarks/runs/raw/type-error/src/parse.js) to convert numeric strings to finite numbers and throw for empty, invalid, or non-string input.\n\n`node verify.mjs` passed: `{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}`."
+      ],
+      "claim_source": "Codex JSONL agent_message/assistant_message items only"
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "type-error",
+      "baseline_commit": "a122556ee6523a50703bfbec176189b76e1217be",
+      "baseline_hash": "e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46",
+      "task_semantics_hash": "c04589684dc15fb485db5bc374ed1435a029b291fc7bab15ba38a8229b91f40c",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 61
+      },
+      "runtime_ms": 30720,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 46,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 14,
+          "selected_paths": [
+            "src\\parse.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_d5dc891f413e16806190"
+          ]
+        },
+        "tool_trace": {
+          "events": 46,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_459ae389e84e6a12d3ef",
+            "ev_f5d3f305cdb21a5b9b83",
+            "ev_b44be6b3e3a44344361e",
+            "ev_a513cc2e453a30b01333",
+            "ev_5abe38045aa2841d96b8",
+            "ev_deafda5e893a1661849c",
+            "ev_4f3f4e0a8a9713709396",
+            "ev_c3954be7e09148b6d9da"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/parse.js"
+          ],
+          "additions": 7,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_87efa5119063f25ac78f"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 61,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_deafda5e893a1661849c"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\type-error\\run-receipt.json"
+      },
+      "output": "",
+      "agent_messages": [
+        "I’ll inspect the supplied file and task verification setup, then make the smallest allowed edit and run `node verify.mjs`.",
+        "Updated [src/parse.js](C:/Users/ardao/w2/benchmarks/runs/w2/type-error/src/parse.js) to convert inputs to numbers and throw `TypeError` for non-finite values or blank strings.\n\nVerification: `node verify.mjs` passed."
+      ],
+      "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items",
+      "agent_message_events": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0ce10-829e-7d32-918c-9d37413d3356"
+        },
+        {
+          "type": "turn.started"
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_0",
+            "type": "agent_message",
+            "text": "I’ll inspect the supplied file and task verification setup, then make the smallest allowed edit and run `node verify.mjs`."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw src/parse.js; Get-Content -Raw verify.mjs; Get-Content -Raw task.json'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw src/parse.js; Get-Content -Raw verify.mjs; Get-Content -Raw task.json'",
+            "aggregated_output": "export function parseNumber(value) { return value; }\n\r\nimport { parseNumber } from './src/parse.js'; if (parseNumber('12.5') !== 12.5) throw new Error('parse number failed'); let threw = false; try { parseNumber('nope'); } catch { threw = true; } if (!threw) throw new Error('invalid input accepted'); console.log(JSON.stringify({criterion:'parseNumber',status:'PASS'}));\n\r\n{\n  \"fixture_id\": \"type-error\",\n  \"baseline_hash\": \"e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46\",\n  \"baseline_kind\": \"fixture-content-sha1\",\n  \"baseline_files\": [\n    \"src/parse.js\"\n  ],\n  \"task\": {\n    \"title\": \"Parse numeric input\",\n    \"goal\": \"Make parseNumber return a finite number for numeric strings and throw for invalid input.\",\n    \"constraints\": [\n      \"Use only the allowed paths.\",\n      \"Run node verify.mjs before claiming completion.\"\n    ],\n    \"acceptance_criteria\": [\n      {\n        \"id\": \"AC-01\",\n        \"statement\": \"Make parseNumber return a finite number for numeric strings and throw for invalid input.\",\n        \"required\": true\n      }\n    ],\n    \"verification_commands\": [\n      \"node verify.mjs\"\n    ]\n  },\n  \"category\": \"type error\",\n  \"allowed_paths\": [\n    \"src/parse.js\"\n  ],\n  \"external_verifier\": \"node verify.mjs\",\n  \"reset_command\": \"node benchmarks/prepare.mjs\"\n}\n\r\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_2",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\type-error\\src\\parse.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_2",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\type-error\\src\\parse.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_3",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs; git diff -- src/parse.js'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_3",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs; git diff -- src/parse.js'",
+            "aggregated_output": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\nwarning: in the working copy of 'src/parse.js', LF will be replaced by CRLF the next time Git touches it\ndiff --git a/src/parse.js b/src/parse.js\nindex 43352c8..abe1d3c 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -1 +1,7 @@\n-export function parseNumber(value) { return value; }\n+export function parseNumber(value) {\n+  const number = Number(value);\n+  if (!Number.isFinite(number) || (typeof value === 'string' && value.trim() === '')) {\n+    throw new TypeError('Invalid number');\n+  }\n+  return number;\n+}\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_4",
+            "type": "agent_message",
+            "text": "Updated [src/parse.js](C:/Users/ardao/w2/benchmarks/runs/w2/type-error/src/parse.js) to convert inputs to numbers and throw `TypeError` for non-finite values or blank strings.\n\nVerification: `node verify.mjs` passed."
+          }
+        },
+        {
+          "type": "turn.completed",
+          "usage": {
+            "input_tokens": 104018,
+            "cached_input_tokens": 97280,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 515,
+            "reasoning_output_tokens": 123
+          }
+        }
+      ]
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "api-behavior",
+      "baseline_commit": "cfc008171f3322e18a1a5a50751bb53935d58680",
+      "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+      "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 47
+      },
+      "runtime_ms": 33191,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/http.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 47
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce10-fb54-75c0-8c44-265fe49da452\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository guidance and current implementation, then make the smallest change in `src/http.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/http.js' -g 'verify.mjs' -g 'package.json' -g 'README*'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/http.js' -g 'verify.mjs' -g 'package.json' -g 'README*'\\\"\",\"aggregated_output\":\"\\r\\n\\r\\nMode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\nd--h--         9/23/2026   2:40 PM                .git                                                                 \\r\\nd-----         9/23/2026   2:40 PM                src                                                                  \\r\\n-a----         9/23/2026   2:34 PM            923 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            261 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\http.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content src/http.js; Get-Content verify.mjs; rg --files -g 'AGENTS.md' ..\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content src/http.js; Get-Content verify.mjs; rg --files -g 'AGENTS.md' ..\\\"\",\"aggregated_output\":\"export function statusFor(code) { return \\\"unknown\\\"; }\\r\\nimport { statusFor } from './src/http.js'; if (statusFor(200) !== 'success' || statusFor(404) !== 'client-error' || statusFor(503) !== 'server-error') throw new Error('status mapping failed'); console.log(JSON.stringify({criterion:'statusFor',status:'PASS'}));\\r\\n\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\api-behavior\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\api-behavior\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"agent_message\",\"text\":\"The mapping is implemented with explicit 2xx and 4xx ranges; I’m running the required verifier now.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Implemented `statusFor` in [src/http.js](C:/Users/ardao/w2/benchmarks/runs/raw/api-behavior/src/http.js): 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\\n\\n`node verify.mjs` passed (`status: PASS`, exit code 0).\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126406,\"cached_input_tokens\":120576,\"cache_write_input_tokens\":0,\"output_tokens\":537,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0,
+      "agent_messages": [
+        "I’ll inspect the repository guidance and current implementation, then make the smallest change in `src/http.js` and run the required verifier.",
+        "The mapping is implemented with explicit 2xx and 4xx ranges; I’m running the required verifier now.",
+        "Implemented `statusFor` in [src/http.js](C:/Users/ardao/w2/benchmarks/runs/raw/api-behavior/src/http.js): 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\n\n`node verify.mjs` passed (`status: PASS`, exit code 0)."
+      ],
+      "claim_source": "Codex JSONL agent_message/assistant_message items only"
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "api-behavior",
+      "baseline_commit": "cfc008171f3322e18a1a5a50751bb53935d58680",
+      "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+      "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 60
+      },
+      "runtime_ms": 30503,
+      "model_calls": 1,
+      "tool_calls": 9,
+      "steps": 51,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 3,
+          "files_supplied": 1,
+          "approximate_tokens": 14,
+          "selected_paths": [
+            "src\\http.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_e7e3c4307ecc99a31780"
+          ]
+        },
+        "tool_trace": {
+          "events": 51,
+          "tool_calls": 9,
+          "evidence_ids": [
+            "ev_f46703f6d3ca74430a4b",
+            "ev_619c720b98762930cbc2",
+            "ev_813dec7b762289d5d750",
+            "ev_7e42b31d4a1bcdc0f338",
+            "ev_51eff3cd6511f383320c",
+            "ev_166dce98197c24db92df",
+            "ev_278f29cbbb969ee8ef04",
+            "ev_a6cc805bbb8cc953c6db"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/http.js"
+          ],
+          "additions": 5,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_023cc250cb3cefc81128"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 60,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_166dce98197c24db92df"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\api-behavior\\run-receipt.json"
+      },
+      "output": "",
+      "agent_messages": [
+        "I’ll inspect the scoped file and repository guidance, make the smallest allowed edit, then run `node verify.mjs`.",
+        "Updated [src/http.js](/C:/Users/ardao/w2/benchmarks/runs/w2/api-behavior/src/http.js) so 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\n\nVerification: `node verify.mjs` — PASS."
+      ],
+      "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items",
+      "agent_message_events": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0ce11-7e0b-7ab0-a6a3-8f6d667f0b9b"
+        },
+        {
+          "type": "turn.started"
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_0",
+            "type": "agent_message",
+            "text": "I’ll inspect the scoped file and repository guidance, make the smallest allowed edit, then run `node verify.mjs`."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-Content -Raw src/http.js; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'! .git'\"'\"",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Get-Content -Raw src/http.js; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'! .git'\"'\"",
+            "aggregated_output": "",
+            "exit_code": 1,
+            "status": "failed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_2",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json;'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_2",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json;'",
+            "aggregated_output": "import { statusFor } from './src/http.js'; if (statusFor(200) !== 'success' || statusFor(404) !== 'client-error' || statusFor(503) !== 'server-error') throw new Error('status mapping failed'); console.log(JSON.stringify({criterion:'statusFor',status:'PASS'}));\n\r\n{\n  \"fixture_id\": \"api-behavior\",\n  \"baseline_hash\": \"cca7197876239f0cd7e90ba92ba29fe78b2147aa\",\n  \"baseline_kind\": \"fixture-content-sha1\",\n  \"baseline_files\": [\n    \"src/http.js\"\n  ],\n  \"task\": {\n    \"title\": \"Map HTTP status\",\n    \"goal\": \"Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.\",\n    \"constraints\": [\n      \"Use only the allowed paths.\",\n      \"Run node verify.mjs before claiming completion.\"\n    ],\n    \"acceptance_criteria\": [\n      {\n        \"id\": \"AC-01\",\n        \"statement\": \"Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.\",\n        \"required\": true\n      }\n    ],\n    \"verification_commands\": [\n      \"node verify.mjs\"\n    ]\n  },\n  \"category\": \"API behavior change\",\n  \"allowed_paths\": [\n    \"src/http.js\"\n  ],\n  \"external_verifier\": \"node verify.mjs\",\n  \"reset_command\": \"node benchmarks/prepare.mjs\"\n}\n\r\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_3",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\api-behavior\\src\\http.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_3",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\api-behavior\\src\\http.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_4",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_4",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_5",
+            "type": "agent_message",
+            "text": "Updated [src/http.js](/C:/Users/ardao/w2/benchmarks/runs/w2/api-behavior/src/http.js) so 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\n\nVerification: `node verify.mjs` — PASS."
+          }
+        },
+        {
+          "type": "turn.completed",
+          "usage": {
+            "input_tokens": 103557,
+            "cached_input_tokens": 98304,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 511,
+            "reasoning_output_tokens": 52
+          }
+        }
+      ]
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "multi-file",
+      "baseline_commit": "d4636b03d17396b10b3ee89222d70776a2c86e1c",
+      "baseline_hash": "1448a1da0e4822bd8f51fc3350cf033e96f0efdb",
+      "task_semantics_hash": "906c1a1381e500b93da41610c8b89d1f24b992e0d8101868b5a374bf3ffeded6",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 45
+      },
+      "runtime_ms": 43954,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "README.md",
+          "src/config.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 45
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce11-f5b9-78f2-82ca-b8403d441440\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"Önce izin verilen dosyaları ve mevcut doğrulama beklentisini inceleyip en küçük değişikliği yapacağım; ardından `node verify.mjs` çıktısına göre sonucu bildireceğim.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'README.md' -g 'config.js' -g 'verify.mjs' -g 'package.json'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'README.md' -g 'config.js' -g 'verify.mjs' -g 'package.json'\\\"\",\"aggregated_output\":\"Mode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\nd--h--         9/23/2026   2:41 PM                .git                                                                 \\r\\nd-----         9/23/2026   2:41 PM                src                                                                  \\r\\n-a----         9/23/2026   2:34 PM             10 README.md                                                            \\r\\n-a----         9/23/2026   2:34 PM           1007 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            338 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\config.js\\nREADME.md\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/config.js; Get-Content README.md; Get-Content verify.mjs; git status --short'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/config.js; Get-Content README.md; Get-Content verify.mjs; git status --short'\",\"aggregated_output\":\"export function getPort(config) { return config.port; }\\r\\n# Fixture\\r\\nimport { getPort } from './src/config.js'; if (getPort({port:8080}) !== 8080 || getPort({port:'bad'}) !== 3000) throw new Error('port failed'); const fs = await import('node:fs'); if (!fs.readFileSync('README.md','utf8').includes('3000')) throw new Error('docs missing'); console.log(JSON.stringify({criterion:'getPort',status:'PASS'}));\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\README.md\",\"kind\":\"update\"},{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\src\\\\config.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\README.md\",\"kind\":\"update\"},{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\multi-file\\\\src\\\\config.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"agent_message\",\"text\":\"`getPort` artık yalnızca 1–65535 aralığındaki tamsayıları kabul ediyor; eksik veya geçersiz yapılandırmada 3000 döndürüyor. README’ye varsayılanı ekledim; şimdi istenen doğrulamayı çalıştırıyorum.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Tamamlandı. `getPort(config)`, 1–65535 aralığındaki tamsayı portları döndürüyor; geçersiz veya eksik değerlerde `3000` kullanıyor. README’ye varsayılan portu ekledim.\\n\\nDoğrulama: `node verify.mjs` — **PASS**.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126998,\"cached_input_tokens\":120576,\"cache_write_input_tokens\":0,\"output_tokens\":736,\"reasoning_output_tokens\":96}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0,
+      "agent_messages": [
+        "Önce izin verilen dosyaları ve mevcut doğrulama beklentisini inceleyip en küçük değişikliği yapacağım; ardından `node verify.mjs` çıktısına göre sonucu bildireceğim.",
+        "`getPort` artık yalnızca 1–65535 aralığındaki tamsayıları kabul ediyor; eksik veya geçersiz yapılandırmada 3000 döndürüyor. README’ye varsayılanı ekledim; şimdi istenen doğrulamayı çalıştırıyorum.",
+        "Tamamlandı. `getPort(config)`, 1–65535 aralığındaki tamsayı portları döndürüyor; geçersiz veya eksik değerlerde `3000` kullanıyor. README’ye varsayılan portu ekledim.\n\nDoğrulama: `node verify.mjs` — **PASS**."
+      ],
+      "claim_source": "Codex JSONL agent_message/assistant_message items only"
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "multi-file",
+      "baseline_commit": "d4636b03d17396b10b3ee89222d70776a2c86e1c",
+      "baseline_hash": "1448a1da0e4822bd8f51fc3350cf033e96f0efdb",
+      "task_semantics_hash": "906c1a1381e500b93da41610c8b89d1f24b992e0d8101868b5a374bf3ffeded6",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 57
+      },
+      "runtime_ms": 48774,
+      "model_calls": 1,
+      "tool_calls": 10,
+      "steps": 57,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 4,
+          "files_supplied": 2,
+          "approximate_tokens": 17,
+          "selected_paths": [
+            "README.md",
+            "src\\config.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_a1c40d65814f8e4a3807"
+          ]
+        },
+        "tool_trace": {
+          "events": 57,
+          "tool_calls": 10,
+          "evidence_ids": [
+            "ev_8d4a158af06e345d2987",
+            "ev_f24ddae6f0c97f03b21f",
+            "ev_a960c6cc9e541a46316d",
+            "ev_522bf451c4e9223a4314",
+            "ev_ed3168b5686b7a080c15",
+            "ev_fa644734e7c3a6fdf15f",
+            "ev_5be7c17bfc12ec49a11d",
+            "ev_9647ed142c9f72a33282"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "README.md",
+            "src/config.js"
+          ],
+          "additions": 6,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_ed79d84ea8c77b7f16cc"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"getPort\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 57,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_fa644734e7c3a6fdf15f"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\multi-file\\run-receipt.json"
+      },
+      "output": "",
+      "agent_messages": [
+        "I’ll inspect the current files and repository instructions, then make the smallest changes within the two allowed paths and run `node verify.mjs`.",
+        "Implemented `getPort(config)` to return an integer port from 1–65535, or `3000` for invalid values. Documented the default in [README.md](C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\multi-file\\README.md).\n\nVerification: `node verify.mjs` passed."
+      ],
+      "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items",
+      "agent_message_events": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0ce12-a26a-70b0-8c3f-5767ebb4f441"
+        },
+        {
+          "type": "turn.started"
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_0",
+            "type": "agent_message",
+            "text": "I’ll inspect the current files and repository instructions, then make the smallest changes within the two allowed paths and run `node verify.mjs`."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw README.md; Get-Content -Raw src/config.js; Get-ChildItem -Force -Name; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw README.md; Get-Content -Raw src/config.js; Get-ChildItem -Force -Name; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'",
+            "aggregated_output": "task.json\r\nverify.mjs\r\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_2",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json; Get-Content -Raw src/config.js | Format-Hex'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_2",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json; Get-Content -Raw src/config.js | Format-Hex'",
+            "aggregated_output": "\r\n\r\n           00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\r\n\r\n00000000   65 78 70 6F 72 74 20 66 75 6E 63 74 69 6F 6E 20  export function \r\n00000010   67 65 74 50 6F 72 74 28 63 6F 6E 66 69 67 29 20  getPort(config) \r\n00000020   7B 20 72 65 74 75 72 6E 20 63 6F 6E 66 69 67 2E  { return config.\r\n00000030   70 6F 72 74 3B 20 7D 0A                          port; }.        \r\n\r\n\r\n",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_3",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\multi-file\\README.md",
+                "kind": "update"
+              },
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\multi-file\\src\\config.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_3",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\multi-file\\README.md",
+                "kind": "update"
+              },
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\multi-file\\src\\config.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_4",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'git diff -- src/config.js README.md'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_4",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'git diff -- src/config.js README.md'",
+            "aggregated_output": "",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_5",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_5",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_6",
+            "type": "agent_message",
+            "text": "Implemented `getPort(config)` to return an integer port from 1–65535, or `3000` for invalid values. Documented the default in [README.md](C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\multi-file\\README.md).\n\nVerification: `node verify.mjs` passed."
+          }
+        },
+        {
+          "type": "turn.completed",
+          "usage": {
+            "input_tokens": 116466,
+            "cached_input_tokens": 110336,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 837,
+            "reasoning_output_tokens": 198
+          }
+        }
+      ]
+    },
+    {
+      "condition": "raw_codex",
+      "fixture_id": "scope-restricted",
+      "baseline_commit": "e71a8631ae7f372dfef7c31143279b6b5f445944",
+      "baseline_hash": "0a3fb1f9485ff2a7e2aa23c96fd7ef435447b9e1",
+      "task_semantics_hash": "e9fed7217a2c7c2ba7fd9d30d56b829459012792b977b8e1dd8bc62fbeb2ea0d",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 47
+      },
+      "runtime_ms": 40720,
+      "model_calls": 1,
+      "tool_calls": null,
+      "steps": null,
+      "retries": null,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "evidence": {
+        "context": "same normalized task contract in prompt",
+        "tool_trace": "Codex JSON stdout stored",
+        "diff": [
+          "src/safe.js"
+        ],
+        "verification": {
+          "status": "PASS",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "runtime_ms": 47
+        }
+      },
+      "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce13-65c9-7dd1-b686-ef1fcaf02911\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and the current implementation, then make the smallest change in `src/safe.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/safe.js' -g 'verify.mjs' -g 'README.md'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/safe.js' -g 'verify.mjs' -g 'README.md'\\\"\",\"aggregated_output\":\"\\r\\n\\r\\n    Directory: C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\r\\n\\r\\n\\r\\nMode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\nd--h--         9/23/2026   2:42 PM                .git                                                                 \\r\\nd-----         9/23/2026   2:42 PM                src                                                                  \\r\\n-a----         9/23/2026   2:34 PM             24 README.md                                                            \\r\\n-a----         9/23/2026   2:34 PM            968 task.json                                                            \\r\\n-a----         9/23/2026   2:34 PM            351 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\safe.js\\nREADME.md\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/safe.js; Get-Content verify.mjs; Get-Content task.json; git status --short; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/safe.js; Get-Content verify.mjs; Get-Content task.json; git status --short; Get-ChildItem -Path .. -Filter AGENTS.md -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"`safeDivide` currently uses raw division, so `8 / 0` returns `Infinity`. I’ll add the zero-divisor guard only in the allowed source file, then run the repository’s exact verification command.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\\\src\\\\safe.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\scope-restricted\\\\src\\\\safe.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs; git status --short; git diff -- src/safe.js README.md'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs; git status --short; git diff -- src/safe.js README.md'\",\"aggregated_output\":\" M src/safe.js\\nwarning: in the working copy of 'src/safe.js', LF will be replaced by CRLF the next time Git touches it\\ndiff --git a/src/safe.js b/src/safe.js\\nindex 46f31be..815ad19 100644\\n--- a/src/safe.js\\n+++ b/src/safe.js\\n@@ -1 +1 @@\\n-export function safeDivide(a, b) { return a / b; }\\n+export function safeDivide(a, b) { return b === 0 ? null : a / b; }\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Updated [src/safe.js](/C:/Users/ardao/w2/benchmarks/runs/raw/scope-restricted/src/safe.js) so a zero divisor returns `null`; other inputs return the quotient. `README.md` was not changed.\\n\\n`node verify.mjs` passed.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":127874,\"cached_input_tokens\":112384,\"cache_write_input_tokens\":0,\"output_tokens\":544,\"reasoning_output_tokens\":0}}\n",
+      "stderr": "Reading additional input from stdin...\n",
+      "exit_code": 0,
+      "agent_messages": [
+        "I’ll inspect the repository instructions and the current implementation, then make the smallest change in `src/safe.js` and run the required verifier.",
+        "`safeDivide` currently uses raw division, so `8 / 0` returns `Infinity`. I’ll add the zero-divisor guard only in the allowed source file, then run the repository’s exact verification command.",
+        "Updated [src/safe.js](/C:/Users/ardao/w2/benchmarks/runs/raw/scope-restricted/src/safe.js) so a zero divisor returns `null`; other inputs return the quotient. `README.md` was not changed.\n\n`node verify.mjs` passed."
+      ],
+      "claim_source": "Codex JSONL agent_message/assistant_message items only"
+    },
+    {
+      "condition": "w2_codex",
+      "fixture_id": "scope-restricted",
+      "baseline_commit": "e71a8631ae7f372dfef7c31143279b6b5f445944",
+      "baseline_hash": "0a3fb1f9485ff2a7e2aa23c96fd7ef435447b9e1",
+      "task_semantics_hash": "e9fed7217a2c7c2ba7fd9d30d56b829459012792b977b8e1dd8bc62fbeb2ea0d",
+      "timeout_ms": 90000,
+      "execution_mode": "REAL_CODEX",
+      "status": "TASK_PASS",
+      "infrastructure_failure": false,
+      "timed_out": false,
+      "claim_done": false,
+      "false_done": false,
+      "external_verification": {
+        "status": "PASS",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "runtime_ms": 67
+      },
+      "runtime_ms": 29101,
+      "model_calls": 1,
+      "tool_calls": 8,
+      "steps": 47,
+      "retries": 0,
+      "manual_interventions": 0,
+      "scope_violations": [],
+      "criterion_evidence_coverage": 1,
+      "evidence": {
+        "context": {
+          "files_considered": 4,
+          "files_supplied": 2,
+          "approximate_tokens": 19,
+          "selected_paths": [
+            "README.md",
+            "src\\safe.js"
+          ],
+          "accessed_files": null,
+          "access_observation": "UNAVAILABLE",
+          "evidence_ids": [
+            "ev_a4bfb8d9c95c2ab1fb12"
+          ]
+        },
+        "tool_trace": {
+          "events": 47,
+          "tool_calls": 8,
+          "evidence_ids": [
+            "ev_e5628ec567a1b44e3a05",
+            "ev_6227f9467a9df922f049",
+            "ev_e7baa1b374c621f13f4c",
+            "ev_e4124c4b5887f1be3ccb",
+            "ev_e9591674e2f5a4fe5b5e",
+            "ev_b15928f409d4ff1d60ea",
+            "ev_90c9fcb007a452bbff51",
+            "ev_3b15a903a190d1eb353b"
+          ]
+        },
+        "diff": {
+          "changed_files": [
+            "src/safe.js"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "evidence_ids": [
+            "ev_97bbf622fdde4d25c1ca"
+          ]
+        },
+        "verification": {
+          "results": [
+            {
+              "name": "external-verifier",
+              "category": "custom",
+              "command": "node verify.mjs",
+              "exit_code": 0,
+              "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+              "stderr": "",
+              "duration_ms": 67,
+              "status": "PASSED"
+            }
+          ],
+          "evidence_ids": [
+            "ev_b15928f409d4ff1d60ea"
+          ]
+        },
+        "receipt": "benchmarks\\runs\\w2\\scope-restricted\\run-receipt.json"
+      },
+      "output": "",
+      "agent_messages": [
+        "I’ll inspect the allowed source file and workspace guidance, make the minimal change in `src/safe.js`, then run the required verifier.",
+        "`safeDivide` currently performs division directly. I’m updating only the allowed source file so both positive and negative zero divisors return `null`, while all other inputs use normal division.",
+        "Updated [src/safe.js](/C:/Users/ardao/w2/benchmarks/runs/w2/scope-restricted/src/safe.js) so `safeDivide` returns `null` when the divisor is zero and the quotient otherwise. `README.md` was unchanged.\n\nVerification: `node verify.mjs` — PASS."
+      ],
+      "claim_source": "persisted W2 agent_output events containing Codex agent_message/assistant_message items",
+      "agent_message_events": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0ce14-019a-75f1-94c2-d5c546821cb6"
+        },
+        {
+          "type": "turn.started"
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_0",
+            "type": "agent_message",
+            "text": "I’ll inspect the allowed source file and workspace guidance, make the minimal change in `src/safe.js`, then run the required verifier."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw src/safe.js; Get-ChildItem -Force -Name'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_1",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'Get-Content -Raw src/safe.js; Get-ChildItem -Force -Name'",
+            "aggregated_output": "",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_2",
+            "type": "agent_message",
+            "text": "`safeDivide` currently performs division directly. I’m updating only the allowed source file so both positive and negative zero divisors return `null`, while all other inputs use normal division."
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_3",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\scope-restricted\\src\\safe.js",
+                "kind": "update"
+              }
+            ],
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_3",
+            "type": "file_change",
+            "changes": [
+              {
+                "path": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\scope-restricted\\src\\safe.js",
+                "kind": "update"
+              }
+            ],
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.started",
+          "item": {
+            "id": "item_4",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": null,
+            "status": "in_progress"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_4",
+            "type": "command_execution",
+            "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'node verify.mjs'",
+            "aggregated_output": "",
+            "exit_code": 0,
+            "status": "completed"
+          }
+        },
+        {
+          "type": "item.completed",
+          "item": {
+            "id": "item_5",
+            "type": "agent_message",
+            "text": "Updated [src/safe.js](/C:/Users/ardao/w2/benchmarks/runs/w2/scope-restricted/src/safe.js) so `safeDivide` returns `null` when the divisor is zero and the quotient otherwise. `README.md` was unchanged.\n\nVerification: `node verify.mjs` — PASS."
+          }
+        },
+        {
+          "type": "turn.completed",
+          "usage": {
+            "input_tokens": 103791,
+            "cached_input_tokens": 89088,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 398,
+            "reasoning_output_tokens": 0
+          }
+        }
+      ]
+    }
+  ]
+}

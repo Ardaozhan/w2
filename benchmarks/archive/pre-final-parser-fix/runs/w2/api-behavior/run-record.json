@@ -1,0 +1,87 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "api-behavior",
+  "baseline_commit": "cfc008171f3322e18a1a5a50751bb53935d58680",
+  "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+  "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 55
+  },
+  "runtime_ms": 34711,
+  "model_calls": 1,
+  "tool_calls": 10,
+  "steps": 57,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "criterion_evidence_coverage": 1,
+  "evidence": {
+    "context": {
+      "files_considered": 3,
+      "files_supplied": 1,
+      "approximate_tokens": 14,
+      "selected_paths": [
+        "src\\http.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
+      "evidence_ids": [
+        "ev_edcaba1dfe6605dda29d"
+      ]
+    },
+    "tool_trace": {
+      "events": 57,
+      "tool_calls": 10,
+      "evidence_ids": [
+        "ev_1514158ef291eece2861",
+        "ev_be30bef3f69e423fc028",
+        "ev_85eabec1599b0261a09d",
+        "ev_afa6d07f51e019adf38a",
+        "ev_5c7743189ac4d88ccd0b",
+        "ev_b94cb6b33605762cf169",
+        "ev_71e9d03dfc38e26defc6",
+        "ev_829a44326b937532cae0"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "src/http.js"
+      ],
+      "additions": 5,
+      "deletions": 1,
+      "evidence_ids": [
+        "ev_c7e01e2998cc708ddc00"
+      ]
+    },
+    "verification": {
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 55,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_b94cb6b33605762cf169"
+      ]
+    },
+    "receipt": "benchmarks\\runs\\w2\\api-behavior\\run-receipt.json"
+  },
+  "output": ""
+}

@@ -1,0 +1,362 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+  "task": {
+    "task_id": "type-error",
+    "title": "Parse numeric input",
+    "goal": "Make parseNumber return a finite number for numeric strings and throw for invalid input.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/parse.js"
+    ],
+    "acceptance_criteria": [
+      "Make parseNumber return a finite number for numeric strings and throw for invalid input."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\type-error",
+    "timeout_ms": 90000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "COMPLETED",
+    "error": null,
+    "execution_mode": "REAL_CODEX"
+  },
+  "context": {
+    "files_considered": 3,
+    "files_supplied": 1,
+    "approximate_tokens": 14,
+    "selected_paths": [
+      "src\\parse.js"
+    ],
+    "accessed_files": null,
+    "access_observation": "UNAVAILABLE",
+    "evidence_ids": [
+      "ev_d5dc891f413e16806190"
+    ]
+  },
+  "actions": {
+    "events": 46,
+    "tool_calls": 8,
+    "evidence_ids": [
+      "ev_459ae389e84e6a12d3ef",
+      "ev_f5d3f305cdb21a5b9b83",
+      "ev_b44be6b3e3a44344361e",
+      "ev_a513cc2e453a30b01333",
+      "ev_5abe38045aa2841d96b8",
+      "ev_deafda5e893a1661849c",
+      "ev_4f3f4e0a8a9713709396",
+      "ev_c3954be7e09148b6d9da"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "src/parse.js"
+    ],
+    "additions": 7,
+    "deletions": 1,
+    "evidence_ids": [
+      "ev_87efa5119063f25ac78f"
+    ]
+  },
+  "verification": {
+    "results": [
+      {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 61,
+        "status": "PASSED"
+      }
+    ],
+    "evidence_ids": [
+      "ev_deafda5e893a1661849c"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_d5dc891f413e16806190",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "1 files supplied from 3 considered",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:39:43.546Z",
+      "data": {
+        "files_considered": 3,
+        "files_included": 1,
+        "approximate_tokens": 14
+      }
+    },
+    {
+      "evidence_id": "ev_459ae389e84e6a12d3ef",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:39:43.543Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_f5d3f305cdb21a5b9b83",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:40:14.084Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "cmd.exe",
+          "args": [
+            "/d",
+            "/s",
+            "/c",
+            "node verify.mjs"
+          ]
+        },
+        "result": {
+          "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_b44be6b3e3a44344361e",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:40:14.123Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": " M src/parse.js\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_a513cc2e453a30b01333",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:40:14.160Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "diff --git a/src/parse.js b/src/parse.js\nindex 43352c8..abe1d3c 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -1 +1,7 @@\n-export function parseNumber(value) { return value; }\n+export function parseNumber(value) {\n+  const number = Number(value);\n+  if (!Number.isFinite(number) || (typeof value === 'string' && value.trim() === '')) {\n+    throw new TypeError('Invalid number');\n+  }\n+  return number;\n+}\n",
+          "stderr": "warning: in the working copy of 'src/parse.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_5abe38045aa2841d96b8",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:tool:4",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:40:14.163Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "7\t1\tsrc/parse.js\n",
+          "stderr": "warning: in the working copy of 'src/parse.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_87efa5119063f25ac78f",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "1 files changed (+7/-1)",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:40:14.172Z",
+      "data": {
+        "status_before": "",
+        "status_after": " M src/parse.js\n",
+        "changed_files": [
+          "src/parse.js"
+        ],
+        "additions": 7,
+        "deletions": 1,
+        "unified_diff": "diff --git a/src/parse.js b/src/parse.js\nindex 43352c8..abe1d3c 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -1 +1,7 @@\n-export function parseNumber(value) { return value; }\n+export function parseNumber(value) {\n+  const number = Number(value);\n+  if (!Number.isFinite(number) || (typeof value === 'string' && value.trim() === '')) {\n+    throw new TypeError('Invalid number');\n+  }\n+  return number;\n+}\n"
+      }
+    },
+    {
+      "evidence_id": "ev_deafda5e893a1661849c",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "external-verifier: PASSED",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:40:14.172Z",
+      "data": {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 61,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_4f3f4e0a8a9713709396",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "46 ordered events and 8 persisted tool calls",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:40:14.172Z",
+      "data": {
+        "events": 46,
+        "tool_calls": 8
+      }
+    },
+    {
+      "evidence_id": "ev_c3954be7e09148b6d9da",
+      "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "4 safety and durability events",
+      "raw_reference": "run:0252929f-e08b-479d-af16-a850b54f32fb:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:40:14.087Z",
+      "data": [
+        {
+          "event_id": "34b07249-c97e-4a5b-aab3-2909acbdbc55",
+          "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+          "sequence": 2,
+          "timestamp": "2026-09-23T11:39:43.501Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "e2f435f3-c22b-4993-a3c8-fd2729ee5598",
+          "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+          "sequence": 7,
+          "timestamp": "2026-09-23T11:39:43.548Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "871043c5-853f-4b46-9aa6-e17230118308",
+          "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+          "sequence": 29,
+          "timestamp": "2026-09-23T11:40:14.022Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 28,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "b613c61d-ec48-4ee1-8b6b-0388aca89dd9",
+          "run_id": "0252929f-e08b-479d-af16-a850b54f32fb",
+          "sequence": 35,
+          "timestamp": "2026-09-23T11:40:14.087Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 34,
+            "completed_tool_calls": 2,
+            "verification_progress": 1
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Make parseNumber return a finite number for numeric strings and throw for invalid input.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_deafda5e893a1661849c"
+      ],
+      "reason": "External verifier PASS."
+    }
+  ],
+  "outcome": "PASS",
+  "generated_at": "2026-09-23T11:40:14.179Z"
+}
