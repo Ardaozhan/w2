@@ -73,7 +73,7 @@ Playwright opened the static demo from the local static server. PASS and UNPROVE
 
 ## Fresh Clone
 
-An earlier `npm run phase06:audit` passed all gates at `2def5ba`, but its helper used `npm ci --ignore-scripts`. The fresh-clone helper has since been tightened to use ordinary `npm ci` (with audit/funding output disabled only); re-run Phase 06 and the clean clone after committing this correction before treating fresh-clone status as final.
+`npm run phase06:audit` PASS on code/evidence checkpoint `c7b00ba`. Its `git archive HEAD` copy used ordinary `npm ci` into an isolated directory and passed 12 test files / 41 tests, typecheck, build, Phase 02 integrity, 16-run benchmark verification, judge-demo verification, and demo smoke; Phase 06 ALL passed. The final readiness/status-only closeout commit will be checked again after commit.
 
 ## Secret Scan
 
@@ -81,7 +81,7 @@ Final repository scan: no dangerous Codex bypass match and no high-confidence cr
 
 ## Git State
 
-Functional and evidence checkpoint `2def5ba` is committed. The current worktree has final-report/status documentation awaiting its closeout commit. Benchmark failures and earlier data are preserved under `benchmarks/archive/`; current results are regenerated outputs, not cherry-picked rows.
+Code and evidence are committed at checkpoint `c7b00ba`; benchmark failures and earlier data are preserved under `benchmarks/archive/`, while current results are regenerated, not cherry-picked. The readiness/status closeout commit is documentation-only and its resulting HEAD is rechecked for a clean worktree and clean archive.
 
 ## Human Actions Remaining
 
@@ -92,8 +92,8 @@ Functional and evidence checkpoint `2def5ba` is committed. The current worktree 
 
 ## Final Commit
 
-Code/evidence checkpoint: `2def5ba`. Final documentation closeout commit: pending.
+Code/evidence checkpoint: `c7b00ba`. The final documentation closeout commit is the repository HEAD containing this report; the exact final hash is included in the handoff.
 
 ## Final Gate
 
-`W2 TECHNICAL PACKAGE READY: PENDING FINAL ORDINARY-NPM-CI FRESH-CLONE AND FINAL CLEAN-GIT CHECK.` Competition submission also remains pending human actions above.
+`W2 TECHNICAL PACKAGE READY: YES` for the verified Windows 11 scope. The final report/status-only commit is rechecked post-commit; competition submission remains pending the human actions above.
