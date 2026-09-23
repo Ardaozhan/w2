@@ -9,7 +9,8 @@ if (data.cases.pass.provenance !== 'REAL_CODEX' || data.cases.pass.receipt.outco
 if (data.cases.unproven.provenance !== 'REAL_CODEX' || data.cases.unproven.receipt.outcome !== 'UNPROVEN') throw new Error('Judge UNPROVEN case provenance/outcome mismatch');
 if (data.cases.unproven.record.infrastructure_failure === true || data.cases.unproven.record.timed_out === true) throw new Error('Judge UNPROVEN case is an infrastructure failure');
 if (data.benchmark.runs.length !== 16 || data.benchmark.runs.some((run) => run.execution_mode !== 'REAL_CODEX')) throw new Error('Judge benchmark data is not the current sixteen-run REAL_CODEX set');
-const sha256 = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
+// Verify a canonical text hash independent of Windows checkout CRLF conversion.
+const sha256 = (file) => createHash('sha256').update(readFileSync(file, 'utf8').replace(/\r\n/g, '\n')).digest('hex');
 for (const key of ['pass','unproven']) {
   const item = data.cases[key];
   if (item.record.run_id !== item.receipt.run_id || item.record_sha256 !== sha256(item.record_path) || item.receipt_sha256 !== sha256(item.receipt_path)) throw new Error(`Judge ${key} values do not match stored run artifacts`);

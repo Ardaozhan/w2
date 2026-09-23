@@ -12,7 +12,9 @@ const passReceipt = read(passReceiptPath);
 const unprovenRecord = read(unprovenRecordPath);
 const unprovenReceipt = read(unprovenReceiptPath);
 const benchmark = read('benchmarks/results/results.json');
-const sha256 = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
+// Git may normalize checkout line endings. Hash the canonical UTF-8/LF form so
+// a clean archive verifies the same stored source bytes semantically.
+const sha256 = (file) => createHash('sha256').update(readFileSync(file, 'utf8').replace(/\r\n/g, '\n')).digest('hex');
 if (passRecord.execution_mode !== 'REAL_CODEX' || passRecord.status !== 'TASK_PASS' || passReceipt.agent?.execution_mode !== 'REAL_CODEX' || passReceipt.outcome !== 'PASS' || passRecord.run_id !== passReceipt.run_id) throw new Error('Judge demo PASS case is not a stored real Codex PASS receipt');
 if (unprovenRecord.execution_mode !== 'REAL_CODEX' || unprovenRecord.status !== 'UNPROVEN' || unprovenReceipt.agent?.execution_mode !== 'REAL_CODEX' || unprovenReceipt.outcome !== 'UNPROVEN' || unprovenRecord.run_id !== unprovenReceipt.run_id) throw new Error('Judge demo UNPROVEN case is not a stored real Codex UNPROVEN receipt');
 if (unprovenRecord.infrastructure_failure === true || unprovenRecord.timed_out === true || !unprovenReceipt.acceptance.some((item) => item.required && item.status === 'UNPROVEN')) throw new Error('UNPROVEN judge case must be semantic, not infrastructure-related');
