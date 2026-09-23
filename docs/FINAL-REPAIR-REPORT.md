@@ -4,7 +4,7 @@ This report supersedes conflicting claims in earlier phase completion reports. O
 
 ## Overall Status
 
-FINAL COMPETITION GATE = NOT YET PROVEN (fresh clone from the final commit remains pending).
+FINAL COMPETITION GATE = YES for the documented local Windows 11 scope. All technical gates passed; external competition submission and real session-ID entry remain human actions.
 
 ## Audit Findings
 
@@ -51,7 +51,7 @@ Active adapter uses installed Codex CLI `--sandbox workspace-write`. Codex nativ
 
 ## GPT-5.6 Reality
 
-No live GPT-5.6 Evidence Mapper is implemented or claimed. Mapping and final outcomes are deterministic. GPT-5.6 contribution is described as development-time only; no runtime usage is fabricated.
+No live GPT-5.6 Evidence Mapper is implemented or claimed. Mapping and final outcomes are deterministic. Repository provenance does not establish whether or where GPT-5.6 contributed during development, so no specific implementation contribution is attributed to it.
 
 ## Resume / Recovery Reality
 
@@ -88,7 +88,7 @@ Fresh Playwright captures are in [evidence/screenshots](../evidence/screenshots/
 
 ## Fresh Clone Results
 
-PENDING final repair commit, then run `node scripts/fresh-clone-check.mjs` against that commit. The check uses a clean archive, fresh `npm ci`, and runs tests, typecheck, build, Phase 02, benchmark result validation, and demo smoke.
+`node scripts/fresh-clone-check.mjs` PASS against the final evidence/code state at commit `87e0717`. It used a clean `git archive` copy, fresh `npm ci` (41 packages), then passed 10 files / 30 tests, typecheck, build, Phase 02 integrity, benchmark result validation (16 runs), and real PASS/UNPROVEN demo smoke.
 
 ## Claim Audit
 
@@ -106,8 +106,8 @@ One run per fixture/condition; eight local fixtures only; exact Codex file acces
 
 ## Git State
 
-Pending final review and commit.
+Clean worktree at final report commit. No gitlinks/submodules remain. Failed benchmark attempts and the pre-repair set are preserved as ordinary files under `benchmarks/archive/`; preceding repair commits are `4f2a218` (`fix: store demo and benchmark workspaces as artifacts`) and `17f66a4` (`competition: repair evidence and harden W2`).
 
 ## Final Gate
 
-NOT YET PROVEN pending fresh-clone verification and final clean Git state.
+W2 COMPETITION READY: YES (local Windows 11 verification scope only).

@@ -63,7 +63,7 @@ Codex CLI and Codex/V42 sessions were used during implementation and local verif
 
 ### GPT-5.6
 
-No live GPT-5.6 Evidence Mapper call is implemented or represented in the stored run evidence. GPT-5.6 contributions, if any, were development-time assistance only; runtime receipt outcomes and evidence validation are deterministic. A real Codex session/feedback identifier has not been collected: **Codex feedback/session ID: [ADD REAL SESSION ID BEFORE SUBMISSION]**. Human submission action: replace this placeholder with the actual identifier if the competition requires it.
+No live GPT-5.6 Evidence Mapper call is implemented or represented in stored run evidence. Repository provenance does not establish whether or where GPT-5.6 contributed during development, so no specific implementation contribution is attributed to it. Runtime receipt outcomes and evidence validation are deterministic. A real Codex session/feedback identifier has not been collected: **Codex feedback/session ID: [ADD REAL SESSION ID BEFORE SUBMISSION]**. Human submission action: replace this placeholder with the actual identifier if the competition requires it.
 
 ## Security Model
 

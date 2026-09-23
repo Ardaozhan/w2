@@ -24,6 +24,6 @@ Independent audit started 2026-09-23. Prior phase reports were treated as claims
 | P | Demo and screenshot freshness | Existing screenshot is Phase 05; current judge path must be revalidated. | REPAIRED: real PASS/UNPROVEN replay and desktop/mobile screenshots refreshed; Playwright console clear |
 | Q | Benchmark validator lacks provenance checks | Validator checks fixtures but not actual run/receipt/metric integrity. | REPAIRED: fixture hashes, paired baselines, receipts, coverage and classifications validated |
 | R | Receipt integrity and evidence execution mode | Added typed evidence-reference validation, verification-backed PASS, and REAL_CODEX/FAKE_ADAPTER labels. | REPAIRED: receipt/unit/demo validation PASS |
-| S | Security, clone, browser, secrets and Git state | Re-run from current checkout after repairs. | OPEN |
+| S | Security, clone, browser, secrets and Git state | Re-run from current checkout after repairs. | REPAIRED: current committed clean archive passed fresh-clone test; browser console clear; secret and dangerous-flag scan reviewed; no nested submodules remain |
 
 No result in this table is considered closed until repository artifacts and fresh command output support it. See `FINAL-REPAIR-REPORT.md` for final evidence and gate decision.
