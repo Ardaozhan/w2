@@ -73,7 +73,7 @@ Playwright opened the static demo from the local static server. PASS and UNPROVE
 
 ## Fresh Clone
 
-`npm run phase06:audit` PASS on code/evidence checkpoint `c7b00ba`. Its `git archive HEAD` copy used ordinary `npm ci` into an isolated directory and passed 12 test files / 41 tests, typecheck, build, Phase 02 integrity, 16-run benchmark verification, judge-demo verification, and demo smoke; Phase 06 ALL passed. The final readiness/status-only closeout commit will be checked again after commit.
+`npm run phase06:audit` PASS on code/evidence checkpoint `c7b00ba`. Its `git archive HEAD` copy used ordinary `npm ci` into an isolated directory and passed 12 test files / 41 tests, typecheck, build, Phase 02 integrity, 16-run benchmark verification, judge-demo verification, and demo smoke; Phase 06 ALL passed. The final readiness/status-only closeout commit is also covered by the post-commit Phase 06 ALL check recorded at handoff.
 
 ## Secret Scan
 
