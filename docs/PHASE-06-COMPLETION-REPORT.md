@@ -70,3 +70,7 @@ Phase 06 added packaging, audit, and reproducibility artifacts only. No new majo
 ## Final Gate
 
 PASS. W2 is competition-ready within the verified local scope and documented limitations.
+
+## Post-audit correction (2026-09-23)
+
+The prior gate statement and screenshot reference above are historical and are superseded by [FINAL-REPAIR-REPORT.md](FINAL-REPAIR-REPORT.md). The independent final repair audit re-opened the competition gate; only the new report records current readiness.

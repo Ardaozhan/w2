@@ -1,1 +1,1 @@
-export function isoDate(value) { return String(value); }
+export function isoDate(value) { return value.toISOString(); }

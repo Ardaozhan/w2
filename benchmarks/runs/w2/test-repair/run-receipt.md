@@ -1,30 +1,32 @@
 # W2 RUN RECEIPT
 
 - Receipt version: 1.0
-- Run: `4296fcb3-b3e9-45de-b456-d49a54c06348`
-- Generated: 2026-09-22T14:35:38.928Z
+- Run: `a04b024a-a08f-425d-8450-85cf83b78337`
+- Execution mode: REAL_CODEX
+- Generated: 2026-09-23T10:27:26.862Z
 
 ## Task
 **Repair date formatting**
 
+Make isoDate return a UTC ISO date string for a Date input.
 
-
-## What the agent saw
-- 1/6 files supplied
+## Context W2 provided
+- 1/3 files selected for the prompt
 - 15 approximate tokens
+- Exact repository files accessed by Codex: not captured by this adapter
 
 ## What the agent did
-- 3 tool calls
-- 28 ordered events
-- 3 changed files
+- 8 observable tool calls
+- 46 ordered events
+- 1 changed files
 
 ## Verification
-- UNPROVEN: no verification configured
+- PASS external-verifier (exit 0)
 
 ## Acceptance Evidence
-- **UNPROVEN** AC-01: Make isoDate return a UTC ISO date string for a Date input. — No evidence was mapped to this required criterion.
+- **PASS** AC-01: Make isoDate return a UTC ISO date string for a Date input. — External verifier PASS.
 
 ## Outcome
-# UNPROVEN
+# PASS
 
-**Why:** No evidence was mapped to this required criterion.
+**Why:** All required criteria have valid evidence.

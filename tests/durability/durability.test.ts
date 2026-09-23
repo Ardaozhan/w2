@@ -9,11 +9,12 @@ import type { AgentOutput, AgentRunResult, TaskDefinition } from "../../src/core
 
 class DurableAdapter implements AgentAdapter {
   readonly provider = "codex" as const;
+  startCount = 0;
   sendTask(task: TaskDefinition): string { return task.goal; }
   receiveAction(): undefined { return undefined; }
   receiveOutput(raw: unknown): AgentOutput { return { kind: "fake", raw }; }
   cancel(): void {}
-  async startRun(input: AgentStartInput): Promise<AgentRunResult> { writeFileSync(path.join(input.workspace, "durable.txt"), "done", "utf8"); return { exit_code: 0, outputs: [], tool_calls: [] }; }
+  async startRun(input: AgentStartInput): Promise<AgentRunResult> { this.startCount += 1; writeFileSync(path.join(input.workspace, "durable.txt"), "done", "utf8"); return { exit_code: 0, outputs: [], tool_calls: [] }; }
 }
 
 function task(workspace: string): TaskDefinition {
@@ -21,12 +22,15 @@ function task(workspace: string): TaskDefinition {
 }
 
 describe("Phase 03 durability", () => {
-  it("persists checkpoint, resume event, and abort receipt state", async () => {
+  it("inspects checkpoint recovery state without claiming resumed execution", async () => {
     const workspace = mkdtempSync(path.join(os.tmpdir(), "w2-durable-"));
-    const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter: new DurableAdapter() });
+    const adapter = new DurableAdapter();
+    const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter });
     const result = await engine.run(task(workspace));
     expect(engine.store.getCheckpoint(result.run_id)?.completed_tool_calls).toBeTypeOf("number");
-    engine.resume(result.run_id);
+    const recovered = engine.resume(result.run_id);
+    expect(recovered.status).toBe(result.status);
+    expect(adapter.startCount).toBe(0); // inspection does not restart completed work
     expect(engine.store.getEvents(result.run_id).some((event) => event.type === "run_resumed")).toBe(true);
     const receipt = buildRunReceipt(engine.store, result.run_id);
     expect(receipt.evidence.some((item) => item.summary.includes("safety and durability"))).toBe(true);

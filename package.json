@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Evidence-first engineering harness for coding-agent runs.",
   "engines": {
-    "node": ">=22.5"
+    "node": ">=22.12"
   },
   "scripts": {
     "test": "vitest run",
@@ -18,9 +18,10 @@
     "verify:phase02": "npm run build && node scripts/verify-phase02-fixtures.mjs",
     "benchmark:prepare": "node benchmarks/prepare.mjs",
     "benchmark:validate": "npm run benchmark:prepare && node benchmarks/validate.mjs",
-    "benchmark": "npm run build && npm run benchmark:prepare && node benchmarks/run.mjs",
+    "benchmark": "npm run build && npm run benchmark:prepare && node benchmarks/validate.mjs && node benchmarks/run.mjs",
     "benchmark:verify": "node benchmarks/verify-results.mjs",
     "demo": "npm run build && node dist/src/demo-server.js",
+    "demo:live": "npm run build && node benchmarks/demo-live.mjs",
     "demo:smoke": "npm run build && node tests/ui/ui-smoke.mjs",
     "test:ui": "npm run build && node tests/ui/ui-smoke.mjs",
     "phase06:audit": "node scripts/phase06-audit.mjs ALL"
@@ -31,7 +32,7 @@
   "devDependencies": {
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^5.0.1"
   },
   "dependencies": {
     "zod": "^3.24.1"

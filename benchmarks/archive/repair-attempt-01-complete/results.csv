@@ -1,0 +1,17 @@
+fixture_id,condition,execution_mode,status,false_done,criterion_evidence_coverage,runtime_ms,model_calls,tool_calls,steps,retries,manual_interventions,scope_violations
+"bug-fix","raw_codex","REAL_CODEX","TASK_PASS",false,"",31256,1,"","","",0,0
+"bug-fix","w2_codex","REAL_CODEX","TASK_PASS",false,1,23679,1,7,41,0,0,0
+"feature","raw_codex","REAL_CODEX","TASK_PASS",false,"",37511,1,"","","",0,0
+"feature","w2_codex","REAL_CODEX","TASK_PASS",false,1,36292,1,10,58,0,0,0
+"refactor","raw_codex","REAL_CODEX","TASK_PASS",false,"",51772,1,"","","",0,0
+"refactor","w2_codex","REAL_CODEX","TASK_PASS",false,1,44904,1,8,46,0,0,0
+"test-repair","raw_codex","REAL_CODEX","TASK_PASS",false,"",39931,1,"","","",0,0
+"test-repair","w2_codex","REAL_CODEX","TASK_PASS",false,1,36364,1,8,47,0,0,0
+"type-error","raw_codex","REAL_CODEX","TASK_PASS",false,"",28418,1,"","","",0,0
+"type-error","w2_codex","REAL_CODEX","TASK_PASS",false,1,25634,1,8,47,0,0,0
+"api-behavior","raw_codex","REAL_CODEX","TASK_PASS",false,"",32715,1,"","","",0,0
+"api-behavior","w2_codex","REAL_CODEX","TASK_PASS",false,1,55467,1,10,58,0,0,0
+"multi-file","raw_codex","REAL_CODEX","TASK_PASS",false,"",56875,1,"","","",0,0
+"multi-file","w2_codex","REAL_CODEX","TASK_PASS",false,1,42022,1,9,52,0,0,0
+"scope-restricted","raw_codex","REAL_CODEX","TASK_PASS",false,"",47159,1,"","","",0,0
+"scope-restricted","w2_codex","REAL_CODEX","TASK_PASS",false,1,44990,1,8,47,0,0,0

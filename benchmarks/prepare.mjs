@@ -26,7 +26,7 @@ for (const task of tasks) {
   }
   writeFileSync(path.join(dir, 'verify.mjs'), task.verify, 'utf8');
   const baseline_commit = createHash('sha1').update(JSON.stringify({ files: task.files, verify: task.verify })).digest('hex');
-  const contract = { fixture_id: task.id, baseline_commit, baseline_kind: 'fixture-content-sha1', task: task.goal, title: task.title, category: task.category, constraints: ['Use only the allowed paths.', 'Run node verify.mjs before claiming completion.'], allowed_paths: task.allowed_paths, acceptance_criteria: [task.goal], verification_commands: ['node verify.mjs'], external_verifier: 'node verify.mjs', reset_command: 'node benchmarks/prepare.mjs' };
+  const contract = { fixture_id: task.id, baseline_hash: baseline_commit, baseline_kind: 'fixture-content-sha1', baseline_files: Object.keys(task.files), task: { title: task.title, goal: task.goal, constraints: ['Use only the allowed paths.', 'Run node verify.mjs before claiming completion.'], acceptance_criteria: [{ id: 'AC-01', statement: task.goal, required: true }], verification_commands: ['node verify.mjs'] }, category: task.category, allowed_paths: task.allowed_paths, external_verifier: 'node verify.mjs', reset_command: 'node benchmarks/prepare.mjs' };
   writeFileSync(path.join(dir, 'task.json'), JSON.stringify(contract, null, 2) + '\n', 'utf8');
 }
 writeFileSync(path.join(root, 'index.json'), JSON.stringify(tasks.map(({ id, category, title }) => ({ fixture_id: id, category, title })), null, 2) + '\n', 'utf8');

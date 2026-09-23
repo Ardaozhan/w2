@@ -2,6 +2,10 @@ node_modules/
 dist/
 coverage/
 .w2/
+.v42-runtime/
+benchmarks/runtime-db/
+output/playwright/
+.playwright-cli/
 **/.w2/
 .env
 .env.*

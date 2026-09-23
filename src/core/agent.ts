@@ -38,6 +38,7 @@ export class CodexAgentAdapter implements AgentAdapter {
       `Constraints: ${task.constraints.join("; ") || "none"}`,
       `Allowed paths: ${task.allowed_paths.join(", ") || "all"}`,
       `Acceptance criteria: ${task.acceptance_criteria.join("; ")}`,
+      `Verification requirements: ${task.verification_commands.map((command) => `${command.name}: ${command.command}`).join("; ")}`,
       "Work only in the supplied workspace. Make the smallest change that satisfies the task, run the declared verification command yourself, and summarize the actual changes.",
       `Context manifest (the files W2 selected):\n${context}`,
     ].join("\n\n");
@@ -55,7 +56,8 @@ export class CodexAgentAdapter implements AgentAdapter {
 
   receiveOutput(raw: unknown): AgentOutput {
     const record = asRecord(raw);
-    const text = record ? (getString(record.text) ?? getString(record.message) ?? getString(record.output)) : undefined;
+    const item = record ? asRecord(record.item) : undefined;
+    const text = record ? (getString(record.text) ?? getString(record.message) ?? getString(record.output) ?? getString(item?.text)) : undefined;
     return { kind: record ? (getString(record.type) ?? "codex_event") : "stdout", text, raw };
   }
 
@@ -65,10 +67,9 @@ export class CodexAgentAdapter implements AgentAdapter {
 
   async startRun(input: AgentStartInput): Promise<AgentRunResult> {
     const prompt = this.sendTask(input.task, input.context);
-    // Phase 01 has no approval broker yet (that is a later phase). The adapter
-    // therefore uses Codex's explicit non-interactive mode inside the task
-    // workspace; callers remain responsible for choosing a trusted workspace.
-    const args = ["exec", "--json", "--dangerously-bypass-approvals-and-sandbox", "-C", input.workspace];
+    // Codex runs with its supported workspace-local sandbox. W2 records the
+    // structured events but does not broker every native Codex tool call.
+    const args = ["exec", "--json", "--sandbox", "workspace-write", "-C", input.workspace];
     if (input.task.model) args.push("-m", input.task.model);
     args.push(prompt);
     const child = spawn("codex", args, { cwd: input.workspace, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
@@ -121,6 +122,7 @@ export class CodexAgentAdapter implements AgentAdapter {
       outputs,
       tool_calls: toolCalls,
       error: exitCode === 0 ? undefined : (timedOut ? `Codex process timed out after ${input.timeoutMs}ms` : (structuredMessage ?? (stderr || `Codex exited with code ${exitCode}`))),
+      infrastructure_failure: exitCode !== 0,
     };
   }
 }

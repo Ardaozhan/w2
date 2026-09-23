@@ -1,61 +1,85 @@
 {
   "condition": "w2_codex",
   "fixture_id": "refactor",
-  "status": "UNPROVEN",
+  "baseline_commit": "43972809a401f3a703b863dd79b57d2967351986",
+  "baseline_hash": "c877c10902e9546fe87e172576579c76e21c9f50",
+  "task_semantics_hash": "868cfc0475507fa33111ab5ae0adf39d206ce243e200723d7b22cfc7b35ee857",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
   "infrastructure_failure": false,
+  "timed_out": false,
   "claim_done": false,
   "false_done": false,
   "external_verification": {
-    "status": "FAIL",
-    "exit_code": 1,
-    "stdout": "",
-    "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/w2/refactor/verify.mjs:1\r\nimport { formatName } from './src/format.js'; if (formatName('  Ada   Lovelace ') !== 'Ada Lovelace') throw new Error('formatName failed'); console.log(JSON.stringify({criterion:'formatName',status:'PASS'}));\r\n                                                                                                            ^\r\n\r\nError: formatName failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/w2/refactor/verify.mjs:1:109\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
-    "runtime_ms": 43
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 64
   },
-  "runtime_ms": 20206,
+  "runtime_ms": 43158,
   "model_calls": 1,
-  "tool_calls": 3,
-  "steps": 28,
+  "tool_calls": 10,
+  "steps": 57,
   "retries": 0,
   "manual_interventions": 0,
   "scope_violations": [],
+  "criterion_evidence_coverage": 1,
   "evidence": {
     "context": {
-      "files_considered": 6,
+      "files_considered": 3,
       "files_supplied": 1,
       "approximate_tokens": 17,
+      "selected_paths": [
+        "src\\format.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
       "evidence_ids": [
-        "ev_d3303cc57b8177d12df1"
+        "ev_8eaf84a1fde9df324eca"
       ]
     },
     "tool_trace": {
-      "events": 28,
-      "tool_calls": 3,
+      "events": 57,
+      "tool_calls": 10,
       "evidence_ids": [
-        "ev_04ad2f377a5fde442621",
-        "ev_db6b6634db30617479f2",
-        "ev_62df96f000a6e563034d",
-        "ev_103997d25c0971915a9e",
-        "ev_022b077a3be36f67b379",
-        "ev_1f49af19a3175d7c4ca3"
+        "ev_b148d2fa66517785fd43",
+        "ev_341f33eec380bccabce6",
+        "ev_e4864c416ea7321400d1",
+        "ev_41819904a6534292bbfc",
+        "ev_0d0cb58d484143e77175",
+        "ev_babc2661a6fb78aa5ebd",
+        "ev_e5b7fe0313fb7529307f",
+        "ev_0f4a9e24e59c920e8192"
       ]
     },
     "diff": {
       "changed_files": [
-        "src/format.js",
-        "w2-run.sqlite",
-        "w2-run.sqlite-shm",
-        "w2-run.sqlite-wal"
+        "src/format.js"
       ],
       "additions": 1,
       "deletions": 1,
       "evidence_ids": [
-        "ev_2f01e88153c88b25fb0c"
+        "ev_709cd30297da8e255430"
       ]
     },
     "verification": {
-      "results": [],
-      "evidence_ids": []
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 64,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_babc2661a6fb78aa5ebd"
+      ]
     },
     "receipt": "benchmarks\\runs\\w2\\refactor\\run-receipt.json"
   },

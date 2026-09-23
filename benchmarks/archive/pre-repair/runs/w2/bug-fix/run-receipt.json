@@ -1,0 +1,283 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+  "task": {
+    "task_id": "bug-fix",
+    "title": "Fix multiplication",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/math.js"
+    ],
+    "acceptance_criteria": [
+      "Fix multiply(a,b) so it returns the mathematical product."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\bug-fix",
+    "timeout_ms": 20000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "FAILED",
+    "error": "Agent failure: Codex process timed out after 20000ms"
+  },
+  "context": {
+    "files_considered": 6,
+    "files_supplied": 1,
+    "approximate_tokens": 13,
+    "evidence_ids": [
+      "ev_f2232e958ffaa4ca97e4"
+    ]
+  },
+  "actions": {
+    "events": 22,
+    "tool_calls": 2,
+    "evidence_ids": [
+      "ev_2c0c2aa6abaf5c4a6235",
+      "ev_5643ff8a6aaa12823f0c",
+      "ev_46349c88de2b81e33aa1",
+      "ev_7c9eebe5efb8a6b51db0",
+      "ev_5d10170f12b8ae2839a4",
+      "ev_94ba0676f55652e2c449"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "w2-run.sqlite",
+      "w2-run.sqlite-shm",
+      "w2-run.sqlite-wal"
+    ],
+    "additions": 0,
+    "deletions": 0,
+    "evidence_ids": [
+      "ev_02176292c942f3f91262"
+    ]
+  },
+  "verification": {
+    "results": [],
+    "evidence_ids": []
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_f2232e958ffaa4ca97e4",
+      "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "1 files supplied from 6 considered",
+      "raw_reference": "run:f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:17.617Z",
+      "data": {
+        "files_considered": 6,
+        "files_included": 1,
+        "approximate_tokens": 13
+      }
+    },
+    {
+      "evidence_id": "ev_2c0c2aa6abaf5c4a6235",
+      "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:17.614Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_5643ff8a6aaa12823f0c",
+      "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:37.715Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_46349c88de2b81e33aa1",
+      "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:37.750Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_7c9eebe5efb8a6b51db0",
+      "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:37.751Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_02176292c942f3f91262",
+      "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "3 files changed (+0/-0)",
+      "raw_reference": "run:f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:37.754Z",
+      "data": {
+        "status_before": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+        "status_after": "?? w2-run.sqlite\n?? w2-run.sqlite-shm\n?? w2-run.sqlite-wal\n",
+        "changed_files": [
+          "w2-run.sqlite",
+          "w2-run.sqlite-shm",
+          "w2-run.sqlite-wal"
+        ],
+        "additions": 0,
+        "deletions": 0,
+        "unified_diff": ""
+      }
+    },
+    {
+      "evidence_id": "ev_5d10170f12b8ae2839a4",
+      "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "22 ordered events and 2 persisted tool calls",
+      "raw_reference": "run:f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:37.754Z",
+      "data": {
+        "events": 22,
+        "tool_calls": 2
+      }
+    },
+    {
+      "evidence_id": "ev_94ba0676f55652e2c449",
+      "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "3 safety and durability events",
+      "raw_reference": "run:f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T14:33:37.680Z",
+      "data": [
+        {
+          "event_id": "0eb83427-41a2-47cc-b7cf-2a71e7de01ea",
+          "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+          "sequence": 2,
+          "timestamp": "2026-09-22T14:33:17.579Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "0f7cda6d-edce-42d5-8013-aacc291d7952",
+          "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+          "sequence": 7,
+          "timestamp": "2026-09-22T14:33:17.618Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "4251f5c4-0af7-481d-a910-e16a90e16bd7",
+          "run_id": "f6bf4bfe-c7ff-4f9b-b9a0-0eb3058970fe",
+          "sequence": 17,
+          "timestamp": "2026-09-22T14:33:37.680Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 16,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Fix multiply(a,b) so it returns the mathematical product.",
+      "required": true,
+      "status": "UNPROVEN",
+      "evidence_ids": [],
+      "reason": "No evidence was mapped to this required criterion."
+    }
+  ],
+  "outcome": "UNPROVEN",
+  "generated_at": "2026-09-22T14:33:37.759Z"
+}

@@ -1,19 +1,23 @@
-# W2 Phase 03 Security Model
+# W2 Security Model
 
-W2 uses a scoped runtime policy, not a claim of a secure sandbox. Tools declare
-capabilities and the runtime fails closed when a capability is absent. The
-default local policy permits `fs.read`, `fs.write`, `shell.execute`, and
-`git.read`; delete, git write, network, secret, and external capabilities are
-not granted by default.
+W2 provides a local control and evidence layer. It is not an OS/container security boundary.
 
-Workspace paths are canonicalized with `realpath`. Traversal and symlink escape
-are rejected before filesystem access. Shell execution is bounded by timeout,
-output, filtered environment, and runtime budgets. High-risk shell actions and
-deletes require an approval callback; an absent callback means DENY.
+## Enforced by W2 for W2-owned calls
 
-Denied actions, approval requests/resolutions, budget exhaustion, checkpoints,
-resume, and abort are persisted as ordered run events and therefore appear in
-the evidence projection.
+Calls routed through `ToolRuntime` are checked against the configured capability set and canonical workspace paths. The runtime applies its own timeout, output limit, retry/budget rules and approval callback. Path traversal and detected symlink escapes are denied. These controls apply only when work uses the W2 runtime APIs.
 
-This is a credible local boundary for the competition harness. It is not an
-OS-level container, a remote sandbox, or a zero-trust security product.
+## Enforced by Codex
+
+The Codex adapter invokes the installed Codex CLI with its supported `workspace-write` sandbox and the target workspace as the working directory. Codex enforces that sandbox for its native shell and filesystem tools. The host's Codex configuration and operating system remain part of the trusted computing base.
+
+## Observed by W2
+
+W2 stores Codex JSONL events that the adapter recognizes, captures repository diff before and after execution, and records declared verification command results. Event capture is not a complete record of every internal action or every file read. The context manifest records files W2 selected and supplied; exact agent file access is unknown unless separately present in structured telemetry.
+
+## Not enforced by W2
+
+W2 does not broker, intercept, or authorize every Codex-native filesystem/shell call. It is not a container, OS sandbox, network firewall, secrets vault, multi-user authorization service, or protection against a compromised host. Do not interpret context selection as an access restriction.
+
+## Evidence boundary
+
+An outcome is calculated from persisted run state and required criterion evidence. Model-generated completion text cannot directly set a `PASS`. Infrastructure failures are classified as `ERROR`; missing criterion evidence after a completed execution is `UNPROVEN`.

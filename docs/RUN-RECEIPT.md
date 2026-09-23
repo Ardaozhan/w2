@@ -3,7 +3,7 @@
 Run Receipts are versioned JSON records and a compact Markdown rendering of one
 persisted run. They answer:
 
-1. What did the agent see? (`context`)
+1. What context did W2 provide? (`context`; it does not prove exact Codex file access)
 2. What did it do? (`actions` and `changes`)
 3. Did it work? (`verification`, `acceptance`, and deterministic `outcome`)
 

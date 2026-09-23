@@ -75,6 +75,8 @@ export interface ContextManifest {
   files_considered: ContextEntry[];
   files_included: ContextEntry[];
   excluded_candidates: ContextEntry[];
+  accessed_files?: string[];
+  access_observation?: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
   total_bytes: number;
   approximate_tokens: number;
 }
@@ -119,6 +121,7 @@ export interface AgentRunResult {
   outputs: AgentOutput[];
   tool_calls: ToolCallRecord[];
   error?: string;
+  infrastructure_failure?: boolean;
 }
 
 export interface RunRecord {
@@ -188,8 +191,8 @@ export interface RunReceipt {
   receipt_version: "1.0";
   run_id: string;
   task: TaskDefinition;
-  agent: { model: string; status: RunState; error: string | null };
-  context: { files_considered: number; files_supplied: number; approximate_tokens: number; evidence_ids: string[] };
+  agent: { model: string; status: RunState; error: string | null; execution_mode: "REAL_CODEX" | "FAKE_ADAPTER" };
+  context: { files_considered: number; files_supplied: number; approximate_tokens: number; selected_paths: string[]; accessed_files: string[] | null; access_observation: "COMPLETE" | "PARTIAL" | "UNAVAILABLE"; evidence_ids: string[] };
   actions: { events: number; tool_calls: number; evidence_ids: string[] };
   changes: { changed_files: string[]; additions: number; deletions: number; evidence_ids: string[] };
   verification: { results: VerificationResult[]; evidence_ids: string[] };

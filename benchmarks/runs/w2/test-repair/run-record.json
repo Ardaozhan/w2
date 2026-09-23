@@ -1,60 +1,85 @@
 {
   "condition": "w2_codex",
   "fixture_id": "test-repair",
-  "status": "UNPROVEN",
+  "baseline_commit": "eb266b1813ab1ccafc67e1d4a112c7e25ed9766c",
+  "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
+  "task_semantics_hash": "af6620e9a43846e2e543e83ad86458d7038c18a45d1af2e1947455e1ad8a1e2c",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
   "infrastructure_failure": false,
+  "timed_out": false,
   "claim_done": false,
   "false_done": false,
   "external_verification": {
-    "status": "FAIL",
-    "exit_code": 1,
-    "stdout": "",
-    "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/w2/test-repair/verify.mjs:1\r\nimport { isoDate } from './src/date.js'; if (isoDate(new Date('2025-01-02T03:04:05Z')) !== '2025-01-02T03:04:05.000Z') throw new Error('isoDate failed'); console.log(JSON.stringify({criterion:'isoDate',status:'PASS'}));\r\n                                                                                                                             ^\r\n\r\nError: isoDate failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/w2/test-repair/verify.mjs:1:126\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
-    "runtime_ms": 44
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 56
   },
-  "runtime_ms": 20210,
+  "runtime_ms": 28273,
   "model_calls": 1,
-  "tool_calls": 3,
-  "steps": 28,
+  "tool_calls": 8,
+  "steps": 46,
   "retries": 0,
   "manual_interventions": 0,
   "scope_violations": [],
+  "criterion_evidence_coverage": 1,
   "evidence": {
     "context": {
-      "files_considered": 6,
+      "files_considered": 3,
       "files_supplied": 1,
       "approximate_tokens": 15,
+      "selected_paths": [
+        "src\\date.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
       "evidence_ids": [
-        "ev_efe2f4737ad6a24d54ef"
+        "ev_c5469c67387e9df428d0"
       ]
     },
     "tool_trace": {
-      "events": 28,
-      "tool_calls": 3,
+      "events": 46,
+      "tool_calls": 8,
       "evidence_ids": [
-        "ev_bee6c43e361930bf06a7",
-        "ev_93335ba000ab4931a538",
-        "ev_1ecc50482a7fe765093a",
-        "ev_f40a5a16a560e4b5b4bc",
-        "ev_9e245ff8e4d1a298bf43",
-        "ev_f7956e512271ed88ffb2"
+        "ev_fa550b513dc07a370889",
+        "ev_2b2551497ee763be2762",
+        "ev_90cf67b61ae2db0093c3",
+        "ev_c050dbcc0eeac29d1204",
+        "ev_d96feea9946c10268142",
+        "ev_5e27950264be454d9743",
+        "ev_377cd399e614af2438c7",
+        "ev_861ffddacbbe21505c1e"
       ]
     },
     "diff": {
       "changed_files": [
-        "w2-run.sqlite",
-        "w2-run.sqlite-shm",
-        "w2-run.sqlite-wal"
+        "src/date.js"
       ],
-      "additions": 0,
-      "deletions": 0,
+      "additions": 1,
+      "deletions": 1,
       "evidence_ids": [
-        "ev_b54f1bbc6a2c6f9c8be1"
+        "ev_171e8b902658630091ed"
       ]
     },
     "verification": {
-      "results": [],
-      "evidence_ids": []
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 56,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_5e27950264be454d9743"
+      ]
     },
     "receipt": "benchmarks\\runs\\w2\\test-repair\\run-receipt.json"
   },

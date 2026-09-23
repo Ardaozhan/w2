@@ -4,4 +4,4 @@ Run `npm run demo` and open the printed local URL. The deterministic story opens
 
 For a non-network smoke check, run `npm run demo:smoke`. The smoke check verifies the hero copy, all primary views, and the explicit `UNPROVEN` label without starting a long-lived server.
 
-Browser evidence is captured at `evidence/screenshots/phase05-demo.png`.
+Current browser evidence is captured in `evidence/screenshots/`, including `run-receipt-hero.png`, per-tab views, the real task-evidence UNPROVEN case, and a mobile viewport. The Phase 05 screenshot remains as historical phase evidence only.

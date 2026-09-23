@@ -63,4 +63,29 @@ describe("run engine", () => {
     failedVerification.close();
     rmSync(workspace, { recursive: true, force: true });
   });
+
+  it("classifies a Codex timeout as infrastructure ERROR", async () => {
+    const workspace = gitWorkspace();
+    class TimeoutAdapter extends FakeAdapter {
+      async startRun(): Promise<AgentRunResult> { return { exit_code: 124, outputs: [], tool_calls: [], error: "timed out", infrastructure_failure: true }; }
+    }
+    const adapter: AgentAdapter = new TimeoutAdapter();
+    const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter });
+    const result = await engine.run(task(workspace));
+    expect(result.status).toBe("ERROR");
+    expect(result.error).toContain("timed out");
+    engine.close();
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  it("excludes W2 SQLite runtime files from the product diff", async () => {
+    const workspace = gitWorkspace();
+    const database = path.join(workspace, "w2-run.sqlite");
+    const engine = new RunEngine({ databasePath: database, adapter: new FakeAdapter() });
+    const result = await engine.run(task(workspace));
+    expect(result.diff?.changed_files).toContain("changed.txt");
+    expect(result.diff?.changed_files.some((file) => file.startsWith("w2-run.sqlite"))).toBe(false);
+    engine.close();
+    rmSync(workspace, { recursive: true, force: true });
+  });
 });

@@ -1,21 +1,31 @@
 {
   "fixture_id": "type-error",
-  "baseline_commit": "9840635e23280f2f6ec74fd2d6393597f5acc222",
-  "task": "Make parseNumber return a finite number for numeric strings and throw for invalid input.",
-  "title": "Parse numeric input",
-  "category": "type error",
-  "constraints": [
-    "Use only the allowed paths.",
-    "Run node verify.mjs before claiming completion."
-  ],
-  "allowed_paths": [
+  "baseline_hash": "e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46",
+  "baseline_kind": "fixture-content-sha1",
+  "baseline_files": [
     "src/parse.js"
   ],
-  "acceptance_criteria": [
-    "Make parseNumber return a finite number for numeric strings and throw for invalid input."
-  ],
-  "verification_commands": [
-    "node verify.mjs"
+  "task": {
+    "title": "Parse numeric input",
+    "goal": "Make parseNumber return a finite number for numeric strings and throw for invalid input.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "acceptance_criteria": [
+      {
+        "id": "AC-01",
+        "statement": "Make parseNumber return a finite number for numeric strings and throw for invalid input.",
+        "required": true
+      }
+    ],
+    "verification_commands": [
+      "node verify.mjs"
+    ]
+  },
+  "category": "type error",
+  "allowed_paths": [
+    "src/parse.js"
   ],
   "external_verifier": "node verify.mjs",
   "reset_command": "node benchmarks/prepare.mjs"

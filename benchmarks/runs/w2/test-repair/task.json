@@ -1,21 +1,31 @@
 {
   "fixture_id": "test-repair",
-  "baseline_commit": "93956ddf6d31d6510de1ea1dba53395795afa5c3",
-  "task": "Make isoDate return a UTC ISO date string for a Date input.",
-  "title": "Repair date formatting",
-  "category": "test repair",
-  "constraints": [
-    "Use only the allowed paths.",
-    "Run node verify.mjs before claiming completion."
-  ],
-  "allowed_paths": [
+  "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
+  "baseline_kind": "fixture-content-sha1",
+  "baseline_files": [
     "src/date.js"
   ],
-  "acceptance_criteria": [
-    "Make isoDate return a UTC ISO date string for a Date input."
-  ],
-  "verification_commands": [
-    "node verify.mjs"
+  "task": {
+    "title": "Repair date formatting",
+    "goal": "Make isoDate return a UTC ISO date string for a Date input.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "acceptance_criteria": [
+      {
+        "id": "AC-01",
+        "statement": "Make isoDate return a UTC ISO date string for a Date input.",
+        "required": true
+      }
+    ],
+    "verification_commands": [
+      "node verify.mjs"
+    ]
+  },
+  "category": "test repair",
+  "allowed_paths": [
+    "src/date.js"
   ],
   "external_verifier": "node verify.mjs",
   "reset_command": "node benchmarks/prepare.mjs"

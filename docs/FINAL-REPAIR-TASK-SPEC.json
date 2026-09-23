@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "record_type": "task_spec",
+  "project_id": "w2",
+  "task_id": "",
+  "user_goal": "Independently re-audit and repair W2 for truthful, reproducible competition submission; repair benchmark task schema, fairness, timeout and evidence metrics; remove active Codex sandbox bypass; correct context, safety, GPT-5.6 and resume claims; produce honest demo and complete verification.",
+  "task_type": "release:competition-hardening",
+  "complexity": "C2",
+  "complexity_reasons": ["Cross-cutting benchmark, runtime safety, evidence and release verification"],
+  "functional_requirements": ["Close listed audit blockers without feature expansion", "Persist current audit findings and final evidence", "Rerun applicable tests, benchmark and demo validation"],
+  "nonfunctional_requirements": ["No unsupported claims or fabricated evidence", "Preserve failed and timeout runs", "Use documented Codex workspace-write sandbox"],
+  "constraints": ["No safety bypass", "No fake Codex success or metric"],
+  "unknowns": [],
+  "explicit_out_of_scope": ["New product features", "Deployment and competition submission"],
+  "affected_domains": ["benchmark", "runtime safety", "evidence", "documentation", "demo", "release"],
+  "security_relevance": "APPLICABLE",
+  "persistence_relevance": "APPLICABLE",
+  "auth_relevance": "NOT_APPLICABLE",
+  "concurrency_relevance": "NOT_APPLICABLE",
+  "time_relevance": "APPLICABLE",
+  "external_dependency_relevance": "NOT_APPLICABLE",
+  "semantic_relevance": [
+    {"name":"security","status":"APPLICABLE","rules":["remove Codex bypass","retain workspace sandbox"]},
+    {"name":"persistence","status":"APPLICABLE","rules":["preserve raw benchmark evidence","exclude W2 runtime DB from task diff"]},
+    {"name":"time","status":"APPLICABLE","rules":["consistent timeout classification"]}
+  ],
+  "acceptance_criteria": [
+    {"id":"AC-TRUTH","statement":"All public claims match enforced behavior and stored evidence","verification_method":"claim audit and code inspection","required":true},
+    {"id":"AC-BENCH","statement":"Normalized fair benchmark validates and current data comes only from reruns","verification_method":"benchmark validator and generated report","required":true},
+    {"id":"AC-REAL","statement":"A real successful Raw Codex and W2 Codex run exists","verification_method":"persisted Codex event, diff, verifier and receipt","required":true},
+    {"id":"AC-SEC","statement":"Active Codex runtime uses supported workspace-write sandbox","verification_method":"installed Codex CLI and source inspection","required":true},
+    {"id":"AC-VERIFY","statement":"Tests, typecheck, build, demo and fresh clone checks are recorded","verification_method":"actual command outputs","required":true}
+  ],
+  "source": "MODEL_STRUCTURED",
+  "semantic_quality": "PASS",
+  "semantic_authority": "MODEL_STRUCTURED",
+  "regex_semantic_authority": false
+}

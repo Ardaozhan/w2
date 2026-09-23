@@ -30,4 +30,11 @@
   the phases that require them.
 - **Reason:** The Phase 00 goal is a stable foundation; adding unused runtime
   systems would increase churn without proving a Phase 00 criterion.
+# Publication and license
+
+No license was added during the repair: the repository is currently marked
+`private` in `package.json`, and publication intent is not established by the
+checked-in project files. Before public distribution, the owner should confirm
+the intended license; MIT is a candidate only if that matches the project's
+publication intent.
 

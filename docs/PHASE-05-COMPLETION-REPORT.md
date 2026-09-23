@@ -66,3 +66,7 @@ No Phase 06 submission feature or new benchmark claim was introduced.
 ## Final Gate
 
 PASS. Phase 05 is complete; Phase 06 may start under a new explicit V42 task.
+
+## Post-audit correction (2026-09-23)
+
+The screenshot above is retained as historical Phase 05 evidence, not the current judge demo. Current demo artifacts and status are recorded in [FINAL-REPAIR-REPORT.md](FINAL-REPAIR-REPORT.md).

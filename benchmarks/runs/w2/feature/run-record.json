@@ -1,60 +1,85 @@
 {
   "condition": "w2_codex",
   "fixture_id": "feature",
-  "status": "UNPROVEN",
+  "baseline_commit": "85c5e4f89af88ed62c96ebe9109f69ff82e6417f",
+  "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
+  "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
   "infrastructure_failure": false,
+  "timed_out": false,
   "claim_done": false,
   "false_done": false,
   "external_verification": {
-    "status": "FAIL",
-    "exit_code": 1,
-    "stdout": "",
-    "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/w2/feature/verify.mjs:1\r\nimport { slugify } from './src/slug.js'; if (slugify(' Hello, World! ') !== 'hello-world') throw new Error('slugify failed'); console.log(JSON.stringify({criterion:'slugify',status:'PASS'}));\r\n                                                                                                 ^\r\n\r\nError: slugify failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/w2/feature/verify.mjs:1:98\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
-    "runtime_ms": 43
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 56
   },
-  "runtime_ms": 20202,
+  "runtime_ms": 27410,
   "model_calls": 1,
-  "tool_calls": 2,
-  "steps": 22,
+  "tool_calls": 8,
+  "steps": 46,
   "retries": 0,
   "manual_interventions": 0,
   "scope_violations": [],
+  "criterion_evidence_coverage": 1,
   "evidence": {
     "context": {
-      "files_considered": 6,
+      "files_considered": 3,
       "files_supplied": 1,
       "approximate_tokens": 12,
+      "selected_paths": [
+        "src\\slug.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
       "evidence_ids": [
-        "ev_f02ab8e57bfd288ec745"
+        "ev_2f1cba2ec43939b24669"
       ]
     },
     "tool_trace": {
-      "events": 22,
-      "tool_calls": 2,
+      "events": 46,
+      "tool_calls": 8,
       "evidence_ids": [
-        "ev_c48d942cf659cff95709",
-        "ev_23dcd8d832c6bcd061ac",
-        "ev_c7eb72f8b89ec4d79514",
-        "ev_ea3e498634ff301cc132",
-        "ev_114844914c37eab23d07",
-        "ev_b337cfb92f7a34796562"
+        "ev_39a82e9a22059ad7d756",
+        "ev_f7f244ffc6d33cfc8d44",
+        "ev_816737675d5e1f54b8e7",
+        "ev_1e60e5087a63c4eccc8f",
+        "ev_c699b2a68e5897ec0ae0",
+        "ev_7ea9fcba83d7b2eaba51",
+        "ev_9c851be77f8412fb9ff3",
+        "ev_c3910f94470f2f7dcd7a"
       ]
     },
     "diff": {
       "changed_files": [
-        "w2-run.sqlite",
-        "w2-run.sqlite-shm",
-        "w2-run.sqlite-wal"
+        "src/slug.js"
       ],
-      "additions": 0,
-      "deletions": 0,
+      "additions": 3,
+      "deletions": 1,
       "evidence_ids": [
-        "ev_afb0378a751ac9002448"
+        "ev_15769afd720590a39bc6"
       ]
     },
     "verification": {
-      "results": [],
-      "evidence_ids": []
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 56,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_7ea9fcba83d7b2eaba51"
+      ]
     },
     "receipt": "benchmarks\\runs\\w2\\feature\\run-receipt.json"
   },

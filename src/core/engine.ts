@@ -37,6 +37,7 @@ export class RunEngine {
     const runId = randomUUID();
     const startedAt = this.now().toISOString();
     const model = task.model ?? this.adapter.provider;
+    const executionMode = this.adapter instanceof CodexAgentAdapter ? "REAL_CODEX" : "FAKE_ADAPTER";
     const runtime = new ToolRuntime(workspace, {
       ...this.options.runtime,
       capabilities: task.capabilities ?? this.options.runtime?.capabilities,
@@ -59,7 +60,7 @@ export class RunEngine {
       this.store.appendEvent(runId, "context_built", { files_included: context.files_included.length, approximate_tokens: context.approximate_tokens });
       this.saveCheckpoint(runId, runtime, context, 0);
       this.store.transition(runId, "RUNNING");
-      this.store.appendEvent(runId, "agent_started", { provider: this.adapter.provider, model });
+      this.store.appendEvent(runId, "agent_started", { provider: this.adapter.provider, model, execution_mode: executionMode });
       const agentResult = await this.adapter.startRun({ task, workspace, context: JSON.stringify(context, null, 2), timeoutMs: task.timeout_ms ?? 5 * 60 * 1000 });
       for (const output of agentResult.outputs) this.store.appendEvent(runId, "agent_output", output);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
@@ -67,7 +68,14 @@ export class RunEngine {
       this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...agentResult.tool_calls] });
       this.saveCheckpoint(runId, runtime, context, 0);
       if (agentResult.exit_code !== 0) {
-        await this.finishFailure(runId, `Agent failure: ${agentResult.error ?? "unknown error"}`, runtime, statusBefore);
+        const message = `Agent failure: ${agentResult.error ?? "unknown error"}`;
+        if (agentResult.infrastructure_failure) {
+          const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore);
+          this.store.updateSnapshots(runId, { toolEvents: agentResult.tool_calls, diff });
+          this.store.transition(runId, "ERROR", { finishedAt: this.now().toISOString(), error: message });
+          this.store.appendEvent(runId, "run_failed", { error: message, infrastructure: true });
+          this.store.appendEvent(runId, "run_finished", { status: "ERROR" });
+        } else await this.finishFailure(runId, message, runtime, statusBefore);
         return this.store.getRun(runId)!;
       }
       this.store.transition(runId, "VERIFYING");
@@ -149,7 +157,8 @@ export class RunEngine {
   private async captureAndPersistDiff(runId: string, runtime: ToolRuntime, statusBefore: string) {
     const statusAfter = await runtime.gitStatus();
     const gitDiff = await runtime.gitDiff();
-    const diff = captureDiff(statusBefore, statusAfter, gitDiff.diff, gitDiff.numstat);
+    const withoutW2Runtime = (status: string) => status.split(/\r?\n/).filter((line) => !/(?:^|\/)w2-run\.sqlite(?:-(?:wal|shm))?$/i.test(line.slice(3).trim())).join("\n");
+    const diff = captureDiff(withoutW2Runtime(statusBefore), withoutW2Runtime(statusAfter), gitDiff.diff, gitDiff.numstat);
     for (const file of diff.changed_files) this.store.appendEvent(runId, "file_changed", { path: file });
     return diff;
   }

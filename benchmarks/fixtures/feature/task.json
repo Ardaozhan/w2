@@ -1,22 +1,31 @@
 {
   "fixture_id": "feature",
-  "baseline_commit": "12909df8ec4b338dc7042b77080667b08cd410b5",
+  "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
   "baseline_kind": "fixture-content-sha1",
-  "task": "Implement slugify(text) with lowercase, trim, and hyphen-separated words.",
-  "title": "Implement slugify",
-  "category": "feature implementation",
-  "constraints": [
-    "Use only the allowed paths.",
-    "Run node verify.mjs before claiming completion."
-  ],
-  "allowed_paths": [
+  "baseline_files": [
     "src/slug.js"
   ],
-  "acceptance_criteria": [
-    "Implement slugify(text) with lowercase, trim, and hyphen-separated words."
-  ],
-  "verification_commands": [
-    "node verify.mjs"
+  "task": {
+    "title": "Implement slugify",
+    "goal": "Implement slugify(text) with lowercase, trim, and hyphen-separated words.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "acceptance_criteria": [
+      {
+        "id": "AC-01",
+        "statement": "Implement slugify(text) with lowercase, trim, and hyphen-separated words.",
+        "required": true
+      }
+    ],
+    "verification_commands": [
+      "node verify.mjs"
+    ]
+  },
+  "category": "feature implementation",
+  "allowed_paths": [
+    "src/slug.js"
   ],
   "external_verifier": "node verify.mjs",
   "reset_command": "node benchmarks/prepare.mjs"

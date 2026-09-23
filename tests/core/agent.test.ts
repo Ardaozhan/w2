@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CodexAgentAdapter } from "../../src/core/agent.js";
+import type { TaskDefinition } from "../../src/core/types.js";
 
 describe("Codex adapter", () => {
   it("normalizes Codex command lifecycle events at one boundary", () => {
@@ -8,5 +9,17 @@ describe("Codex adapter", () => {
       tool_name: "command_execution", input: "npm test",
     });
     expect(adapter.receiveOutput({ type: "item.completed", item: { type: "agent_message" } }).kind).toBe("item.completed");
+    expect(adapter.receiveOutput({ type: "item.completed", item: { type: "agent_message", text: "Done" } }).text).toBe("Done");
+  });
+
+  it("always sends the complete task goal and verification contract", () => {
+    const adapter = new CodexAgentAdapter();
+    const task: TaskDefinition = { task_id: "contract", title: "Fix arithmetic", goal: "Return the product", constraints: ["only change src/math.ts"], allowed_paths: ["src/math.ts"], acceptance_criteria: ["multiply values"], verification_commands: [{ name: "tests", command: "npm test", category: "test" }] };
+    const prompt = adapter.sendTask(task, "{}");
+    expect(prompt).toContain("Goal: Return the product");
+    expect(prompt).toContain("only change src/math.ts");
+    expect(prompt).toContain("multiply values");
+    expect(prompt).toContain("tests: npm test");
+    expect(prompt).not.toContain("undefined");
   });
 });

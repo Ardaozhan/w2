@@ -1,18 +1,24 @@
 {
   "condition": "raw_codex",
   "fixture_id": "feature",
-  "status": "INFRASTRUCTURE_FAILURE",
-  "infrastructure_failure": true,
-  "claim_done": false,
+  "baseline_commit": "85c5e4f89af88ed62c96ebe9109f69ff82e6417f",
+  "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
+  "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": true,
   "false_done": false,
   "external_verification": {
-    "status": "FAIL",
-    "exit_code": 1,
-    "stdout": "",
-    "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/raw/feature/verify.mjs:1\r\nimport { slugify } from './src/slug.js'; if (slugify(' Hello, World! ') !== 'hello-world') throw new Error('slugify failed'); console.log(JSON.stringify({criterion:'slugify',status:'PASS'}));\r\n                                                                                                 ^\r\n\r\nError: slugify failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/raw/feature/verify.mjs:1:98\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
-    "runtime_ms": 51
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 46
   },
-  "runtime_ms": 20128,
+  "runtime_ms": 40969,
   "model_calls": 1,
   "tool_calls": null,
   "steps": null,
@@ -20,18 +26,20 @@
   "manual_interventions": 0,
   "scope_violations": [],
   "evidence": {
-    "context": "prompt task contract",
-    "tool_trace": "codex JSON stdout stored",
-    "diff": [],
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [
+      "src/slug.js"
+    ],
     "verification": {
-      "status": "FAIL",
-      "exit_code": 1,
-      "stdout": "",
-      "stderr": "file:///C:/Users/ardao/w2/benchmarks/runs/raw/feature/verify.mjs:1\r\nimport { slugify } from './src/slug.js'; if (slugify(' Hello, World! ') !== 'hello-world') throw new Error('slugify failed'); console.log(JSON.stringify({criterion:'slugify',status:'PASS'}));\r\n                                                                                                 ^\r\n\r\nError: slugify failed\r\n    at file:///C:/Users/ardao/w2/benchmarks/runs/raw/feature/verify.mjs:1:98\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.13.1\r\n",
-      "runtime_ms": 51
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 46
     }
   },
-  "output": "",
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdcb-077b-7333-acc6-3e37c8be811b\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and current source/verification setup, then make the smallest change confined to `src/slug.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/slug.js' -g package.json -g '*.md'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/slug.js' -g package.json -g '*.md'\\\"\",\"aggregated_output\":\"verify.mjs\\nsrc\\\\slug.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/slug.js; Get-Content verify.mjs; Get-Content task.json; git status --short; rg --files'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/slug.js; Get-Content verify.mjs; Get-Content task.json; git status --short; rg --files'\",\"aggregated_output\":\"  \\\"baseline_files\\\": [\\r\\n    \\\"src/slug.js\\\"\\r\\n  ],\\r\\n  \\\"task\\\": {\\r\\n    \\\"title\\\": \\\"Implement slugify\\\",\\r\\n    \\\"goal\\\": \\\"Implement slugify(text) with lowercase, trim, and hyphen-separated words.\\\",\\r\\n    \\\"constraints\\\": [\\r\\n      \\\"Use only the allowed paths.\\\",\\r\\n      \\\"Run node verify.mjs before claiming completion.\\\"\\r\\n    ],\\r\\n    \\\"acceptance_criteria\\\": [\\r\\n      {\\r\\n        \\\"id\\\": \\\"AC-01\\\",\\r\\n        \\\"statement\\\": \\\"Implement slugify(text) with lowercase, trim, and hyphen-separated words.\\\",\\r\\n        \\\"required\\\": true\\r\\n      }\\r\\n    ],\\r\\n    \\\"verification_commands\\\": [\\r\\n      \\\"node verify.mjs\\\"\\r\\n    ]\\r\\n  },\\r\\n  \\\"category\\\": \\\"feature implementation\\\",\\r\\n  \\\"allowed_paths\\\": [\\r\\n    \\\"src/slug.js\\\"\\r\\n  ],\\r\\n  \\\"external_verifier\\\": \\\"node verify.mjs\\\",\\r\\n  \\\"reset_command\\\": \\\"node benchmarks/prepare.mjs\\\"\\r\\n}\\r\\nverify.mjs\\ntask.json\\nsrc\\\\slug.js\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The verifier’s example establishes that punctuation should be removed and whitespace normalized into a single hyphen. I’m implementing that behavior with a compact ASCII slug transform in the allowed source file.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Implemented `slugify` in [src/slug.js](C:/Users/ardao/w2/benchmarks/runs/raw/feature/src/slug.js): it lowercases and trims the input, removes punctuation, and joins words with hyphens.\\n\\n`node verify.mjs` passed (`AC-01: PASS`).\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":126943,\"cached_input_tokens\":107264,\"cache_write_input_tokens\":0,\"output_tokens\":537,\"reasoning_output_tokens\":0}}\n",
   "stderr": "Reading additional input from stdin...\n",
-  "exit_code": 1
+  "exit_code": 0
 }

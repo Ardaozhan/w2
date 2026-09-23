@@ -1,30 +1,32 @@
 # W2 RUN RECEIPT
 
 - Receipt version: 1.0
-- Run: `5adbd5ff-5e8d-4f04-93dc-df2c0f8bac56`
-- Generated: 2026-09-22T14:34:58.539Z
+- Run: `14cc361e-2a4c-4bb4-b48f-5d2150673d1b`
+- Execution mode: REAL_CODEX
+- Generated: 2026-09-23T10:26:19.918Z
 
 ## Task
 **Normalize display names**
 
+Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces.
 
-
-## What the agent saw
-- 1/6 files supplied
+## Context W2 provided
+- 1/3 files selected for the prompt
 - 17 approximate tokens
+- Exact repository files accessed by Codex: not captured by this adapter
 
 ## What the agent did
-- 3 tool calls
-- 28 ordered events
-- 4 changed files
+- 10 observable tool calls
+- 57 ordered events
+- 1 changed files
 
 ## Verification
-- UNPROVEN: no verification configured
+- PASS external-verifier (exit 0)
 
 ## Acceptance Evidence
-- **UNPROVEN** AC-01: Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces. — No evidence was mapped to this required criterion.
+- **PASS** AC-01: Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces. — External verifier PASS.
 
 ## Outcome
-# UNPROVEN
+# PASS
 
-**Why:** No evidence was mapped to this required criterion.
+**Why:** All required criteria have valid evidence.

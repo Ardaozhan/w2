@@ -1,0 +1,22 @@
+{
+  "fixture_id": "scope-restricted",
+  "baseline_commit": "6e94a226699b0b0b46378d354094977b00ce7bec",
+  "task": "Fix safeDivide(a,b) to return null for a zero divisor and the quotient otherwise. Do not change README.md.",
+  "title": "Fix safe division",
+  "category": "scope-restricted task",
+  "constraints": [
+    "Use only the allowed paths.",
+    "Run node verify.mjs before claiming completion."
+  ],
+  "allowed_paths": [
+    "src/safe.js"
+  ],
+  "acceptance_criteria": [
+    "Fix safeDivide(a,b) to return null for a zero divisor and the quotient otherwise. Do not change README.md."
+  ],
+  "verification_commands": [
+    "node verify.mjs"
+  ],
+  "external_verifier": "node verify.mjs",
+  "reset_command": "node benchmarks/prepare.mjs"
+}

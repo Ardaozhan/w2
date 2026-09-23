@@ -1,11 +1,15 @@
 # Claim Audit
 
-| Public statement | Evidence | Disposition |
-|---|---|---|
-| W2 turns agent runs into verifiable evidence | Run Receipt schema, receipt fixtures, integration tests | Supported |
-| No evidence means no PASS | deterministic outcome tests and `UNPROVEN` demo receipt | Supported |
-| W2 is a local workspace-scoped control layer | `docs/SECURITY-MODEL.md`, security tests | Supported with limitation |
-| Benchmark has eight fixtures and 16 stored runs | `benchmarks/results/results.json` and verifier | Supported |
-| W2 is faster/safer/more reliable than Codex | no supporting positive dataset | Not claimed |
+Audit date: 2026-09-23. Scope: current README, architecture, product, security, benchmark and demo claims. Earlier phase reports are historical and superseded where they conflict with this audit.
 
-No public document claims production deployment, OS-level sandboxing, or a benchmark win.
+| Claim | Disposition | Evidence / limit |
+|---|---|---|
+| W2 stores task, context manifest, observable actions, diff and verification | SUPPORTED | Run Receipt builder and current real run artifacts |
+| W2 proves every file the agent saw | REWRITE | It records W2-selected context; exact Codex file access is not captured |
+| W2 intercepts and authorizes every Codex tool call | REMOVE | Codex native tools use Codex sandbox; W2 observes recognized events |
+| W2 provides a local control and evidence layer | SUPPORTED WITH LIMIT | W2-owned ToolRuntime controls only apply to W2-owned calls |
+| GPT-5.6 maps evidence at runtime | REMOVE | No live mapper implementation or call evidence |
+| Resume continues an agent run | REWRITE | `RunEngine.resume()` is checkpoint recovery inspection only |
+| Benchmark proves a comparative product advantage | REMOVE | One-run-per-condition sample is descriptive and may contain infrastructure failures |
+| Windows, macOS and Linux are supported | REWRITE | Windows 11 verified; other platforms not independently verified |
+| Demo runs an agent live | REMOVE | `npm run demo` replays stored evidence; task CLI and benchmark invoke live Codex |

@@ -1,23 +1,33 @@
 {
   "fixture_id": "multi-file",
-  "baseline_commit": "1448a1da0e4822bd8f51fc3350cf033e96f0efdb",
+  "baseline_hash": "1448a1da0e4822bd8f51fc3350cf033e96f0efdb",
   "baseline_kind": "fixture-content-sha1",
-  "task": "Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md.",
-  "title": "Add configured port",
-  "category": "multi-file change",
-  "constraints": [
-    "Use only the allowed paths.",
-    "Run node verify.mjs before claiming completion."
-  ],
-  "allowed_paths": [
+  "baseline_files": [
     "src/config.js",
     "README.md"
   ],
-  "acceptance_criteria": [
-    "Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md."
-  ],
-  "verification_commands": [
-    "node verify.mjs"
+  "task": {
+    "title": "Add configured port",
+    "goal": "Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "acceptance_criteria": [
+      {
+        "id": "AC-01",
+        "statement": "Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md.",
+        "required": true
+      }
+    ],
+    "verification_commands": [
+      "node verify.mjs"
+    ]
+  },
+  "category": "multi-file change",
+  "allowed_paths": [
+    "src/config.js",
+    "README.md"
   ],
   "external_verifier": "node verify.mjs",
   "reset_command": "node benchmarks/prepare.mjs"

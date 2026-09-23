@@ -1,8 +1,14 @@
 {
   "condition": "w2_codex",
   "fixture_id": "scope-restricted",
-  "status": "UNPROVEN",
+  "baseline_commit": "e71a8631ae7f372dfef7c31143279b6b5f445944",
+  "baseline_hash": "0a3fb1f9485ff2a7e2aa23c96fd7ef435447b9e1",
+  "task_semantics_hash": "e9fed7217a2c7c2ba7fd9d30d56b829459012792b977b8e1dd8bc62fbeb2ea0d",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
   "infrastructure_failure": false,
+  "timed_out": false,
   "claim_done": false,
   "false_done": false,
   "external_verification": {
@@ -10,52 +16,71 @@
     "exit_code": 0,
     "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
     "stderr": "",
-    "runtime_ms": 46
+    "runtime_ms": 56
   },
-  "runtime_ms": 20234,
+  "runtime_ms": 27857,
   "model_calls": 1,
-  "tool_calls": 4,
-  "steps": 34,
+  "tool_calls": 8,
+  "steps": 46,
   "retries": 0,
   "manual_interventions": 0,
   "scope_violations": [],
+  "criterion_evidence_coverage": 1,
   "evidence": {
     "context": {
-      "files_considered": 7,
+      "files_considered": 4,
       "files_supplied": 2,
       "approximate_tokens": 19,
+      "selected_paths": [
+        "README.md",
+        "src\\safe.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
       "evidence_ids": [
-        "ev_6909029f0f42055fb7fb"
+        "ev_60ddf891e36e2180ab84"
       ]
     },
     "tool_trace": {
-      "events": 34,
-      "tool_calls": 4,
+      "events": 46,
+      "tool_calls": 8,
       "evidence_ids": [
-        "ev_4a55dbda306fb4fd1e00",
-        "ev_c5ea1d6cbab06cad9de9",
-        "ev_35a417b015f7b70ecf96",
-        "ev_bbee7850e89194d67c95",
-        "ev_d03a602499ab3a691721",
-        "ev_cb96c39ec3c4353fa0df"
+        "ev_27b91cc059c456fc7cff",
+        "ev_b8de4945d260bf31ae09",
+        "ev_0619b863612c13fdeec9",
+        "ev_753d69f1df35f82b3620",
+        "ev_23d63a895951b47e65f0",
+        "ev_0bf9f8056d3c16598b3f",
+        "ev_6d50a25fce42f3bdb2b3",
+        "ev_bb0201650523b3a13bf5"
       ]
     },
     "diff": {
       "changed_files": [
-        "src/safe.js",
-        "w2-run.sqlite",
-        "w2-run.sqlite-shm",
-        "w2-run.sqlite-wal"
+        "src/safe.js"
       ],
       "additions": 1,
       "deletions": 1,
       "evidence_ids": [
-        "ev_4242b5db3a203042387e"
+        "ev_1b948363fbf80a9a873b"
       ]
     },
     "verification": {
-      "results": [],
-      "evidence_ids": []
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"safeDivide\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 56,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_0bf9f8056d3c16598b3f"
+      ]
     },
     "receipt": "benchmarks\\runs\\w2\\scope-restricted\\run-receipt.json"
   },

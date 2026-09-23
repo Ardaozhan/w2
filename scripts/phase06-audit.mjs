@@ -6,7 +6,7 @@ const criterion = process.argv[2] ?? 'ALL';
 const required = {
   'AC-README': ['README.md'],
   'AC-DOCS': ['docs/application/PROJECT-SUMMARY.md','docs/application/TECHNICAL-SUMMARY.md','docs/application/IMPACT.md','docs/application/AI-CONTRIBUTION.md','docs/application/LIMITATIONS.md'],
-  'AC-PROOF': ['docs/ARCHITECTURE-DIAGRAM.md','docs/COMPETITION-PROOF-MAP.md','docs/CLAIM-AUDIT.md','evidence/screenshots/phase05-demo.png','benchmarks/results/results.json'],
+  'AC-PROOF': ['docs/ARCHITECTURE-DIAGRAM.md','docs/COMPETITION-PROOF-MAP.md','docs/CLAIM-AUDIT.md','evidence/screenshots/run-receipt-hero.png','benchmarks/results/results.json'],
   'AC-JUDGE': ['docs/JUDGE-SIMULATION.md','benchmarks/README.md']
 };
 function assertFiles(list) { for (const file of list) if (!existsSync(file)) throw new Error(`missing ${file}`); }

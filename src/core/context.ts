@@ -50,6 +50,8 @@ export function buildContextManifest(task: TaskDefinition, workspace: string): C
     files_considered: files,
     files_included: included,
     excluded_candidates: excluded,
+    accessed_files: [],
+    access_observation: "UNAVAILABLE",
     total_bytes: totalBytes,
     approximate_tokens: Math.ceil(totalBytes / 4),
   };
