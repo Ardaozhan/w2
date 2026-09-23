@@ -2,7 +2,7 @@
 
 ## Status
 
-The latest local test suite and benchmark validators pass after the fresh rerun. Final clean-clone and Phase 06 gates are rerun on the committed result/evidence package before the final YES status is recorded. This report supersedes conflicting completion/readiness claims in earlier phase and repair reports. The supported V42 lifecycle accepted task `task-847f663dba32890404afcb58`; its readiness artifact records `PROJECT_RESOLUTION_STATUS=RESOLVED`, `GIT_REPOSITORY=true`, `V42_EXECUTION_READY=true`, and security preflight PASS. No gate was bypassed.
+All machine-actionable gates PASS on final result/evidence checkpoint `f0baf48` for the verified Windows 11 scope. This report supersedes conflicting completion/readiness claims in earlier phase and repair reports. The supported V42 lifecycle accepted task `task-847f663dba32890404afcb58`; its readiness artifact records `PROJECT_RESOLUTION_STATUS=RESOLVED`, `GIT_REPOSITORY=true`, `V42_EXECUTION_READY=true`, and security preflight PASS. No gate was bypassed. A final report-only commit follows and is independently rechecked after commit.
 
 ## False-DONE Parser Fix
 
@@ -73,7 +73,7 @@ Playwright opened the static demo from the local static server. PASS and UNPROVE
 
 ## Fresh Clone
 
-The earlier clean-archive check passed on checkpoint `c7b00ba`, before the final 16-run dataset and screenshots were regenerated. This final result/evidence set is committed and then checked again with `npm run phase06:audit`, whose clean archive performs ordinary `npm ci`; only that post-rerun output is the final clone result.
+`npm run phase06:audit` PASS on result/evidence checkpoint `f0baf48`. Its actual `git archive HEAD` copy used ordinary `npm ci` in an isolated directory and passed 12 test files / 41 tests, typecheck, build, Phase 02 integrity, all 16 benchmark-result checks, judge-demo validation, and demo smoke; Phase 06 ALL passed. The final report-only commit is also rechecked after commit.
 
 ## Secret Scan
 
@@ -81,7 +81,7 @@ Final repository scan: no dangerous Codex bypass match and no high-confidence cr
 
 ## Git State
 
-The final rerun, report, judge data, screenshots, and readiness record are being assembled into the submission checkpoint. Previous attempts are preserved under `benchmarks/archive/`; current results are regenerated, not cherry-picked. Final Git state and archive verification are checked after the closeout commit.
+The final rerun, report, judge data, screenshots, and readiness record are committed at `f0baf48`; the worktree was clean at that checkpoint. Previous attempts are preserved under `benchmarks/archive/`; current results are regenerated, not cherry-picked. The final report-only commit is checked for a clean worktree and clean archive after commit.
 
 ## Human Actions Remaining
 
@@ -92,8 +92,8 @@ The final rerun, report, judge data, screenshots, and readiness record are being
 
 ## Final Commit
 
-The final submission checkpoint is the repository HEAD containing this report; the exact commit hash is included in the handoff.
+Final result/evidence checkpoint: `f0baf48`. The final report-only closeout is the repository HEAD containing this report; its exact hash is included in the handoff.
 
 ## Final Gate
 
-`W2 TECHNICAL PACKAGE READY: PENDING POST-RERUN CLEAN-ARCHIVE, PHASE 06, AND CLEAN-GIT VERIFICATION.` Competition submission also remains pending the human actions above.
+`W2 TECHNICAL PACKAGE READY: YES` for the verified Windows 11 scope. The final report-only closeout is post-commit tested; competition submission remains pending the human actions above.
