@@ -174,6 +174,11 @@ export class RunStore {
       `);
       this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)").run(3, new Date().toISOString());
     }
+    if (!applied.some((row) => row.version === 4)) {
+      this.db.exec("ALTER TABLE verification_results ADD COLUMN verifier_id TEXT NOT NULL DEFAULT '';");
+      this.db.exec("UPDATE verification_results SET verifier_id = name WHERE verifier_id = '';");
+      this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)").run(4, new Date().toISOString());
+    }
   }
 
   saveTask(task: TaskDefinition): void {
@@ -249,9 +254,9 @@ export class RunStore {
 
   appendVerification(runId: string, result: VerificationResult): void {
     this.db.prepare(`
-      INSERT INTO verification_results(run_id, name, category, command, exit_code, stdout, stderr, duration_ms, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(runId, result.name, result.category, result.command, result.exit_code, result.stdout, result.stderr, result.duration_ms, result.status);
+      INSERT INTO verification_results(run_id, verifier_id, name, category, command, exit_code, stdout, stderr, duration_ms, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(runId, result.verifier_id, result.name, result.category, result.command, result.exit_code, result.stdout, result.stderr, result.duration_ms, result.status);
   }
 
   getRun(runId: string): RunRecord | undefined {
@@ -286,7 +291,7 @@ export class RunStore {
   }
 
   getVerificationResults(runId: string): VerificationResult[] {
-    return this.db.prepare("SELECT name, category, command, exit_code, stdout, stderr, duration_ms, status FROM verification_results WHERE run_id = ? ORDER BY id ASC").all(runId) as unknown as VerificationResult[];
+    return this.db.prepare("SELECT verifier_id, name, category, command, exit_code, stdout, stderr, duration_ms, status FROM verification_results WHERE run_id = ? ORDER BY id ASC").all(runId) as unknown as VerificationResult[];
   }
 
   saveEvidence(evidence: EvidenceRecord[]): void {

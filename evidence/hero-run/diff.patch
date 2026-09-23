@@ -1,0 +1,53 @@
+diff --git a/src/app.ts b/src/app.ts
+index e401b8f..de35798 100644
+--- a/src/app.ts
++++ b/src/app.ts
+@@ -19,12 +19,13 @@ export function createLoginServer(now: () => number = Date.now) {
+       return;
+     }
+     const clientId = request.socket.remoteAddress ?? "unknown";
+-    if (limiter.isRateLimited(clientId, now())) {
++    const currentTime = now();
++    if (limiter.isRateLimited(clientId, currentTime)) {
+       response.writeHead(429).end();
+       return;
+     }
+     if (!authenticate(body.username, body.password)) {
+-      limiter.recordFailure(clientId, now());
++      limiter.recordFailure(clientId, currentTime);
+       response.writeHead(401).end();
+       return;
+     }
+diff --git a/src/rateLimit.ts b/src/rateLimit.ts
+index ce5983e..cf837da 100644
+--- a/src/rateLimit.ts
++++ b/src/rateLimit.ts
+@@ -1,7 +1,25 @@
+ export class LoginRateLimiter {
+-  isRateLimited(_clientId: string, _now = Date.now()): boolean {
+-    return false;
++  private readonly failures = new Map<string, number[]>();
++
++  private static readonly maxFailures = 5;
++  private static readonly windowMs = 60_000;
++
++  private activeFailures(clientId: string, now: number): number[] {
++    const failures = this.failures.get(clientId) ?? [];
++    const cutoff = now - LoginRateLimiter.windowMs;
++    while (failures.length > 0 && failures[0] <= cutoff) failures.shift();
++    if (failures.length === 0) this.failures.delete(clientId);
++    else this.failures.set(clientId, failures);
++    return failures;
+   }
+ 
+-  recordFailure(_clientId: string, _now = Date.now()): void {}
++  isRateLimited(clientId: string, now = Date.now()): boolean {
++    return this.activeFailures(clientId, now).length >= LoginRateLimiter.maxFailures;
++  }
++
++  recordFailure(clientId: string, now = Date.now()): void {
++    const failures = this.activeFailures(clientId, now);
++    failures.push(now);
++    this.failures.set(clientId, failures);
++  }
+ }

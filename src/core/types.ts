@@ -38,9 +38,17 @@ export type EventType = (typeof EVENT_TYPES)[number];
 export type VerificationCategory = "test" | "lint" | "typecheck" | "build" | "custom";
 
 export interface VerificationCommand {
+  id: string;
   name: string;
   command: string;
   category: VerificationCategory;
+}
+
+export interface AcceptanceCriterion {
+  id: string;
+  statement: string;
+  required: boolean;
+  verification_refs: string[];
 }
 
 export interface TaskDefinition {
@@ -49,7 +57,7 @@ export interface TaskDefinition {
   goal: string;
   constraints: string[];
   allowed_paths: string[];
-  acceptance_criteria: string[];
+  acceptance_criteria: AcceptanceCriterion[];
   verification_commands: VerificationCommand[];
   workspace?: string;
   model?: string;
@@ -91,6 +99,7 @@ export interface DiffCapture {
 }
 
 export interface VerificationResult {
+  verifier_id: string;
   name: string;
   category: VerificationCategory;
   command: string;

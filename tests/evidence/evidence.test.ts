@@ -5,13 +5,18 @@ import { describe, expect, it } from "vitest";
 import { buildRunReceipt, computeCriterionEvidenceCoverage, computeOutcome, deriveEvidence, mapAcceptanceCriteria, renderReceiptMarkdown, validateReceipt } from "../../src/core/evidence.js";
 import { RunStore } from "../../src/core/store.js";
 import { isFalseDone } from "../../src/core/outcomes.js";
-import type { AcceptanceCriterionResult, ContextManifest, DiffCapture, TaskDefinition, VerificationResult } from "../../src/core/types.js";
+import type { ContextManifest, DiffCapture, TaskDefinition, VerificationResult } from "../../src/core/types.js";
 
-function fixture() {
+function fixture(unmappedSecond = false) {
   const databasePath = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "w2-evidence-")), "runs.sqlite");
   const store = new RunStore(databasePath);
   const task: TaskDefinition = {
-    task_id: "rate-limit-demo", title: "Implement login rate limiting", goal: "Limit login attempts", constraints: [], allowed_paths: ["."], acceptance_criteria: ["Maximum five attempts per minute", "HTTP 429 is returned after the limit"], verification_commands: [], workspace: process.cwd(), model: "fixture-model",
+    task_id: "rate-limit-demo", title: "Implement login rate limiting", goal: "Limit login attempts", constraints: [], allowed_paths: ["."],
+    acceptance_criteria: [
+      { id: "AC-01", statement: "Maximum five attempts per minute", required: true, verification_refs: ["V1"] },
+      { id: "AC-02", statement: "HTTP 429 is returned after the limit", required: true, verification_refs: unmappedSecond ? [] : ["V1"] },
+    ],
+    verification_commands: [{ id: "V1", name: "tests", category: "test", command: "npm test" }], workspace: process.cwd(), model: "fixture-model",
   };
   const runId = "run-evidence-1";
   store.saveTask(task);
@@ -20,7 +25,7 @@ function fixture() {
   store.transition(runId, "PREPARING");
   const context: ContextManifest = { workspace: process.cwd(), generated_at: "2026-09-22T10:00:01.000Z", task_id: task.task_id, files_considered: [], files_included: [], excluded_candidates: [], total_bytes: 0, approximate_tokens: 0 };
   const diff: DiffCapture = { status_before: "", status_after: "M src/auth.ts", changed_files: ["src/auth.ts"], additions: 2, deletions: 1, unified_diff: "diff" };
-  const verification: VerificationResult = { name: "tests", category: "test", command: "npm test", exit_code: 0, stdout: "passed", stderr: "", duration_ms: 3, status: "PASSED" };
+  const verification: VerificationResult = { verifier_id: "V1", name: "tests", category: "test", command: "npm test", exit_code: 0, stdout: "passed", stderr: "", duration_ms: 3, status: "PASSED" };
   store.updateSnapshots(runId, { contextManifest: context, diff, verificationResults: [verification] });
   store.appendVerification(runId, verification);
   store.transition(runId, "RUNNING");
@@ -31,52 +36,49 @@ function fixture() {
 }
 
 describe("evidence and run receipts", () => {
-  it("maps only known evidence and computes a deterministic PASS", () => {
+  it("automatically maps verifier evidence and computes deterministic PASS", () => {
     const { store, task, run } = fixture();
     const evidence = deriveEvidence(run, store.getEvents(run.run_id).length, store.getToolCalls(run.run_id).length);
-    const mapping = mapAcceptanceCriteria(task, evidence, [
-      { criterion_id: "AC-01", description: task.acceptance_criteria[0], required: true, status: "PASS", evidence_ids: [evidence.find((item) => item.type === "TEST_EVIDENCE")!.evidence_id], reason: "The recorded test exited zero." },
-      { criterion_id: "AC-02", description: task.acceptance_criteria[1], required: true, status: "PASS", evidence_ids: [evidence.find((item) => item.type === "TEST_EVIDENCE")!.evidence_id], reason: "The recorded test exited zero." },
-    ]);
+    const mapping = mapAcceptanceCriteria(task, evidence);
+    expect(mapping.map((item) => item.status)).toEqual(["PASS", "PASS"]);
     expect(computeOutcome({ runStatus: run.status, acceptance: mapping })).toBe("PASS");
-    const receipt = buildRunReceipt(store, run.run_id, { evidence, acceptance: mapping });
+    const receipt = buildRunReceipt(store, run.run_id);
     expect(receipt.outcome).toBe("PASS");
+    expect(receipt.acceptance).toEqual(mapping);
     expect(receipt.verification.evidence_ids).toContain(evidence.find((item) => item.type === "TEST_EVIDENCE")!.evidence_id);
     expect(() => validateReceipt(receipt)).not.toThrow();
     expect(renderReceiptMarkdown(receipt)).toContain("# PASS");
-    const falsePass = { ...receipt, acceptance: receipt.acceptance.map((item) => item.criterion_id === "AC-01" ? { ...item, evidence_ids: [evidence[0].evidence_id] } : item) };
-    expect(() => validateReceipt(falsePass)).toThrow("successful deterministic verification evidence");
+    const falsePass = { ...receipt, acceptance: receipt.acceptance.map((item) => item.criterion_id === "AC-01" ? { ...item, evidence_ids: [evidence.find((candidate) => candidate.type === "DIFF_EVIDENCE")!.evidence_id] } : item) };
+    expect(() => validateReceipt(falsePass)).toThrow(/evidence outside canonical verifier results/);
     store.close();
   });
 
-  it("keeps missing evidence UNPROVEN and exposes deterministic FAIL", () => {
-    const { store, task, run } = fixture();
+  it("keeps an unmapped criterion UNPROVEN and reports a failed referenced verifier as FAIL", () => {
+    const { store, task, run } = fixture(true);
     const evidence = deriveEvidence(run, 1, 0);
     const unproven = mapAcceptanceCriteria(task, evidence);
-    expect(unproven.every((criterion) => criterion.status === "UNPROVEN")).toBe(true);
+    expect(unproven.map((criterion) => criterion.status)).toEqual(["PASS", "UNPROVEN"]);
     expect(computeOutcome({ runStatus: run.status, acceptance: unproven })).toBe("UNPROVEN");
-    const failed: AcceptanceCriterionResult[] = unproven.map((criterion, index) => index === 0 ? { ...criterion, status: "FAIL", evidence_ids: [evidence[0].evidence_id], reason: "Deterministic assertion contradicts the criterion." } : criterion);
+    const failedEvidence = evidence.map((item) => item.type === "TEST_EVIDENCE" ? { ...item, data: { ...(item.data as Record<string, unknown>), status: "FAILED" } } : item);
+    const failed = mapAcceptanceCriteria(task, failedEvidence);
+    expect(failed[0]?.status).toBe("FAIL");
     expect(computeOutcome({ runStatus: run.status, acceptance: failed })).toBe("FAIL");
-    expect(() => mapAcceptanceCriteria(task, evidence, [{ criterion_id: "AC-01", description: "x", required: true, status: "PASS", evidence_ids: ["ev_missing"], reason: "bad" }])).toThrow("Unknown evidence ID");
     store.close();
   });
 
-  it("computes criterion coverage only from attached deterministic evidence", () => {
-    const { store, task, run } = fixture();
+  it("computes criterion coverage only from attached deterministic verifier evidence", () => {
+    const { store, task, run } = fixture(true);
     const evidence = deriveEvidence(run, 1, 0);
-    const verifierEvidence = evidence.find((item) => item.type === "TEST_EVIDENCE")!;
-    const mappings = mapAcceptanceCriteria(task, evidence, [
-      { criterion_id: "AC-01", description: "first", required: true, status: "PASS", evidence_ids: [verifierEvidence.evidence_id], reason: "attached" },
-      { criterion_id: "AC-02", description: "second", required: true, status: "UNPROVEN", evidence_ids: [], reason: "none" },
-    ]);
+    const mappings = mapAcceptanceCriteria(task, evidence);
     expect(computeCriterionEvidenceCoverage(mappings, evidence)).toBe(0.5);
+    const verifierEvidence = evidence.find((item) => item.type === "TEST_EVIDENCE")!;
     const interpreted = { ...verifierEvidence, confidence_class: "INTERPRETED" as const };
-    expect(computeCriterionEvidenceCoverage([{ ...mappings[0], evidence_ids: [interpreted.evidence_id] }], [interpreted])).toBe(0);
-    expect(computeCriterionEvidenceCoverage([{ ...mappings[0], evidence_ids: ["ev_nonexistent"] }], evidence)).toBe(0);
+    expect(computeCriterionEvidenceCoverage([{ ...mappings[0]!, evidence_ids: [interpreted.evidence_id] }], [interpreted])).toBe(0);
+    expect(computeCriterionEvidenceCoverage([{ ...mappings[0]!, evidence_ids: ["ev_nonexistent"] }], evidence)).toBe(0);
     const unrelatedDeterministic = evidence.find((item) => item.type === "DIFF_EVIDENCE")!;
-    expect(computeCriterionEvidenceCoverage([{ ...mappings[0], evidence_ids: [unrelatedDeterministic.evidence_id] }], evidence)).toBe(0);
+    expect(computeCriterionEvidenceCoverage([{ ...mappings[0]!, evidence_ids: [unrelatedDeterministic.evidence_id] }], evidence)).toBe(0);
     const failedVerifier = { ...verifierEvidence, data: { ...(verifierEvidence.data as Record<string, unknown>), status: "FAILED" } };
-    expect(computeCriterionEvidenceCoverage([{ ...mappings[0], evidence_ids: [failedVerifier.evidence_id] }], [failedVerifier])).toBe(1);
+    expect(computeCriterionEvidenceCoverage([{ ...mappings[0]!, status: "FAIL", evidence_ids: [failedVerifier.evidence_id] }], [failedVerifier])).toBe(1);
     expect(computeCriterionEvidenceCoverage([], evidence)).toBe(0);
     store.close();
   });
@@ -89,23 +91,44 @@ describe("evidence and run receipts", () => {
     expect(isFalseDone({ agentDeclaredCompletion: true, verifierOutcome: "PASS" })).toBe(false);
   });
 
-  it("rejects receipt tampering and protects ERROR/ABORTED outcomes", () => {
-    const { store, run } = fixture();
-    const evidence = deriveEvidence(run, 1, 0);
-    const receipt = buildRunReceipt(store, run.run_id, { evidence });
-    const tampered = { ...receipt, outcome: "PASS" as const };
-    expect(() => validateReceipt(tampered)).toThrow("Receipt outcome mismatch");
+  it("rejects forged evidence, verifier mappings, outcomes, and diff claims", () => {
+    const { store, task, run } = fixture(true);
+    const receipt = buildRunReceipt(store, run.run_id);
+    expect(receipt.outcome).toBe("UNPROVEN");
+    expect(() => validateReceipt({ ...receipt, outcome: "PASS" })).toThrow("Receipt outcome mismatch");
+    expect(() => validateReceipt({ ...receipt, acceptance: receipt.acceptance.map((item) => item.criterion_id === "AC-01" ? { ...item, evidence_ids: ["ev_missing"] } : item) })).toThrow("Receipt references unknown evidence");
+    expect(() => validateReceipt({ ...receipt, task: { ...task, acceptance_criteria: [{ ...task.acceptance_criteria[0]!, verification_refs: ["V99"] }, task.acceptance_criteria[1]] } })).toThrow(/Unknown verifier ID/);
+    expect(() => validateReceipt({ ...receipt, acceptance: receipt.acceptance.map((item) => item.criterion_id === "AC-02" ? { ...item, status: "PASS" as const, evidence_ids: [receipt.verification.evidence_ids[0]!] } : item) })).toThrow(/acceptance mapping/);
+    const changedDiff = { ...receipt, changes: { ...receipt.changes, changed_files: ["src/forged.ts"] } };
+    expect(() => validateReceipt(changedDiff)).toThrow("Receipt diff does not match its evidence");
+    const noVerification = { ...receipt, evidence: receipt.evidence.map((item) => item.type === "TEST_EVIDENCE" ? { ...item, confidence_class: "INTERPRETED" as const } : item) };
+    expect(() => validateReceipt(noVerification)).toThrow(/canonical deterministic evidence/);
     expect(computeOutcome({ runStatus: "ERROR", acceptance: [] })).toBe("ERROR");
     expect(computeOutcome({ runStatus: "ABORTED", acceptance: [] })).toBe("ABORTED");
     store.close();
   });
 
-  it("persists evidence and acceptance mappings in the SQLite projection", () => {
+  it("rejects fabricated verifier evidence that is not bound to a canonical verifier result", () => {
+    const { store, run } = fixture();
+    const receipt = buildRunReceipt(store, run.run_id);
+    const verified = receipt.evidence.find((item) => item.raw_reference.endsWith(":verification:0"))!;
+    const forged = { ...verified, evidence_id: "ev_fabricated_verifier", raw_reference: `run:${run.run_id}:verification:99` };
+    const tampered = {
+      ...receipt,
+      evidence: [...receipt.evidence, forged],
+      acceptance: receipt.acceptance.map((criterion) => ({ ...criterion, evidence_ids: [...criterion.evidence_ids, forged.evidence_id] })),
+    };
+    expect(() => validateReceipt(tampered)).toThrow(/outside canonical verifier results/);
+    store.close();
+  });
+
+  it("persists generated evidence and acceptance mappings in the SQLite projection", () => {
     const { store, run, databasePath } = fixture();
     const receipt = buildRunReceipt(store, run.run_id);
     expect(receipt.evidence.length).toBeGreaterThan(0);
     expect(store.getEvidence(run.run_id).map((item) => item.evidence_id).sort()).toEqual(receipt.evidence.map((item) => item.evidence_id).sort());
     expect(store.getAcceptance(run.run_id)).toEqual(receipt.acceptance);
+    expect(store.getVerificationResults(run.run_id)[0]?.verifier_id).toBe("V1");
     store.close();
     const reopened = new RunStore(databasePath);
     expect(reopened.getEvidence(run.run_id).length).toBe(receipt.evidence.length);
@@ -113,7 +136,7 @@ describe("evidence and run receipts", () => {
     reopened.close();
   });
 
-  it("ADV-TIME-BOUNDARY keeps receipt timestamps valid and ordered", () => {
+  it("keeps receipt timestamps valid and ordered", () => {
     const { store, run } = fixture();
     const receipt = buildRunReceipt(store, run.run_id, { generatedAt: "2026-09-22T10:00:03.000Z" });
     expect(Date.parse(receipt.generated_at)).toBeGreaterThanOrEqual(Date.parse(run.started_at));

@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-23T10:13:25.260Z",
+  "updated_at": "2026-09-23T18:13:23.791Z",
   "cases": {
     "pass": {
-      "label": "REAL_CODEX PASS",
-      "receipt": "benchmarks/runs/w2/bug-fix/run-receipt.json",
-      "record": "benchmarks/runs/w2/bug-fix/run-record.json"
+      "label": "REAL_CODEX PASS — hero rate-limit fixture",
+      "receipt": "evidence/hero-run/run-receipt.json",
+      "record": "evidence/hero-run/run-record.json"
     },
     "unproven": {
-      "label": "REAL_CODEX UNPROVEN — missing criterion verification",
-      "receipt": "evidence\\demo\\unproven\\20260923101252840\\run-receipt.json",
-      "record": "evidence\\demo\\unproven\\20260923101252840\\run-record.json"
+      "label": "REAL_CODEX UNPROVEN — required criterion has no verifier",
+      "receipt": "evidence/demo/unproven/20260923175634680/run-receipt.json",
+      "record": "evidence/demo/unproven/20260923175634680/run-record.json"
     }
   }
 }

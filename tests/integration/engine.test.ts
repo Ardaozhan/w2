@@ -5,6 +5,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import type { AgentAdapter, AgentStartInput } from "../../src/core/agent.js";
 import { RunEngine } from "../../src/core/engine.js";
+import { buildRunReceipt } from "../../src/core/evidence.js";
 import type { AgentOutput, AgentRunResult, TaskDefinition } from "../../src/core/types.js";
 
 class FakeAdapter implements AgentAdapter {
@@ -23,8 +24,8 @@ class FakeAdapter implements AgentAdapter {
 
 function task(workspace: string, command = "exit /b 0"): TaskDefinition {
   return {
-    task_id: `task-${Math.random()}`, title: "test", goal: "change fixture", constraints: [], allowed_paths: ["."], acceptance_criteria: ["works"],
-    verification_commands: [{ name: "custom", category: "custom", command }], workspace,
+    task_id: `task-${Math.random()}`, title: "test", goal: "change fixture", constraints: [], allowed_paths: ["."], acceptance_criteria: [{ id: "AC-01", statement: "works", required: true, verification_refs: ["V1"] }],
+    verification_commands: [{ id: "V1", name: "custom", category: "custom", command }], workspace,
   };
 }
 
@@ -85,6 +86,76 @@ describe("run engine", () => {
     const result = await engine.run(task(workspace));
     expect(result.diff?.changed_files).toContain("changed.txt");
     expect(result.diff?.changed_files.some((file) => file.startsWith("w2-run.sqlite"))).toBe(false);
+    engine.close();
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  it("runs the product path and automatically maps passing verifier evidence to PASS", async () => {
+    const workspace = gitWorkspace();
+    const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter: new FakeAdapter() });
+    const run = await engine.run(task(workspace));
+    const receipt = buildRunReceipt(engine.store, run.run_id);
+    expect(receipt.acceptance).toMatchObject([{ criterion_id: "AC-01", status: "PASS", evidence_ids: [expect.any(String)] }]);
+    expect(receipt.outcome).toBe("PASS");
+    expect(receipt.verification.results[0]?.verifier_id).toBe("V1");
+    engine.close();
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  it("returns UNPROVEN when one criterion has no verifier mapping", async () => {
+    const workspace = gitWorkspace();
+    const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter: new FakeAdapter() });
+    const definition = task(workspace);
+    definition.acceptance_criteria.push({ id: "AC-02", statement: "also works", required: true, verification_refs: [] });
+    const run = await engine.run(definition);
+    const receipt = buildRunReceipt(engine.store, run.run_id);
+    expect(receipt.acceptance.map(({ criterion_id, status }) => [criterion_id, status])).toEqual([["AC-01", "PASS"], ["AC-02", "UNPROVEN"]]);
+    expect(receipt.outcome).toBe("UNPROVEN");
+    engine.close();
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  it("returns FAIL when a mapped deterministic verifier fails", async () => {
+    const workspace = gitWorkspace();
+    const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter: new FakeAdapter() });
+    const run = await engine.run(task(workspace, "exit /b 4"));
+    const receipt = buildRunReceipt(engine.store, run.run_id);
+    expect(receipt.acceptance[0]?.status).toBe("FAIL");
+    expect(receipt.outcome).toBe("FAIL");
+    engine.close();
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  it("requires every referenced verifier to pass", async () => {
+    const workspace = gitWorkspace();
+    const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter: new FakeAdapter() });
+    const definition = task(workspace);
+    definition.acceptance_criteria[0]!.verification_refs = ["V1", "V2"];
+    definition.verification_commands.push({ id: "V2", name: "second", category: "custom", command: "exit /b 0" });
+    const run = await engine.run(definition);
+    expect(buildRunReceipt(engine.store, run.run_id).outcome).toBe("PASS");
+    engine.close();
+
+    const failing = new RunEngine({ databasePath: path.join(workspace, "failed.sqlite"), adapter: new FakeAdapter() });
+    definition.task_id = "multi-fail";
+    definition.verification_commands[1]!.command = "exit /b 4";
+    const failedRun = await failing.run(definition);
+    const failedReceipt = buildRunReceipt(failing.store, failedRun.run_id);
+    expect(failedReceipt.acceptance[0]?.status).toBe("FAIL");
+    expect(failedReceipt.outcome).toBe("FAIL");
+    failing.close();
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  it("does not turn an agent completion claim into evidence", async () => {
+    const workspace = gitWorkspace();
+    const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter: new FakeAdapter() });
+    const definition = task(workspace);
+    definition.acceptance_criteria[0]!.verification_refs = [];
+    const run = await engine.run(definition);
+    const receipt = buildRunReceipt(engine.store, run.run_id);
+    expect(receipt.acceptance[0]?.status).toBe("UNPROVEN");
+    expect(receipt.outcome).toBe("UNPROVEN");
     engine.close();
     rmSync(workspace, { recursive: true, force: true });
   });

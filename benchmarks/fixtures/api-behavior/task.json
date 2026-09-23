@@ -16,11 +16,19 @@
       {
         "id": "AC-01",
         "statement": "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.",
-        "required": true
+        "required": true,
+        "verification_refs": [
+          "external-verifier"
+        ]
       }
     ],
     "verification_commands": [
-      "node verify.mjs"
+      {
+        "id": "external-verifier",
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
     ]
   },
   "category": "API behavior change",

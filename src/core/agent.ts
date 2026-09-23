@@ -17,6 +17,19 @@ export interface AgentAdapter {
   cancel(): void;
 }
 
+export interface CodexAgentAdapterOptions {
+  env?: NodeJS.ProcessEnv;
+  extraArgs?: string[];
+  noDaemon?: boolean;
+}
+
+export function buildCodexArgs(options: CodexAgentAdapterOptions, workspace: string, model: string | undefined, prompt: string): string[] {
+  const args = [...(options.noDaemon ? ["--no-daemon"] : []), "--sandbox", "workspace-write", "exec", "--json", ...(options.extraArgs ?? []), "-C", workspace];
+  if (model) args.push("-m", model);
+  args.push(prompt);
+  return args;
+}
+
 type JsonRecord = Record<string, unknown>;
 
 function asRecord(value: unknown): JsonRecord | undefined {
@@ -31,14 +44,16 @@ export class CodexAgentAdapter implements AgentAdapter {
   readonly provider = "codex" as const;
   private process?: ChildProcess;
 
+  constructor(private readonly options: CodexAgentAdapterOptions = {}) {}
+
   sendTask(task: TaskDefinition, context: string): string {
     return [
       `Task: ${task.title}`,
       `Goal: ${task.goal}`,
       `Constraints: ${task.constraints.join("; ") || "none"}`,
       `Allowed paths: ${task.allowed_paths.join(", ") || "all"}`,
-      `Acceptance criteria: ${task.acceptance_criteria.join("; ")}`,
-      `Verification requirements: ${task.verification_commands.map((command) => `${command.name}: ${command.command}`).join("; ")}`,
+      `Acceptance criteria: ${task.acceptance_criteria.map((criterion) => `${criterion.id} (${criterion.required ? "required" : "optional"}): ${criterion.statement} [verifiers: ${criterion.verification_refs.join(", ") || "none"}]`).join("; ")}`,
+      `Verification requirements: ${task.verification_commands.map((command) => `${command.id} / ${command.name}: ${command.command}`).join("; ")}`,
       "Work only in the supplied workspace. Make the smallest change that satisfies the task, run the declared verification command yourself, and summarize the actual changes.",
       `Context manifest (the files W2 selected):\n${context}`,
     ].join("\n\n");
@@ -69,10 +84,8 @@ export class CodexAgentAdapter implements AgentAdapter {
     const prompt = this.sendTask(input.task, input.context);
     // Codex runs with its supported workspace-local sandbox. W2 records the
     // structured events but does not broker every native Codex tool call.
-    const args = ["exec", "--json", "--sandbox", "workspace-write", "-C", input.workspace];
-    if (input.task.model) args.push("-m", input.task.model);
-    args.push(prompt);
-    const child = spawn("codex", args, { cwd: input.workspace, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+    const args = buildCodexArgs(this.options, input.workspace, input.task.model, prompt);
+    const child = spawn("codex", args, { cwd: input.workspace, windowsHide: true, stdio: ["ignore", "pipe", "pipe"], ...(this.options.env ? { env: this.options.env } : {}) });
     this.process = child;
     const outputs: AgentOutput[] = [];
     const toolCalls: ToolCallRecord[] = [];

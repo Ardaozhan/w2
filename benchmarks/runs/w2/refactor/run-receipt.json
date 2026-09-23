@@ -1,6 +1,6 @@
 {
   "receipt_version": "1.0",
-  "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+  "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
   "task": {
     "task_id": "refactor",
     "title": "Normalize display names",
@@ -13,20 +13,29 @@
       "src/format.js"
     ],
     "acceptance_criteria": [
-      "Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces."
+      {
+        "id": "AC-01",
+        "statement": "Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces.",
+        "required": true,
+        "verification_refs": [
+          "external-verifier"
+        ]
+      }
     ],
     "verification_commands": [
       {
+        "id": "external-verifier",
         "name": "external-verifier",
         "command": "node verify.mjs",
         "category": "custom"
       }
     ],
-    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\refactor",
+    "workspace": "<WORKSPACE>",
+    "model": "gpt-6-luna",
     "timeout_ms": 90000
   },
   "agent": {
-    "model": "codex",
+    "model": "gpt-6-luna",
     "status": "COMPLETED",
     "error": null,
     "execution_mode": "REAL_CODEX"
@@ -41,21 +50,21 @@
     "accessed_files": null,
     "access_observation": "UNAVAILABLE",
     "evidence_ids": [
-      "ev_e78ce480b74c4725d517"
+      "ev_a19faf2e0ce942a29a35"
     ]
   },
   "actions": {
-    "events": 67,
-    "tool_calls": 12,
+    "events": 62,
+    "tool_calls": 11,
     "evidence_ids": [
-      "ev_dd915a9f509649948207",
-      "ev_45ffb0b5630f83d19337",
-      "ev_b7ba9dda960778e801a1",
-      "ev_936be6587f24eb22513d",
-      "ev_7880a8acb3910ea5119b",
-      "ev_f31d7326063469f057e2",
-      "ev_249778ac6149178fa5f3",
-      "ev_298dced98d897b633c82"
+      "ev_8e5613bd18b0c3193d51",
+      "ev_6fabc20cee8851dcb0b6",
+      "ev_87e7f9bbbfb474b7ffcb",
+      "ev_45a991b0ba3a0a37c53c",
+      "ev_742da63a3e8983ed97b0",
+      "ev_6ccefc46a9ef5f0886e5",
+      "ev_4f6f5424557e0bdc3490",
+      "ev_e498e9497f5492ffca93"
     ]
   },
   "changes": {
@@ -65,36 +74,37 @@
     "additions": 1,
     "deletions": 1,
     "evidence_ids": [
-      "ev_e972cabee392a9326920"
+      "ev_01f344261a3ba384c6b6"
     ]
   },
   "verification": {
     "results": [
       {
+        "verifier_id": "external-verifier",
         "name": "external-verifier",
         "category": "custom",
         "command": "node verify.mjs",
         "exit_code": 0,
         "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
         "stderr": "",
-        "duration_ms": 66,
+        "duration_ms": 61,
         "status": "PASSED"
       }
     ],
     "evidence_ids": [
-      "ev_f31d7326063469f057e2"
+      "ev_6ccefc46a9ef5f0886e5"
     ]
   },
   "evidence": [
     {
-      "evidence_id": "ev_e78ce480b74c4725d517",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_a19faf2e0ce942a29a35",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "CONTEXT_EVIDENCE",
       "source": "sqlite:runs.context_manifest",
       "summary": "1 files supplied from 3 considered",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:context",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:context",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:25:09.826Z",
+      "created_at": "2026-09-23T18:06:26.741Z",
       "data": {
         "files_considered": 3,
         "files_included": 1,
@@ -102,14 +112,14 @@
       }
     },
     {
-      "evidence_id": "ev_dd915a9f509649948207",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_8e5613bd18b0c3193d51",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:tool:0",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:tool:0",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:25:09.822Z",
+      "created_at": "2026-09-23T18:06:26.737Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -127,14 +137,14 @@
       }
     },
     {
-      "evidence_id": "ev_45ffb0b5630f83d19337",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_6fabc20cee8851dcb0b6",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:tool:1",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:tool:1",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:26:04.224Z",
+      "created_at": "2026-09-23T18:07:03.771Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -154,14 +164,14 @@
       }
     },
     {
-      "evidence_id": "ev_b7ba9dda960778e801a1",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_87e7f9bbbfb474b7ffcb",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:tool:2",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:tool:2",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:26:04.260Z",
+      "created_at": "2026-09-23T18:07:03.813Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -179,40 +189,14 @@
       }
     },
     {
-      "evidence_id": "ev_936be6587f24eb22513d",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_45a991b0ba3a0a37c53c",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:tool:3",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:tool:3",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:26:04.297Z",
-      "data": {
-        "tool_name": "shell",
-        "input": {
-          "command": "git",
-          "args": [
-            "diff",
-            "HEAD",
-            "--"
-          ]
-        },
-        "result": {
-          "stdout": "diff --git a/src/format.js b/src/format.js\nindex 97e5726..46e510e 100644\n--- a/src/format.js\n+++ b/src/format.js\n@@ -1 +1 @@\n-export function formatName(value) { return value.toUpperCase(); }\n+export function formatName(value) { return value.trim().replace(/\\s+/g, ' '); }\n",
-          "stderr": "warning: in the working copy of 'src/format.js', LF will be replaced by CRLF the next time Git touches it\n",
-          "exitCode": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_7880a8acb3910ea5119b",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
-      "type": "TOOL_EVIDENCE",
-      "source": "sqlite:tool_calls",
-      "summary": "shell executed",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:tool:4",
-      "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:26:04.299Z",
+      "created_at": "2026-09-23T18:07:03.852Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -225,20 +209,46 @@
         },
         "result": {
           "stdout": "1\t1\tsrc/format.js\n",
-          "stderr": "warning: in the working copy of 'src/format.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "stderr": "",
           "exitCode": 0
         }
       }
     },
     {
-      "evidence_id": "ev_e972cabee392a9326920",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_742da63a3e8983ed97b0",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:tool:4",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T18:07:03.852Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "diff --git a/src/format.js b/src/format.js\nindex 97e5726..41ea242 100644\n--- a/src/format.js\n+++ b/src/format.js\n@@ -1 +1 @@\n-export function formatName(value) { return value.toUpperCase(); }\n+export function formatName(value) { return value.trim().replace(/\\s+/g, \" \"); }\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_01f344261a3ba384c6b6",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "DIFF_EVIDENCE",
       "source": "sqlite:runs.diff",
       "summary": "1 files changed (+1/-1)",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:diff",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:diff",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:26:04.304Z",
+      "created_at": "2026-09-23T18:07:03.861Z",
       "data": {
         "status_before": "",
         "status_after": " M src/format.js\n",
@@ -247,58 +257,59 @@
         ],
         "additions": 1,
         "deletions": 1,
-        "unified_diff": "diff --git a/src/format.js b/src/format.js\nindex 97e5726..46e510e 100644\n--- a/src/format.js\n+++ b/src/format.js\n@@ -1 +1 @@\n-export function formatName(value) { return value.toUpperCase(); }\n+export function formatName(value) { return value.trim().replace(/\\s+/g, ' '); }\n"
+        "unified_diff": "diff --git a/src/format.js b/src/format.js\nindex 97e5726..41ea242 100644\n--- a/src/format.js\n+++ b/src/format.js\n@@ -1 +1 @@\n-export function formatName(value) { return value.toUpperCase(); }\n+export function formatName(value) { return value.trim().replace(/\\s+/g, \" \"); }\n"
       }
     },
     {
-      "evidence_id": "ev_f31d7326063469f057e2",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_6ccefc46a9ef5f0886e5",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:verification_results",
       "summary": "external-verifier: PASSED",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:verification:0",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:verification:0",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:26:04.304Z",
+      "created_at": "2026-09-23T18:07:03.861Z",
       "data": {
+        "verifier_id": "external-verifier",
         "name": "external-verifier",
         "category": "custom",
         "command": "node verify.mjs",
         "exit_code": 0,
         "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
         "stderr": "",
-        "duration_ms": 66,
+        "duration_ms": 61,
         "status": "PASSED"
       }
     },
     {
-      "evidence_id": "ev_249778ac6149178fa5f3",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_4f6f5424557e0bdc3490",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
-      "summary": "67 ordered events and 12 persisted tool calls",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:events",
+      "summary": "62 ordered events and 11 persisted tool calls",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:events",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:26:04.304Z",
+      "created_at": "2026-09-23T18:07:03.861Z",
       "data": {
-        "events": 67,
-        "tool_calls": 12
+        "events": 62,
+        "tool_calls": 11
       }
     },
     {
-      "evidence_id": "ev_298dced98d897b633c82",
-      "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+      "evidence_id": "ev_e498e9497f5492ffca93",
+      "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
       "summary": "4 safety and durability events",
-      "raw_reference": "run:8bc3de9c-5b9c-4c59-9511-f731a3ae558d:safety",
+      "raw_reference": "run:df322f05-74a1-47ff-a87f-f0e70baa2803:safety",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T12:26:04.228Z",
+      "created_at": "2026-09-23T18:07:03.776Z",
       "data": [
         {
-          "event_id": "7d97d368-1f41-4874-927a-797c60ebbb19",
-          "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+          "event_id": "eb060b98-0737-41eb-8e0e-b754bd67f085",
+          "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
           "sequence": 2,
-          "timestamp": "2026-09-23T12:25:09.786Z",
+          "timestamp": "2026-09-23T18:06:26.700Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 1,
@@ -307,10 +318,10 @@
           }
         },
         {
-          "event_id": "1365069d-dbb2-47b7-a44b-96954fd91425",
-          "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
+          "event_id": "607f06eb-00bc-4b21-92f4-a25366c540b8",
+          "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
           "sequence": 7,
-          "timestamp": "2026-09-23T12:25:09.827Z",
+          "timestamp": "2026-09-23T18:06:26.742Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 6,
@@ -319,25 +330,25 @@
           }
         },
         {
-          "event_id": "bb1d16b6-52ef-47af-b2e1-03735eac710f",
-          "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
-          "sequence": 50,
-          "timestamp": "2026-09-23T12:26:04.157Z",
+          "event_id": "bd078ba1-a536-4ea8-bccb-2dd7f52ed7fa",
+          "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
+          "sequence": 45,
+          "timestamp": "2026-09-23T18:07:03.708Z",
           "type": "run_checkpointed",
           "payload": {
-            "sequence": 49,
+            "sequence": 44,
             "completed_tool_calls": 1,
             "verification_progress": 0
           }
         },
         {
-          "event_id": "029ba0bd-db0f-4e1e-ac15-67041322bfc8",
-          "run_id": "8bc3de9c-5b9c-4c59-9511-f731a3ae558d",
-          "sequence": 56,
-          "timestamp": "2026-09-23T12:26:04.228Z",
+          "event_id": "a72ce0b2-9d90-4400-bb53-c6ad6833cdb4",
+          "run_id": "df322f05-74a1-47ff-a87f-f0e70baa2803",
+          "sequence": 51,
+          "timestamp": "2026-09-23T18:07:03.776Z",
           "type": "run_checkpointed",
           "payload": {
-            "sequence": 55,
+            "sequence": 50,
             "completed_tool_calls": 2,
             "verification_progress": 1
           }
@@ -352,11 +363,11 @@
       "required": true,
       "status": "PASS",
       "evidence_ids": [
-        "ev_f31d7326063469f057e2"
+        "ev_6ccefc46a9ef5f0886e5"
       ],
-      "reason": "External verifier PASS."
+      "reason": "Every referenced verifier passed with deterministic evidence."
     }
   ],
   "outcome": "PASS",
-  "generated_at": "2026-09-23T12:26:04.325Z"
+  "generated_at": "2026-09-23T18:07:03.868Z"
 }

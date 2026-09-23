@@ -1,9 +1,9 @@
 # W2 RUN RECEIPT
 
 - Receipt version: 1.0
-- Run: `be09f75e-e572-4309-8338-54fcd92ce154`
+- Run: `89e18330-8892-4d3b-94d6-33ad2900cda9`
 - Execution mode: REAL_CODEX
-- Generated: 2026-09-23T12:30:59.861Z
+- Generated: 2026-09-23T18:09:45.046Z
 
 ## Task
 **Parse numeric input**
@@ -16,17 +16,17 @@ Make parseNumber return a finite number for numeric strings and throw for invali
 - Exact repository files accessed by Codex: not captured by this adapter
 
 ## What the agent did
-- 1 observable tool calls
-- 13 ordered events
-- 0 changed files
+- 9 observable tool calls
+- 51 ordered events
+- 1 changed files
 
 ## Verification
-- UNPROVEN: no verification configured
+- PASS external-verifier (exit 0)
 
 ## Acceptance Evidence
-- **UNPROVEN** AC-01: Make parseNumber return a finite number for numeric strings and throw for invalid input. — No evidence was mapped to this required criterion.
+- **PASS** AC-01: Make parseNumber return a finite number for numeric strings and throw for invalid input. - Every referenced verifier passed with deterministic evidence.
 
 ## Outcome
-# ERROR
+# PASS
 
-**Why:** No evidence was mapped to this required criterion.
+**Why:** All required criteria have valid evidence.

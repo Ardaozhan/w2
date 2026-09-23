@@ -1,1 +1,0 @@
-import { getPort } from './src/config.js'; if (getPort({port:8080}) !== 8080 || getPort({port:'bad'}) !== 3000) throw new Error('port failed'); const fs = await import('node:fs'); if (!fs.readFileSync('README.md','utf8').includes('3000')) throw new Error('docs missing'); console.log(JSON.stringify({criterion:'getPort',status:'PASS'}));

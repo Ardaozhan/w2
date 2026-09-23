@@ -1,0 +1,24 @@
+{
+  "title": "Implement login rate limiting",
+  "goal": "Allow at most five failed login attempts per client during a rolling one-minute window. The sixth request from that client during the window must return HTTP 429. Preserve successful authentication behavior and keep the independent tests green.",
+  "constraints": [
+    "Keep the change limited to src/rateLimit.ts and src/app.ts.",
+    "Count failed logins only, isolate counters by client, and expire the counter after one minute.",
+    "Do not change the supplied tests or verifier scripts."
+  ],
+  "allowed_paths": ["src/rateLimit.ts", "src/app.ts"],
+  "acceptance_criteria": [
+    { "id": "AC-01", "statement": "Each client may make five failed login attempts in one minute; the next attempt is rate limited, and another client has an independent counter.", "required": true, "verification_refs": ["V1"] },
+    { "id": "AC-02", "statement": "The sixth failed HTTP login request returns 429 after five 401 responses.", "required": true, "verification_refs": ["V2"] },
+    { "id": "AC-03", "statement": "Existing valid and invalid authentication behavior remains green.", "required": true, "verification_refs": ["V3"] },
+    { "id": "AC-04", "statement": "Automated rate-limit behavior and HTTP 429 tests are present and make their required assertions.", "required": true, "verification_refs": ["V4"] }
+  ],
+  "verification_commands": [
+    { "id": "V1", "name": "per-client-rate-limit-behavior", "command": "node --experimental-strip-types --test tests/rateLimit.behavior.test.ts", "category": "test" },
+    { "id": "V2", "name": "http-sixth-attempt-429", "command": "node --experimental-strip-types --test tests/rateLimit.http.test.ts", "category": "test" },
+    { "id": "V3", "name": "existing-auth-regression", "command": "node --experimental-strip-types --test tests/auth.test.ts", "category": "test" },
+    { "id": "V4", "name": "rate-limit-test-presence", "command": "node verify-file.mjs", "category": "custom" }
+  ],
+  "timeout_ms": 180000,
+  "model": "gpt-6-luna"
+}

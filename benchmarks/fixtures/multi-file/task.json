@@ -17,11 +17,19 @@
       {
         "id": "AC-01",
         "statement": "Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md.",
-        "required": true
+        "required": true,
+        "verification_refs": [
+          "external-verifier"
+        ]
       }
     ],
     "verification_commands": [
-      "node verify.mjs"
+      {
+        "id": "external-verifier",
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
     ]
   },
   "category": "multi-file change",

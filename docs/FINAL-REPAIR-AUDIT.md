@@ -1,6 +1,6 @@
 # W2 Final Repair Audit (Historical)
 
-> Historical audit from the prior repair task. Its `FINAL COMPETITION GATE = NOT YET PROVEN` reflects that task's initial state, and its closed statuses are not the final submission gate. The current authoritative result is [FINAL-SUBMISSION-READINESS.md](FINAL-SUBMISSION-READINESS.md); do not infer readiness from this earlier report.
+> Historical audit from the prior repair task. Its initial gate and closed statuses are not the current submission gate. The current result is [FINAL-COMPLETION-REPORT.md](FINAL-COMPLETION-REPORT.md); do not infer current readiness from this earlier report.
 
 **FINAL COMPETITION GATE = NOT YET PROVEN**
 

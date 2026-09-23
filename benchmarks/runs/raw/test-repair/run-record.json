@@ -1,18 +1,22 @@
 {
   "condition": "raw_codex",
   "fixture_id": "test-repair",
-  "baseline_commit": "eb266b1813ab1ccafc67e1d4a112c7e25ed9766c",
+  "baseline_commit": "68ef17a8931774243ed49151d2a1ecf6fbfd8981",
   "baseline_hash": "c66113773f8ef951063596861f6e6f09de716a94",
-  "task_semantics_hash": "af6620e9a43846e2e543e83ad86458d7038c18a45d1af2e1947455e1ad8a1e2c",
+  "task_semantics_hash": "e614fe4902e317799acfbbd314ef754f54894a621a883b0fd2e485eee6b264fc",
   "timeout_ms": 90000,
+  "model": "gpt-6-luna",
+  "model_config_sha256": "402bcbdf4bf1c61bbbb163e72f07cbcd1953b584eab9f817e693b7706e117e06",
   "execution_mode": "REAL_CODEX",
   "status": "TASK_PASS",
   "infrastructure_failure": false,
+  "execution_failure": false,
   "timed_out": false,
-  "claim_done": false,
+  "claim_done": true,
   "agent_messages": [
-    "Önce izin verilen dosyadaki mevcut implementasyonu ve doğrulama beklentisini inceleyip yalnızca `src/date.js` üzerinde gerekli düzeltmeyi yapacağım; ardından istenen `node verify.mjs` komutunu çalıştıracağım.",
-    "`isoDate` now returns `value.toISOString()` in [src/date.js](/C:/Users/ardao/w2/benchmarks/runs/raw/test-repair/src/date.js).\n\n`node verify.mjs` completed successfully: `isoDate` PASS."
+    "I’ll inspect `src/date.js`, make the smallest change needed, then run the required `node verify.mjs` command and report its actual result.",
+    "The required verifier expects the full UTC ISO timestamp (`YYYY-MM-DDTHH:mm:ss.sssZ`), so the date-only form failed. I’m adjusting `isoDate` to return `Date.prototype.toISOString()` and will rerun verification.",
+    "Updated [src/date.js](/<WORKSPACE>/src/date.js) so `isoDate` returns `value.toISOString()`.\n\n`node verify.mjs` passed: `{\"criterion\":\"isoDate\",\"status\":\"PASS\"}`."
   ],
   "claim_source": "Codex JSONL agent_message/assistant_message items only",
   "external_verification": {
@@ -20,18 +24,33 @@
     "exit_code": 0,
     "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
     "stderr": "",
-    "runtime_ms": 57
+    "runtime_ms": 49
   },
-  "runtime_ms": 31177,
-  "model_calls": 1,
+  "verification_coverage": 1,
+  "runtime_ms": 36348,
+  "model_calls": null,
   "tool_calls": null,
-  "steps": null,
+  "event_count": 16,
   "retries": null,
   "manual_interventions": 0,
   "scope_violations": [],
+  "criterion_evidence_coverage": null,
+  "hermeticity": {
+    "status": "PASS",
+    "codex_home": "<CODEX_HOME>",
+    "workspaces": "<ISOLATED_WORKSPACES>",
+    "memory_files": 0,
+    "generated_runtime_skill_files": 0,
+    "global_credential_environment": "excluded",
+    "workspace_write_sandbox": "workspace-write",
+    "windows_sandbox": "unelevated",
+    "config_sha256": "402bcbdf4bf1c61bbbb163e72f07cbcd1953b584eab9f817e693b7706e117e06",
+    "runtime_file_reads": "UNOBSERVED: Codex CLI file reads outside captured events are not exposed by this adapter",
+    "model_prompt_validation": "PASS"
+  },
   "evidence": {
-    "context": "same normalized task contract in prompt",
-    "tool_trace": "Codex JSON stdout stored",
+    "context": "normalized task and acceptance contract; explicit isolated CODEX_HOME; inherited instructions ignored",
+    "tool_trace": "Codex JSON stdout stored when hermeticity validation passes",
     "diff": [
       "src/date.js"
     ],
@@ -40,10 +59,10 @@
       "exit_code": 0,
       "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
       "stderr": "",
-      "runtime_ms": 57
+      "runtime_ms": 49
     }
   },
-  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce3a-f1fc-7b23-8bbd-7d1958bcc444\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"Önce izin verilen dosyadaki mevcut implementasyonu ve doğrulama beklentisini inceleyip yalnızca `src/date.js` üzerinde gerekli düzeltmeyi yapacağım; ardından istenen `node verify.mjs` komutunu çalıştıracağım.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw src/date.js; Get-Content -Raw verify.mjs; Get-ChildItem -Force | Select-Object Name,Mode'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw src/date.js; Get-Content -Raw verify.mjs; Get-ChildItem -Force | Select-Object Name,Mode'\",\"aggregated_output\":\"\\r\\nName       Mode  \\r\\n----       ----  \\r\\n.git       d--h--\\r\\nsrc        d-----\\r\\ntask.json  -a----\\r\\nverify.mjs -a----\\r\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\test-repair\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\test-repair\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"isoDate\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"agent_message\",\"text\":\"`isoDate` now returns `value.toISOString()` in [src/date.js](/C:/Users/ardao/w2/benchmarks/runs/raw/test-repair/src/date.js).\\n\\n`node verify.mjs` completed successfully: `isoDate` PASS.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":65595,\"cached_input_tokens\":49408,\"cache_write_input_tokens\":0,\"output_tokens\":388,\"reasoning_output_tokens\":27}}\n",
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cf73-2735-7bd1-bbdc-9badbd4d1467\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect `src/date.js`, make the smallest change needed, then run the required `node verify.mjs` command and report its actual result.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -LiteralPath src/date.js'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -LiteralPath src/date.js'\",\"aggregated_output\":\"export function isoDate(value) { return String(value); }\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"<WORKSPACE>\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"<WORKSPACE>\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"file:///<WORKSPACE>/verify.mjs:1\\r\\nimport { isoDate } from './src/date.js'; if (isoDate(new Date('2025-01-02T03:04:05Z')) !== '2025-01-02T03:04:05.000Z') throw new Error('isoDate failed'); console.log(JSON.stringify({criterion:'isoDate',status:'PASS'}));\\r\\n                                                                                                                             ^\\r\\n\\r\\nError: isoDate failed\\r\\n    at file:///<WORKSPACE>/verify.mjs:1:126\\r\\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\\r\\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\\r\\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\\r\\n\\r\\nNode.js v22.13.1\\r\\n\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"agent_message\",\"text\":\"The required verifier expects the full UTC ISO timestamp (`YYYY-MM-DDTHH:mm:ss.sssZ`), so the date-only form failed. I’m adjusting `isoDate` to return `Date.prototype.toISOString()` and will rerun verification.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"file_change\",\"changes\":[{\"path\":\"<WORKSPACE>\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"file_change\",\"changes\":[{\"path\":\"<WORKSPACE>\\\\src\\\\date.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_6\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"isoDate\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_7\",\"type\":\"agent_message\",\"text\":\"Updated [src/date.js](/<WORKSPACE>/src/date.js) so `isoDate` returns `value.toISOString()`.\\n\\n`node verify.mjs` passed: `{\\\"criterion\\\":\\\"isoDate\\\",\\\"status\\\":\\\"PASS\\\"}`.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":85076,\"cached_input_tokens\":80384,\"cache_write_input_tokens\":0,\"output_tokens\":1036,\"reasoning_output_tokens\":495}}\n",
   "stderr": "Reading additional input from stdin...\n",
   "exit_code": 0,
   "false_done": false

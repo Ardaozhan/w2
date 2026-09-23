@@ -8,6 +8,7 @@ import { RunStore } from "./store.js";
 import type { ContextManifest, RunRecord, TaskDefinition, VerificationResult } from "./types.js";
 import type { ToolRuntimeOptions } from "./runtime.js";
 import { runVerifications } from "./verification.js";
+import { parseTask } from "./task.js";
 
 export interface RunEngineOptions {
   databasePath: string;
@@ -33,6 +34,7 @@ export class RunEngine {
   }
 
   async run(task: TaskDefinition): Promise<RunRecord> {
+    task = parseTask(task);
     const workspace = path.resolve(task.workspace ?? process.cwd());
     const runId = randomUUID();
     const startedAt = this.now().toISOString();
@@ -90,7 +92,11 @@ export class RunEngine {
       const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
       this.store.updateSnapshots(runId, { toolEvents: runtime.calls, verificationResults, diff });
-      if (verificationResults.some((result) => result.status !== "PASSED")) {
+      if (verificationResults.some((result) => result.status === "ERROR")) {
+        this.store.transition(runId, "ERROR", { finishedAt: this.now().toISOString(), error: "Verification infrastructure failed" });
+        this.store.appendEvent(runId, "run_failed", { error: "Verification infrastructure failed", infrastructure: true });
+        this.store.appendEvent(runId, "run_finished", { status: "ERROR" });
+      } else if (verificationResults.some((result) => result.status !== "PASSED")) {
         await this.finishFailure(runId, "Verification failed", runtime, statusBefore, verificationResults, diff);
       } else {
         this.store.transition(runId, "COMPLETED", { finishedAt: this.now().toISOString() });

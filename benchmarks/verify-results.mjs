@@ -2,11 +2,13 @@ import { readFileSync, existsSync } from 'node:fs';
 import { normalizeTaskContract, taskSemanticsHash } from './task-contract.mjs';
 import { assistantMessagesFromCodexEvents, hasCompletionClaim } from './completion-claim.mjs';
 import { isFalseDoneBenchmarkRun } from './metrics.mjs';
+import { validateReceipt } from '../dist/src/core/evidence.js';
 
 const resultPath = 'benchmarks/results/results.json';
 if (!existsSync(resultPath)) throw new Error('benchmark results missing; run npm run benchmark');
 const data = JSON.parse(readFileSync(resultPath, 'utf8'));
-if (!Array.isArray(data.runs) || data.runs.length !== 16 || data.methodology?.fixtures !== 8 || data.methodology?.timeout_ms < 30000) throw new Error('expected eight fixtures, sixteen runs, and a documented timeout');
+if (data.validation?.status !== 'PASS') throw new Error('canonical benchmark matrix validation did not PASS');
+if (!Array.isArray(data.runs) || data.runs.length !== 16 || data.methodology?.fixtures !== 8 || data.methodology?.timeout_ms < 30000 || !data.methodology?.model || !data.methodology?.model_config_sha256 || data.methodology?.sandbox !== 'workspace-write' || data.methodology?.windows_sandbox !== 'unelevated' || data.methodology?.approval_policy !== 'never; sandbox remains enforced') throw new Error('expected eight fixtures, sixteen runs, and complete model/config/sandbox/timeout provenance');
 if (data.methodology.conditions?.join(',') !== 'raw_codex,w2_codex') throw new Error('benchmark conditions mismatch');
 const allowed = new Set(['TASK_PASS','TASK_FAIL','TASK_UNPROVEN','INFRASTRUCTURE_FAILURE']);
 for (const id of JSON.parse(readFileSync('benchmarks/fixtures/index.json', 'utf8')).map((item) => item.fixture_id)) {
@@ -15,7 +17,9 @@ for (const id of JSON.parse(readFileSync('benchmarks/fixtures/index.json', 'utf8
   const [raw, w2] = ['raw_codex','w2_codex'].map((condition) => pair.find((run) => run.condition === condition));
   for (const run of pair) {
     for (const field of ['baseline_commit','baseline_hash','task_semantics_hash','timeout_ms','execution_mode','status','external_verification','evidence']) if (!(field in run)) throw new Error(`${id}: missing ${field}`);
-    if (!/^[0-9a-f]{40}$/.test(run.baseline_commit) || !/^[0-9a-f]{40}$/.test(run.baseline_hash) || run.timeout_ms !== data.methodology.timeout_ms || !allowed.has(run.status) || run.execution_mode !== 'REAL_CODEX' || typeof run.timed_out !== 'boolean') throw new Error(`${id}: invalid run provenance or classification`);
+    if (!/^[0-9a-f]{40}$/.test(run.baseline_commit) || !/^[0-9a-f]{40}$/.test(run.baseline_hash) || run.timeout_ms !== data.methodology.timeout_ms || run.model !== data.methodology.model || run.model_config_sha256 !== data.methodology.model_config_sha256 || !allowed.has(run.status) || run.execution_mode !== 'REAL_CODEX' || typeof run.timed_out !== 'boolean') throw new Error(`${id}: invalid run provenance or classification`);
+    if (run.hermeticity?.status !== 'PASS' || run.hermeticity?.workspace_write_sandbox !== 'workspace-write' || run.hermeticity?.windows_sandbox !== 'unelevated' || run.hermeticity.model_prompt_validation !== 'PASS' || !String(run.hermeticity.runtime_file_reads).startsWith('UNOBSERVED:')) throw new Error(`${id}: isolated environment provenance or limitation is missing`);
+    if (!Number.isFinite(run.verification_coverage) || run.verification_coverage < 0 || run.verification_coverage > 1) throw new Error(`${id}: invalid verification coverage metric`);
     const runDir = `benchmarks/runs/${run.condition === 'raw_codex' ? 'raw' : 'w2'}/${id}`;
     if (!existsSync(`${runDir}/run-record.json`)) throw new Error(`${id}: run artifact missing`);
     const artifact = JSON.parse(readFileSync(`${runDir}/run-record.json`, 'utf8'));
@@ -24,7 +28,7 @@ for (const id of JSON.parse(readFileSync('benchmarks/fixtures/index.json', 'utf8
     if (!run.claim_source || !Array.isArray(run.agent_messages) || JSON.stringify(run.agent_messages) !== JSON.stringify(assistantMessagesFromCodexEvents(claimEvents)) || run.claim_done !== hasCompletionClaim(claimEvents)) throw new Error(`${id}: completion claim is not derived from stored assistant-message events`);
     if (artifact.claim_done !== run.claim_done || artifact.false_done !== run.false_done) throw new Error(`${id}: stored run metric differs from aggregate`);
     if (run.infrastructure_failure !== (run.status === 'INFRASTRUCTURE_FAILURE')) throw new Error(`${id}: infrastructure classification mismatch`);
-    if (run.status === 'INFRASTRUCTURE_FAILURE' && run.external_verification.status !== 'NOT_RUN') throw new Error(`${id}: infrastructure failure must not be scored as a task outcome`);
+    if (run.status === 'INFRASTRUCTURE_FAILURE' && !['NOT_RUN','ERROR'].includes(run.external_verification.status)) throw new Error(`${id}: infrastructure failure must not be scored as a task outcome`);
     if (run.timed_out && run.status !== 'INFRASTRUCTURE_FAILURE') throw new Error(`${id}: agent timeout must be an infrastructure failure`);
     if (run.status === 'INFRASTRUCTURE_FAILURE' && run.false_done) throw new Error(`${id}: infrastructure failure cannot count as false-DONE`);
   }
@@ -34,8 +38,11 @@ for (const id of JSON.parse(readFileSync('benchmarks/fixtures/index.json', 'utf8
   if (!receiptPath || !existsSync(receiptPath)) throw new Error(`${id}: W2 receipt missing`);
   const receipt = JSON.parse(readFileSync(receiptPath, 'utf8'));
   if (receipt.agent?.execution_mode !== 'REAL_CODEX' || !receipt.run_id) throw new Error(`${id}: receipt is not bound to a real run`);
+  validateReceipt(receipt);
   if (w2.false_done !== isFalseDoneBenchmarkRun(w2, receipt.acceptance)) throw new Error(`${id}: W2 false-DONE metric mismatch`);
   const required = receipt.acceptance.filter((item) => item.required);
+  const expectedVerificationCoverage = receipt.task.verification_commands.length ? receipt.verification.results.length / receipt.task.verification_commands.length : 0;
+  if (expectedVerificationCoverage !== w2.verification_coverage) throw new Error(`${id}: W2 verification coverage does not match stored results`);
   const evidence = new Map(receipt.evidence.map((item) => [item.evidence_id, item]));
   const coverage = required.length ? required.filter((criterion) => criterion.evidence_ids.some((id) => {
     const item = evidence.get(id);

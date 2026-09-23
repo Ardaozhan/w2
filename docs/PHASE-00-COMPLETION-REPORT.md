@@ -26,7 +26,7 @@ The readiness artifact is bound to task
 
 The official V42 task checkpoint accepted the terminal `COMPLETED` event at
 revision 3. Lightweight runtime evidence is stored at
-`C:\Users\ardao\CODEX_V42\runtime\tasks\task-2822c5361480ca23993b6d1a\lightweight-verification.json`
+`<V42_RUNTIME>/runtime/tasks/task-2822c5361480ca23993b6d1a/lightweight-verification.json`
 with `VERIFICATION_VERDICT=PASS`, `TASK_COMPLETION_ALLOWED=true`,
 `SAFE_LOCAL_APPLY=true`, and `IMPLEMENTATION_BYPASS_OCCURRED=false`.
 

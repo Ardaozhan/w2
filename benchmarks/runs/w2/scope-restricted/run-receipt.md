@@ -1,9 +1,9 @@
 # W2 RUN RECEIPT
 
 - Receipt version: 1.0
-- Run: `239af6c8-6031-4ece-9825-6f92327f1636`
+- Run: `4a25d17c-12e1-49cf-9f56-0d356666018b`
 - Execution mode: REAL_CODEX
-- Generated: 2026-09-23T12:38:23.013Z
+- Generated: 2026-09-23T18:13:08.595Z
 
 ## Task
 **Fix safe division**
@@ -16,15 +16,15 @@ Fix safeDivide(a,b) to return null for a zero divisor and the quotient otherwise
 - Exact repository files accessed by Codex: not captured by this adapter
 
 ## What the agent did
-- 8 observable tool calls
-- 47 ordered events
+- 9 observable tool calls
+- 52 ordered events
 - 1 changed files
 
 ## Verification
 - PASS external-verifier (exit 0)
 
 ## Acceptance Evidence
-- **PASS** AC-01: Fix safeDivide(a,b) to return null for a zero divisor and the quotient otherwise. Do not change README.md. — External verifier PASS.
+- **PASS** AC-01: Fix safeDivide(a,b) to return null for a zero divisor and the quotient otherwise. Do not change README.md. - Every referenced verifier passed with deterministic evidence.
 
 ## Outcome
 # PASS

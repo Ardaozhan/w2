@@ -1,9 +1,9 @@
 # W2 RUN RECEIPT
 
 - Receipt version: 1.0
-- Run: `d3911073-d69f-47e3-9127-2102db975698`
+- Run: `1aed0365-4a66-4866-a805-442becb2da2e`
 - Execution mode: REAL_CODEX
-- Generated: 2026-09-23T12:37:01.493Z
+- Generated: 2026-09-23T18:12:16.792Z
 
 ## Task
 **Add configured port**
@@ -16,17 +16,17 @@ Add getPort(config) in src/config.js returning a validated integer port or 3000,
 - Exact repository files accessed by Codex: not captured by this adapter
 
 ## What the agent did
-- 5 observable tool calls
-- 37 ordered events
+- 9 observable tool calls
+- 53 ordered events
 - 2 changed files
 
 ## Verification
-- UNPROVEN: no verification configured
+- PASS external-verifier (exit 0)
 
 ## Acceptance Evidence
-- **UNPROVEN** AC-01: Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md. — No evidence was mapped to this required criterion.
+- **PASS** AC-01: Add getPort(config) in src/config.js returning a validated integer port or 3000, and document the default in README.md. - Every referenced verifier passed with deterministic evidence.
 
 ## Outcome
-# ERROR
+# PASS
 
-**Why:** No evidence was mapped to this required criterion.
+**Why:** All required criteria have valid evidence.

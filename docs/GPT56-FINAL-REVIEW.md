@@ -32,6 +32,8 @@ The reviewer was asked to independently identify unsupported claims, benchmark m
 
 GPT-5.6 performed a development-time review only. It did not run W2, map receipt evidence, validate a benchmark outcome, or replace deterministic tests and verifiers.
 
-## Post-review benchmark result
+## Historical post-review benchmark result
+
+This is the benchmark snapshot available when the review task completed. It is superseded by the current regenerated [BENCHMARK-REPORT.md](BENCHMARK-REPORT.md) and `benchmarks/results/results.json`.
 
 After the parser repair, all eight fixtures were freshly executed again under both REAL_CODEX conditions (16 attempts). Five attempts per condition passed; the same three fixtures (`type-error`, `api-behavior`, and `multi-file`) timed out in both conditions and are retained as `INFRASTRUCTURE_FAILURE`. There were no task FAIL or task UNPROVEN outcomes, and false-DONE was 0/5 non-infrastructure attempts in each condition. The result validator passed; this is descriptive evidence only, not a comparative advantage claim.

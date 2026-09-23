@@ -1,0 +1,25 @@
+{
+  "execution_mode": "REAL_CODEX",
+  "run_id": "4a1a90fa-c013-4437-aa14-cc335b5a3062",
+  "task_id": "hero-login-rate-limit",
+  "status": "PASS",
+  "agent_run_status": "COMPLETED",
+  "model": "gpt-6-luna",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": false,
+  "agent_messages": [
+    "I’ll inspect the rate limiter, login route, and supplied checks, then implement the smallest change within the two allowed source files and run all four declared verification commands.",
+    "The route already identifies clients by the connection’s remote address and records only failed credentials. I’ve added per-client failure timestamps with a 60-second expiry; I’m making both limiter checks for a request use one captured time, then I’ll run the requested verifiers.",
+    "The verifier for test presence passes. The three exact `node --test` commands hit a runner-level `spawn EPERM` in this workspace, so I also ran each test module directly; all three assertions pass. I’m checking whether the required runner command succeeds when run serially.",
+    "Implemented per-client failure timestamps with a rolling 60-second window in [src/rateLimit.ts](<WORKSPACE>/src/rateLimit.ts). The login route captures one timestamp per request and records only failed authentication attempts in [src/app.ts](<WORKSPACE>/src/app.ts).\n\nV4 passed. V1–V3 passed with Node’s `--experimental-test-isolation=none` flag (and when run directly). The exact declared V1–V3 commands hit `spawn EPERM` because the test runner could not start its child process in this workspace. Tests and verifier files were unchanged."
+  ],
+  "changed_files": [
+    "src/app.ts",
+    "src/rateLimit.ts"
+  ],
+  "scope_violations": [],
+  "receipt": "evidence/hero-run/run-receipt.json",
+  "generated_at": "2026-09-23T17:53:13.063Z",
+  "artifact_status": "RECOVERED_FROM_PERSISTED_REAL_RECEIPT_AFTER_MARKDOWN_EXPORT_ERROR"
+}

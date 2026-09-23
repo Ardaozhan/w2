@@ -32,7 +32,7 @@
         ],
         "additions": 3,
         "deletions": 0,
-        "unified_diff": "fixture diff"
+        "unified_diff": "synthetic fixture diff"
       }
     },
     {
@@ -40,16 +40,38 @@
       "run_id": "rate-limit-pass",
       "type": "TEST_EVIDENCE",
       "source": "sqlite:verification_results",
-      "summary": "auth tests: PASSED",
+      "summary": "per-client-rate-limit: PASSED",
       "raw_reference": "run:rate-limit-pass:verification:0",
       "confidence_class": "DETERMINISTIC",
       "created_at": "2026-09-22T10:00:02.000Z",
       "data": {
-        "name": "auth tests",
+        "verifier_id": "per-client-rate-limit",
+        "name": "per-client-rate-limit",
         "category": "test",
-        "command": "npm test",
+        "command": "node verify-rate-limit.mjs",
         "exit_code": 0,
-        "stdout": "fixture tests passed",
+        "stdout": "fixture verifier: PASS",
+        "stderr": "",
+        "duration_ms": 4,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_88767e366b2e4b52cd2c",
+      "run_id": "rate-limit-pass",
+      "type": "TEST_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "sixth-attempt-http-429: PASSED",
+      "raw_reference": "run:rate-limit-pass:verification:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-22T10:00:02.000Z",
+      "data": {
+        "verifier_id": "sixth-attempt-http-429",
+        "name": "sixth-attempt-http-429",
+        "category": "test",
+        "command": "node verify-http-429.mjs",
+        "exit_code": 0,
+        "stdout": "fixture verifier: PASS",
         "stderr": "",
         "duration_ms": 4,
         "status": "PASSED"
@@ -73,23 +95,23 @@
   "acceptance": [
     {
       "criterion_id": "AC-01",
-      "description": "Maximum five attempts per minute",
+      "description": "At most five failed attempts per client are accepted in one minute.",
       "required": true,
       "status": "PASS",
       "evidence_ids": [
         "ev_e342f707f015fcdcb767"
       ],
-      "reason": "Recorded auth tests cover the limit."
+      "reason": "Every referenced verifier passed with deterministic evidence."
     },
     {
       "criterion_id": "AC-02",
-      "description": "HTTP 429 is returned after the limit",
+      "description": "The sixth failed HTTP login attempt returns 429.",
       "required": true,
       "status": "PASS",
       "evidence_ids": [
-        "ev_e342f707f015fcdcb767"
+        "ev_88767e366b2e4b52cd2c"
       ],
-      "reason": "Recorded auth tests cover the response."
+      "reason": "Every referenced verifier passed with deterministic evidence."
     }
   ]
 }

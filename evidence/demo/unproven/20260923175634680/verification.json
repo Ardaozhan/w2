@@ -1,0 +1,18 @@
+{
+  "results": [
+    {
+      "verifier_id": "multiply-verifier",
+      "name": "multiply-verifier",
+      "category": "custom",
+      "command": "node verify.mjs",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "duration_ms": 67,
+      "status": "PASSED"
+    }
+  ],
+  "evidence_ids": [
+    "ev_25294c637707addc5271"
+  ]
+}

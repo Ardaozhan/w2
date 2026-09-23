@@ -18,7 +18,7 @@ class DurableAdapter implements AgentAdapter {
 }
 
 function task(workspace: string): TaskDefinition {
-  return { task_id: "durability-task", title: "durability", goal: "checkpoint", constraints: [], allowed_paths: ["."], acceptance_criteria: ["checkpoint exists"], verification_commands: [{ name: "ok", category: "custom", command: process.platform === "win32" ? "exit /b 0" : "true" }], workspace };
+  return { task_id: "durability-task", title: "durability", goal: "checkpoint", constraints: [], allowed_paths: ["."], acceptance_criteria: [{ id: "AC-01", statement: "checkpoint exists", required: true, verification_refs: ["ok"] }], verification_commands: [{ id: "ok", name: "ok", category: "custom", command: process.platform === "win32" ? "exit /b 0" : "true" }], workspace };
 }
 
 describe("Phase 03 durability", () => {

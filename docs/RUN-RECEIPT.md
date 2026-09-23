@@ -20,5 +20,7 @@ npm run build
 npm run w2 -- receipt <run-id> --db .w2/runs.sqlite --out receipts
 ```
 
-The Phase 02 fixture command creates reproducible PASS, FAIL, and UNPROVEN
-receipts with their raw evidence under `fixtures/rate-limit-demo/`.
+The Phase 02 fixture command creates synthetic `FAKE_ADAPTER` PASS, FAIL, and
+UNPROVEN test inputs through the current RunEngine receipt builder. They are
+not REAL_CODEX evidence or benchmark results. Raw evidence lives beside each
+fixture receipt; the temporary SQLite database is removed after generation.

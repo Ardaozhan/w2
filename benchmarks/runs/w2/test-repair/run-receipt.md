@@ -1,9 +1,9 @@
 # W2 RUN RECEIPT
 
 - Receipt version: 1.0
-- Run: `ef621e84-28b5-4f80-9dba-2fcbd336d746`
+- Run: `8632b307-cc02-451d-8ea6-af4700f8408b`
 - Execution mode: REAL_CODEX
-- Generated: 2026-09-23T12:27:58.985Z
+- Generated: 2026-09-23T18:08:13.774Z
 
 ## Task
 **Repair date formatting**
@@ -17,14 +17,14 @@ Make isoDate return a UTC ISO date string for a Date input.
 
 ## What the agent did
 - 10 observable tool calls
-- 56 ordered events
+- 58 ordered events
 - 1 changed files
 
 ## Verification
 - PASS external-verifier (exit 0)
 
 ## Acceptance Evidence
-- **PASS** AC-01: Make isoDate return a UTC ISO date string for a Date input. — External verifier PASS.
+- **PASS** AC-01: Make isoDate return a UTC ISO date string for a Date input. - Every referenced verifier passed with deterministic evidence.
 
 ## Outcome
 # PASS

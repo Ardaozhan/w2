@@ -1,0 +1,8 @@
+{
+  "run_id": "4a1a90fa-c013-4437-aa14-cc335b5a3062",
+  "execution_mode": "REAL_CODEX",
+  "task_outcome": "PASS",
+  "initial_export_error": "ReferenceError: renderReceiptMarkdown is not defined",
+  "recovery": "Markdown regenerated from the unchanged stored Run Receipt JSON; record reconstructed only from stored receipt and event stream.",
+  "receipt_integrity": "PASS"
+}

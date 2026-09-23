@@ -16,11 +16,19 @@
       {
         "id": "AC-01",
         "statement": "Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces.",
-        "required": true
+        "required": true,
+        "verification_refs": [
+          "external-verifier"
+        ]
       }
     ],
     "verification_commands": [
-      "node verify.mjs"
+      {
+        "id": "external-verifier",
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
     ]
   },
   "category": "refactor",

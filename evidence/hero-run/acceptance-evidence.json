@@ -1,0 +1,130 @@
+{
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Each client may make five failed login attempts in one minute; the next attempt is rate limited, and another client has an independent counter.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_363463d2aa63b1d7550a"
+      ],
+      "reason": "Every referenced verifier passed with deterministic evidence."
+    },
+    {
+      "criterion_id": "AC-02",
+      "description": "The sixth failed HTTP login request returns 429 after five 401 responses.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_0231015139a443577f54"
+      ],
+      "reason": "Every referenced verifier passed with deterministic evidence."
+    },
+    {
+      "criterion_id": "AC-03",
+      "description": "Existing valid and invalid authentication behavior remains green.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_dbc5cc9b0004241fef22"
+      ],
+      "reason": "Every referenced verifier passed with deterministic evidence."
+    },
+    {
+      "criterion_id": "AC-04",
+      "description": "Automated rate-limit behavior and HTTP 429 tests are present and make their required assertions.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_b596e1da2c4d3bea5f29"
+      ],
+      "reason": "Every referenced verifier passed with deterministic evidence."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev_363463d2aa63b1d7550a",
+      "run_id": "4a1a90fa-c013-4437-aa14-cc335b5a3062",
+      "type": "TEST_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "per-client-rate-limit-behavior: PASSED",
+      "raw_reference": "run:4a1a90fa-c013-4437-aa14-cc335b5a3062:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T17:53:13.049Z",
+      "data": {
+        "verifier_id": "V1",
+        "name": "per-client-rate-limit-behavior",
+        "category": "test",
+        "command": "node --experimental-strip-types --test tests/rateLimit.behavior.test.ts",
+        "exit_code": 0,
+        "stdout": "TAP version 13\n# (node:27308) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: limits each client to five failed attempts in a rolling minute\nok 1 - limits each client to five failed attempts in a rolling minute\n  ---\n  duration_ms: 0.567\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 89.3453\n",
+        "stderr": "(node:30820) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+        "duration_ms": 153,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_0231015139a443577f54",
+      "run_id": "4a1a90fa-c013-4437-aa14-cc335b5a3062",
+      "type": "TEST_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "http-sixth-attempt-429: PASSED",
+      "raw_reference": "run:4a1a90fa-c013-4437-aa14-cc335b5a3062:verification:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T17:53:13.049Z",
+      "data": {
+        "verifier_id": "V2",
+        "name": "http-sixth-attempt-429",
+        "category": "test",
+        "command": "node --experimental-strip-types --test tests/rateLimit.http.test.ts",
+        "exit_code": 0,
+        "stdout": "TAP version 13\n# (node:27516) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: the sixth failed HTTP login request returns 429 after five 401 responses\nok 1 - the sixth failed HTTP login request returns 429 after five 401 responses\n  ---\n  duration_ms: 34.0858\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 175.6702\n",
+        "stderr": "(node:28756) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+        "duration_ms": 244,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_dbc5cc9b0004241fef22",
+      "run_id": "4a1a90fa-c013-4437-aa14-cc335b5a3062",
+      "type": "TEST_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "existing-auth-regression: PASSED",
+      "raw_reference": "run:4a1a90fa-c013-4437-aa14-cc335b5a3062:verification:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T17:53:13.049Z",
+      "data": {
+        "verifier_id": "V3",
+        "name": "existing-auth-regression",
+        "category": "test",
+        "command": "node --experimental-strip-types --test tests/auth.test.ts",
+        "exit_code": 0,
+        "stdout": "TAP version 13\n# (node:13692) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: existing login accepts valid credentials and rejects invalid credentials\nok 1 - existing login accepts valid credentials and rejects invalid credentials\n  ---\n  duration_ms: 29.6581\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 137.882\n",
+        "stderr": "(node:7756) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+        "duration_ms": 200,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_b596e1da2c4d3bea5f29",
+      "run_id": "4a1a90fa-c013-4437-aa14-cc335b5a3062",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "rate-limit-test-presence: PASSED",
+      "raw_reference": "run:4a1a90fa-c013-4437-aa14-cc335b5a3062:verification:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T17:53:13.049Z",
+      "data": {
+        "verifier_id": "V4",
+        "name": "rate-limit-test-presence",
+        "category": "custom",
+        "command": "node verify-file.mjs",
+        "exit_code": 0,
+        "stdout": "{\"verifier_id\":\"V4\",\"status\":\"PASSED\",\"files\":[\"tests/rateLimit.behavior.test.ts\",\"tests/rateLimit.http.test.ts\"]}\n",
+        "stderr": "",
+        "duration_ms": 66,
+        "status": "PASSED"
+      }
+    }
+  ]
+}

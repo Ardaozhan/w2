@@ -1,0 +1,40 @@
+{
+  "task_id": "semantic-unproven-20260923175634680",
+  "title": "Fix multiplication and document its contract",
+  "goal": "Fix multiply(a,b) to return the mathematical product and document its public contract in README.md.",
+  "constraints": [
+    "Change only src/math.js and README.md.",
+    "Run node verify.mjs."
+  ],
+  "allowed_paths": [
+    "src/math.js",
+    "README.md"
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-01",
+      "statement": "Fix multiply(a,b) so it returns the mathematical product.",
+      "required": true,
+      "verification_refs": [
+        "multiply-verifier"
+      ]
+    },
+    {
+      "id": "AC-02",
+      "statement": "Document the public multiply(a,b) contract in README.md.",
+      "required": true,
+      "verification_refs": []
+    }
+  ],
+  "verification_commands": [
+    {
+      "id": "multiply-verifier",
+      "name": "multiply-verifier",
+      "command": "node verify.mjs",
+      "category": "custom"
+    }
+  ],
+  "timeout_ms": 90000,
+  "model": "gpt-6-luna",
+  "workspace": "<WORKSPACE>"
+}

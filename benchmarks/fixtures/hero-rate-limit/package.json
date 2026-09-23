@@ -1,0 +1,10 @@
+{
+  "name": "w2-hero-login-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12" },
+  "scripts": {
+    "test": "node --experimental-strip-types --test tests/auth.test.ts tests/rateLimit.behavior.test.ts tests/rateLimit.http.test.ts"
+  }
+}

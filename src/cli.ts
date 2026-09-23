@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import path from "node:path";
 import { loadTask } from "./core/task.js";
-import { RunEngine } from "./core/engine.js";
+import { runTaskAndPersistReceipt } from "./core/cli-run.js";
 import { buildRunReceipt, renderReceiptMarkdown } from "./core/evidence.js";
 import { RunStore } from "./core/store.js";
 
@@ -51,14 +51,10 @@ async function main(): Promise<void> {
     process.exitCode = 1;
     return;
   }
-  const engine = new RunEngine({ databasePath });
-  try {
-    const result = await engine.run(task);
-    console.log(JSON.stringify({ run_id: result.run_id, status: result.status, database: databasePath }, null, 2));
-    if (!["COMPLETED"].includes(result.status)) process.exitCode = 1;
-  } finally {
-    engine.close();
-  }
+  const outputDir = path.resolve(path.dirname(databasePath), "receipts");
+  const result = await runTaskAndPersistReceipt({ task, databasePath, receiptDirectory: outputDir });
+  console.log(JSON.stringify({ run_id: result.run.run_id, status: result.run.status, outcome: result.receipt.outcome, receipt_json: result.jsonPath, receipt_markdown: result.markdownPath, database: databasePath }, null, 2));
+  if (result.receipt.outcome !== "PASS") process.exitCode = 1;
 }
 
 void main();

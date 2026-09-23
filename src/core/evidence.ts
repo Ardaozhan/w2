@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import type { RunStore } from "./store.js";
+import { parseTask } from "./task.js";
 import { RUN_OUTCOMES, type RunOutcome } from "./outcomes.js";
 import {
   ACCEPTANCE_STATUSES,
@@ -14,6 +15,7 @@ import {
   type RunReceipt,
   type RunRecord,
   type TaskDefinition,
+  type VerificationResult,
 } from "./types.js";
 
 const evidenceSchema = z.object({
@@ -63,8 +65,8 @@ function idFor(runId: string, kind: string, reference: string): string {
   return `ev_${createHash("sha256").update(`${runId}|${kind}|${reference}`).digest("hex").slice(0, 20)}`;
 }
 
-function criterionId(index: number): string {
-  return `AC-${String(index + 1).padStart(2, "0")}`;
+function verificationEvidenceType(result: VerificationResult): EvidenceType {
+  return result.category === "test" ? "TEST_EVIDENCE" : result.category === "lint" ? "LINT_EVIDENCE" : result.category === "typecheck" ? "TYPECHECK_EVIDENCE" : result.category === "build" ? "BUILD_EVIDENCE" : "ASSERTION_EVIDENCE";
 }
 
 function contextEvidence(run: RunRecord, context: ContextManifest): EvidenceRecord[] {
@@ -89,7 +91,7 @@ export function deriveEvidence(run: RunRecord, events: number, toolCalls: number
     items.push({ evidence_id: idFor(run.run_id, "diff", reference), run_id: run.run_id, type: "DIFF_EVIDENCE", source: "sqlite:runs.diff", summary: `${run.diff.changed_files.length} files changed (+${run.diff.additions}/-${run.diff.deletions})`, raw_reference: reference, confidence_class: "DETERMINISTIC", created_at: run.finished_at ?? run.started_at, data: run.diff });
   }
   for (const [index, result] of run.verification_results.entries()) {
-    const type: EvidenceType = result.category === "test" ? "TEST_EVIDENCE" : result.category === "lint" ? "LINT_EVIDENCE" : result.category === "typecheck" ? "TYPECHECK_EVIDENCE" : result.category === "build" ? "BUILD_EVIDENCE" : "ASSERTION_EVIDENCE";
+    const type = verificationEvidenceType(result);
     const reference = `run:${run.run_id}:verification:${index}`;
     items.push({ evidence_id: idFor(run.run_id, `verification:${index}`, reference), run_id: run.run_id, type, source: "sqlite:verification_results", summary: `${result.name}: ${result.status}`, raw_reference: reference, confidence_class: "DETERMINISTIC", created_at: run.finished_at ?? run.started_at, data: result });
   }
@@ -106,22 +108,34 @@ export function parseEvidenceMappings(value: unknown): EvidenceMapping[] {
   return z.array(mappingSchema).parse(value);
 }
 
-function criterionDefinitions(task: TaskDefinition): Array<{ id: string; description: string; required: boolean }> {
-  return task.acceptance_criteria.map((description, index) => ({ id: criterionId(index), description, required: true }));
+function criterionDefinitions(task: TaskDefinition): Array<{ id: string; description: string; required: boolean; verificationRefs: string[] }> {
+  return task.acceptance_criteria.map((criterion) => ({ id: criterion.id, description: criterion.statement, required: criterion.required, verificationRefs: criterion.verification_refs }));
 }
 
-export function mapAcceptanceCriteria(task: TaskDefinition, evidence: EvidenceRecord[], supplied: EvidenceMapping[] = []): AcceptanceCriterionResult[] {
-  const knownEvidence = new Set(evidence.map((item) => item.evidence_id));
-  const byId = new Map(supplied.map((item) => [item.criterion_id, item]));
+function isVerifierEvidence(item: EvidenceRecord, verifierId: string): boolean {
+  if (item.confidence_class !== "DETERMINISTIC") return false;
+  if (!(item.type === "TEST_EVIDENCE" || item.type === "LINT_EVIDENCE" || item.type === "TYPECHECK_EVIDENCE" || item.type === "BUILD_EVIDENCE" || item.type === "ASSERTION_EVIDENCE")) return false;
+  if (!item.raw_reference.includes(":verification:")) return false;
+  const data = item.data as { verifier_id?: unknown; status?: unknown } | undefined;
+  return data?.verifier_id === verifierId && (data.status === "PASSED" || data.status === "FAILED");
+}
+
+export function mapAcceptanceCriteria(task: TaskDefinition, evidence: EvidenceRecord[]): AcceptanceCriterionResult[] {
   const definitions = criterionDefinitions(task);
-  for (const item of supplied) {
-    if (!definitions.some((criterion) => criterion.id === item.criterion_id)) throw new Error(`Unknown acceptance criterion: ${item.criterion_id}`);
-    for (const evidenceId of item.evidence_ids) if (!knownEvidence.has(evidenceId)) throw new Error(`Unknown evidence ID: ${evidenceId}`);
-  }
   return definitions.map((definition) => {
-    const item = byId.get(definition.id);
-    if (!item || item.evidence_ids.length === 0) return { criterion_id: definition.id, description: definition.description, required: definition.required, status: "UNPROVEN", evidence_ids: [], reason: item?.reason ?? "No evidence was mapped to this required criterion." };
-    return { criterion_id: definition.id, description: definition.description, required: definition.required, status: item.status, evidence_ids: item.evidence_ids, reason: item.reason };
+    const mapped = definition.verificationRefs.flatMap((verifierId) => evidence.filter((item) => isVerifierEvidence(item, verifierId)));
+    const failed = mapped.some((item) => (item.data as { status?: string }).status === "FAILED");
+    const allPassed = definition.verificationRefs.length > 0 && definition.verificationRefs.every((verifierId) => evidence.some((item) => isVerifierEvidence(item, verifierId) && (item.data as { status?: string }).status === "PASSED"));
+    const status: AcceptanceStatus = failed ? "FAIL" : allPassed ? "PASS" : "UNPROVEN";
+    const evidenceIds = status === "UNPROVEN" ? [] : [...new Set(mapped.map((item) => item.evidence_id))];
+    const reason = failed
+      ? "A referenced deterministic verifier failed."
+      : allPassed
+        ? "Every referenced verifier passed with deterministic evidence."
+        : definition.verificationRefs.length === 0
+          ? "No verifier is mapped to this criterion."
+          : "One or more referenced verifiers lack successful deterministic evidence.";
+    return { criterion_id: definition.id, description: definition.description, required: definition.required, status, evidence_ids: evidenceIds, reason };
   });
 }
 
@@ -136,8 +150,10 @@ export function computeOutcome(input: { runStatus: RunRecord["status"]; acceptan
 
 export function validateReceipt(receipt: RunReceipt): RunReceipt {
   receiptSchema.parse(receipt);
+  const task = parseTask(receipt.task);
   if (receipt.evidence.some((item) => item.run_id !== receipt.run_id)) throw new Error("Receipt contains evidence for another run");
   const ids = new Set(receipt.evidence.map((item) => item.evidence_id));
+  if (ids.size !== receipt.evidence.length) throw new Error("Receipt contains duplicate evidence IDs");
   const evidenceById = new Map(receipt.evidence.map((item) => [item.evidence_id, item]));
   const assertReferences = (references: string[], allowed: EvidenceType[], label: string) => {
     for (const id of references) {
@@ -157,41 +173,55 @@ export function validateReceipt(receipt: RunReceipt): RunReceipt {
     const item = evidenceById.get(id)!;
     if (!item.raw_reference.includes(":verification:") || !receipt.verification.results.some((result) => JSON.stringify(result) === JSON.stringify(item.data))) throw new Error(`Receipt has invalid verification evidence reference: ${id}`);
   }
-  for (const criterion of receipt.acceptance) {
-    for (const evidenceId of criterion.evidence_ids) if (!ids.has(evidenceId)) throw new Error(`Receipt references unknown evidence: ${evidenceId}`);
-    if (["PASS", "FAIL"].includes(criterion.status) && criterion.evidence_ids.length === 0) throw new Error(`Criterion ${criterion.criterion_id} has ${criterion.status} without evidence`);
-    if (criterion.status === "PASS" && !criterion.evidence_ids.some((id) => {
-      const item = receipt.evidence.find((candidate) => candidate.evidence_id === id);
-      if (!item || item.confidence_class !== "DETERMINISTIC") return false;
-      return ["TEST_EVIDENCE", "LINT_EVIDENCE", "TYPECHECK_EVIDENCE", "BUILD_EVIDENCE", "ASSERTION_EVIDENCE"].includes(item.type) && (item.data as { status?: string } | undefined)?.status === "PASSED";
-    })) throw new Error(`Criterion ${criterion.criterion_id} has PASS without successful deterministic verification evidence`);
+  const verifierCommands = new Map(task.verification_commands.map((command) => [command.id, command]));
+  const seenVerifierResults = new Set<string>();
+  const canonicalVerifierEvidenceIds: string[] = [];
+  for (const [index, result] of receipt.verification.results.entries()) {
+    if (seenVerifierResults.has(result.verifier_id)) throw new Error(`Receipt contains duplicate verifier results: ${result.verifier_id}`);
+    seenVerifierResults.add(result.verifier_id);
+    const command = verifierCommands.get(result.verifier_id);
+    if (!command || command.name !== result.name || command.command !== result.command || command.category !== result.category) throw new Error(`Receipt verifier result does not match its task contract: ${result.verifier_id}`);
+    const reference = `run:${receipt.run_id}:verification:${index}`;
+    const evidenceId = idFor(receipt.run_id, `verification:${index}`, reference);
+    const item = evidenceById.get(evidenceId);
+    if (!item || item.raw_reference !== reference || item.source !== "sqlite:verification_results" || item.confidence_class !== "DETERMINISTIC" || item.type !== verificationEvidenceType(result) || JSON.stringify(item.data) !== JSON.stringify(result)) throw new Error(`Receipt verifier result lacks canonical deterministic evidence: ${result.verifier_id}`);
+    canonicalVerifierEvidenceIds.push(evidenceId);
   }
+  const listedVerifierEvidenceIds = [...receipt.verification.evidence_ids].sort();
+  if (JSON.stringify(listedVerifierEvidenceIds) !== JSON.stringify([...canonicalVerifierEvidenceIds].sort())) throw new Error("Receipt verification references do not match canonical verifier results");
+  const verifierEvidenceIds = new Set(canonicalVerifierEvidenceIds);
+  for (const criterion of receipt.acceptance) {
+    for (const evidenceId of criterion.evidence_ids) {
+      if (!ids.has(evidenceId)) throw new Error(`Receipt references unknown evidence: ${evidenceId}`);
+      if (!verifierEvidenceIds.has(evidenceId)) throw new Error(`Criterion ${criterion.criterion_id} references evidence outside canonical verifier results: ${evidenceId}`);
+    }
+    if (["PASS", "FAIL"].includes(criterion.status) && criterion.evidence_ids.length === 0) throw new Error(`Criterion ${criterion.criterion_id} has ${criterion.status} without evidence`);
+  }
+  const expectedAcceptance = mapAcceptanceCriteria(task, receipt.evidence.filter((item) => verifierEvidenceIds.has(item.evidence_id)));
+  if (JSON.stringify(expectedAcceptance) !== JSON.stringify(receipt.acceptance)) throw new Error("Receipt acceptance mapping does not match deterministic verifier evidence");
   const expected = computeOutcome({ runStatus: receipt.agent.status, acceptance: receipt.acceptance });
   if (expected !== receipt.outcome) throw new Error(`Receipt outcome mismatch: expected ${expected}, got ${receipt.outcome}`);
   return receipt;
 }
 
 export interface ReceiptOptions {
-  evidence?: EvidenceRecord[];
-  acceptance?: EvidenceMapping[];
   generatedAt?: string;
 }
 
 export function buildRunReceipt(store: RunStore, runId: string, options: ReceiptOptions = {}): RunReceipt {
   const run = store.getRun(runId);
   if (!run) throw new Error(`Run does not exist: ${runId}`);
-  const task = store.getTask(run.task_id);
-  if (!task) throw new Error(`Task does not exist: ${run.task_id}`);
+  const storedTask = store.getTask(run.task_id);
+  if (!storedTask) throw new Error(`Task does not exist: ${run.task_id}`);
+  const task = parseTask(storedTask);
   const events = store.getEvents(runId);
-  const derived = options.evidence?.map(parseEvidence) ?? deriveEvidence(run, events.length, store.getToolCalls(runId).length);
+  const derived = deriveEvidence(run, events.length, store.getToolCalls(runId).length);
   const safetyEvents = events.filter((event) => ["safety_denied", "approval_requested", "approval_resolved", "budget_exhausted", "run_checkpointed", "run_resumed", "run_aborted"].includes(event.type));
   if (safetyEvents.length > 0 && !derived.some((item) => item.raw_reference === `run:${runId}:safety`)) {
     derived.push({ evidence_id: idFor(runId, "safety", `run:${runId}:safety`), run_id: runId, type: "ASSERTION_EVIDENCE", source: "sqlite:events", summary: `${safetyEvents.length} safety and durability events`, raw_reference: `run:${runId}:safety`, confidence_class: "DETERMINISTIC", created_at: safetyEvents[safetyEvents.length - 1].timestamp, data: safetyEvents });
   }
   store.saveEvidence(derived);
-  const supplied = options.acceptance ? parseEvidenceMappings(options.acceptance) : [];
-  const existing = store.getAcceptance(runId);
-  const acceptance = existing.length > 0 && !options.acceptance ? existing : mapAcceptanceCriteria(task, derived, supplied);
+  const acceptance = mapAcceptanceCriteria(task, derived);
   store.saveAcceptance(runId, acceptance);
   const context = run.context_manifest;
   const contextIds = derived.filter((item) => item.type === "CONTEXT_EVIDENCE").map((item) => item.evidence_id);
@@ -213,7 +243,7 @@ export function renderReceiptMarkdown(receipt: RunReceipt): string {
   validateReceipt(receipt);
   const lines = ["# W2 RUN RECEIPT", "", `- Receipt version: ${receipt.receipt_version}`, `- Run: \`${receipt.run_id}\``, `- Execution mode: ${receipt.agent.execution_mode}`, `- Generated: ${receipt.generated_at}`, "", "## Task", `**${receipt.task.title}**`, "", receipt.task.goal, "", "## Context W2 provided", `- ${receipt.context.files_supplied}/${receipt.context.files_considered} files selected for the prompt`, `- ${receipt.context.approximate_tokens} approximate tokens`, "- Exact repository files accessed by Codex: not captured by this adapter", "", "## What the agent did", `- ${receipt.actions.tool_calls} observable tool calls`, `- ${receipt.actions.events} ordered events`, `- ${receipt.changes.changed_files.length} changed files`, "", "## Verification"];
   lines.push(...(receipt.verification.results.length ? receipt.verification.results.map((result) => `- ${result.status === "PASSED" ? "PASS" : "FAIL"} ${result.name} (exit ${result.exit_code ?? "n/a"})`) : ["- UNPROVEN: no verification configured"]));
-  lines.push("", "## Acceptance Evidence", ...receipt.acceptance.map((criterion) => `- **${criterion.status}** ${criterion.criterion_id}: ${criterion.description} — ${criterion.reason}`), "", "## Outcome", `# ${receipt.outcome}`, "", `**Why:** ${receipt.acceptance.find((criterion) => criterion.required && criterion.status !== "PASS")?.reason ?? "All required criteria have valid evidence."}`, "");
+  lines.push("", "## Acceptance Evidence", ...receipt.acceptance.map((criterion) => "- **" + criterion.status + "** " + criterion.criterion_id + ": " + criterion.description + " - " + criterion.reason), "", "## Outcome", "# " + receipt.outcome, "", "**Why:** " + (receipt.acceptance.find((criterion) => criterion.required && criterion.status !== "PASS")?.reason ?? "All required criteria have valid evidence."), "");
   return lines.join("\n");
 }
 

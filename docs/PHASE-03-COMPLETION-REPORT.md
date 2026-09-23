@@ -51,7 +51,7 @@ The safety layer is local and workspace-scoped. It is not a container or operati
 
 ## Exit Evidence
 
-The V42 final record is `C:\Users\ardao\CODEX_V42\runtime\tasks\task-f6bf77fcb37dd16585d1bb4b\final-combined-verification.json` with sealed commit `88dec6ea65193b287cb6d2047341fa2c5d563f99`. Raw adversarial evidence is retained in the adjacent `adversarial-qa.json` and verifier report.
+The V42 final record is `<V42_RUNTIME>/runtime/tasks/task-f6bf77fcb37dd16585d1bb4b/final-combined-verification.json` with sealed commit `88dec6ea65193b287cb6d2047341fa2c5d563f99`. Raw adversarial evidence is retained in the adjacent `adversarial-qa.json` and verifier report.
 
 ## Regression
 

@@ -8,6 +8,7 @@ import { assertCapability, assertWorkspacePath, commandRisk, redactSecrets, Safe
 const execFileAsync = promisify(execFile);
 
 export interface ToolRuntimeOptions {
+  env?: NodeJS.ProcessEnv;
   capabilities?: Capability[];
   budget?: RuntimeBudget;
   approval?: (request: Omit<ApprovalRecord, "approval_id" | "run_id" | "requested_at" | "resolved_at">) => Promise<boolean> | boolean;
@@ -107,7 +108,7 @@ export class ToolRuntime {
     const limit = this.budget.max_output_bytes ?? 1024 * 1024;
     return this.record("shell", { command, args }, async () => {
       try {
-        const result = await execFileAsync(command, args, { cwd: this.workspace, timeout: timeoutMs ?? this.budget.max_runtime_ms, windowsHide: true, maxBuffer: limit, env: filteredEnvironment() });
+        const result = await execFileAsync(command, args, { cwd: this.workspace, timeout: timeoutMs ?? this.budget.max_runtime_ms, windowsHide: true, maxBuffer: limit, env: filteredEnvironment(this.options.env) });
         const stdout = truncate(result.stdout, limit);
         const stderr = truncate(result.stderr, limit);
         this.checkBudget(Buffer.byteLength(stdout) + Buffer.byteLength(stderr));
@@ -148,7 +149,7 @@ export class ToolRuntime {
 
 function truncate(value: string, maxBytes: number): string { return Buffer.byteLength(value) <= maxBytes ? value : `${Buffer.from(value).subarray(0, maxBytes).toString("utf8")}\n[OUTPUT_REDACTED_LIMIT]`; }
 
-function filteredEnvironment(): NodeJS.ProcessEnv {
-  const allowed = new Set(["PATH", "Path", "SystemRoot", "COMSPEC", "ComSpec", "TEMP", "TMP", "NODE_OPTIONS"]);
-  return Object.fromEntries(Object.entries(process.env).filter(([key]) => allowed.has(key)));
+function filteredEnvironment(source: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  const allowed = new Set(["path", "systemroot", "windir", "comspec", "pathext", "temp", "tmp", "home", "userprofile", "homedrive", "homepath", "appdata", "localappdata", "codex_home", "npm_config_userconfig", "npm_config_cache", "git_config_global", "git_config_nosystem", "username", "userdomain", "node_options"]);
+  return Object.fromEntries(Object.entries(source).filter(([key]) => allowed.has(key.toLowerCase())));
 }

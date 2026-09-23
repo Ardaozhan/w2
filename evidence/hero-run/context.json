@@ -1,0 +1,227 @@
+{
+  "workspace": "<WORKSPACE>",
+  "generated_at": "2026-09-23T17:51:04.635Z",
+  "task_id": "hero-login-rate-limit",
+  "files_considered": [
+    {
+      "path": "README.md",
+      "source_path": "<WORKSPACE>\\README.md",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 291,
+      "approximate_tokens": 73
+    },
+    {
+      "path": "package.json",
+      "source_path": "<WORKSPACE>\\package.json",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 285,
+      "approximate_tokens": 72
+    },
+    {
+      "path": "src\\app.ts",
+      "source_path": "<WORKSPACE>\\src\\app.ts",
+      "included": true,
+      "selection_reason": "allowed_paths",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 1217,
+      "approximate_tokens": 305
+    },
+    {
+      "path": "src\\auth.ts",
+      "source_path": "<WORKSPACE>\\src\\auth.ts",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 140,
+      "approximate_tokens": 35
+    },
+    {
+      "path": "src\\rateLimit.ts",
+      "source_path": "<WORKSPACE>\\src\\rateLimit.ts",
+      "included": true,
+      "selection_reason": "allowed_paths",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 185,
+      "approximate_tokens": 47
+    },
+    {
+      "path": "task.json",
+      "source_path": "<WORKSPACE>\\task.json",
+      "included": false,
+      "selection_reason": "not selected by task scope",
+      "sections": [],
+      "bytes": 2036,
+      "approximate_tokens": 509
+    },
+    {
+      "path": "tests\\auth.test.ts",
+      "source_path": "<WORKSPACE>\\tests\\auth.test.ts",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 944,
+      "approximate_tokens": 236
+    },
+    {
+      "path": "tests\\rateLimit.behavior.test.ts",
+      "source_path": "<WORKSPACE>\\tests\\rateLimit.behavior.test.ts",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 705,
+      "approximate_tokens": 177
+    },
+    {
+      "path": "tests\\rateLimit.http.test.ts",
+      "source_path": "<WORKSPACE>\\tests\\rateLimit.http.test.ts",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 987,
+      "approximate_tokens": 247
+    },
+    {
+      "path": "verify-file.mjs",
+      "source_path": "<WORKSPACE>\\verify-file.mjs",
+      "included": false,
+      "selection_reason": "not selected by task scope",
+      "sections": [],
+      "bytes": 581,
+      "approximate_tokens": 146
+    }
+  ],
+  "files_included": [
+    {
+      "path": "README.md",
+      "source_path": "<WORKSPACE>\\README.md",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 291,
+      "approximate_tokens": 73
+    },
+    {
+      "path": "package.json",
+      "source_path": "<WORKSPACE>\\package.json",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 285,
+      "approximate_tokens": 72
+    },
+    {
+      "path": "src\\app.ts",
+      "source_path": "<WORKSPACE>\\src\\app.ts",
+      "included": true,
+      "selection_reason": "allowed_paths",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 1217,
+      "approximate_tokens": 305
+    },
+    {
+      "path": "src\\auth.ts",
+      "source_path": "<WORKSPACE>\\src\\auth.ts",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 140,
+      "approximate_tokens": 35
+    },
+    {
+      "path": "src\\rateLimit.ts",
+      "source_path": "<WORKSPACE>\\src\\rateLimit.ts",
+      "included": true,
+      "selection_reason": "allowed_paths",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 185,
+      "approximate_tokens": 47
+    },
+    {
+      "path": "tests\\auth.test.ts",
+      "source_path": "<WORKSPACE>\\tests\\auth.test.ts",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 944,
+      "approximate_tokens": 236
+    },
+    {
+      "path": "tests\\rateLimit.behavior.test.ts",
+      "source_path": "<WORKSPACE>\\tests\\rateLimit.behavior.test.ts",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 705,
+      "approximate_tokens": 177
+    },
+    {
+      "path": "tests\\rateLimit.http.test.ts",
+      "source_path": "<WORKSPACE>\\tests\\rateLimit.http.test.ts",
+      "included": true,
+      "selection_reason": "task-relevant source or configuration",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 987,
+      "approximate_tokens": 247
+    }
+  ],
+  "excluded_candidates": [
+    {
+      "path": "task.json",
+      "source_path": "<WORKSPACE>\\task.json",
+      "included": false,
+      "selection_reason": "not selected by task scope",
+      "sections": [],
+      "bytes": 2036,
+      "approximate_tokens": 509
+    },
+    {
+      "path": "verify-file.mjs",
+      "source_path": "<WORKSPACE>\\verify-file.mjs",
+      "included": false,
+      "selection_reason": "not selected by task scope",
+      "sections": [],
+      "bytes": 581,
+      "approximate_tokens": 146
+    }
+  ],
+  "accessed_files": [],
+  "access_observation": "UNAVAILABLE",
+  "total_bytes": 4754,
+  "approximate_tokens": 1189
+}

@@ -14,6 +14,7 @@ export async function runVerifications(task: TaskDefinition, runtime: ToolRuntim
     const invocation = shellInvocation(verification.command);
     const result = await runtime.shell(invocation.executable, invocation.args, task.timeout_ms);
     results.push({
+      verifier_id: verification.id,
       name: verification.name,
       category: verification.category,
       command: verification.command,
@@ -21,7 +22,7 @@ export async function runVerifications(task: TaskDefinition, runtime: ToolRuntim
       stdout: result.stdout,
       stderr: result.stderr,
       duration_ms: Date.now() - started,
-      status: result.exitCode === 0 ? "PASSED" : "FAILED",
+      status: result.exitCode === 0 ? "PASSED" : result.exitCode === 124 || result.exitCode === 125 ? "ERROR" : "FAILED",
     });
   }
   return results;

@@ -1,5 +1,7 @@
 # W2 Phase 02 Completion Report
 
+> Historical phase record. The `fixtures/rate-limit-demo/` examples were regenerated during final hardening through the current RunEngine receipt builder and validator. They are synthetic `FAKE_ADAPTER` test inputs, not real agent runs or benchmark evidence. Current tests, schema, privacy, and release status are in `FINAL-COMPLETION-REPORT.md`.
+
 ## Status
 
 COMPLETE
@@ -19,8 +21,8 @@ evidence and a machine- and human-readable Run Receipt.
   `ERROR`; model interpretations cannot override it.
 - JSON receipt generation, Markdown rendering, and integrity validation.
 - `w2 receipt <run-id> --db <path> --out <dir>` CLI export.
-- Reproducible rate-limit fixture with raw evidence and PASS/FAIL/UNPROVEN
-  receipts.
+- Reproducible synthetic rate-limit fixture with separate verifier references
+  and RunEngine-generated PASS/FAIL/UNPROVEN receipts.
 - Clean-worktree dependency preflight so verifier worktrees can install from the
   lockfile before running tests/builds.
 
@@ -43,8 +45,8 @@ the final verdict without model authority.
 
 | Command | Result |
 | --- | --- |
-| `npm ci` | PASS (5 existing audit findings retained) |
-| `npm test` | PASS, 7 files / 14 tests |
+| `npm ci` | Historical checkpoint: PASS (current final run has 0 reported vulnerabilities) |
+| `npm test` | Historical checkpoint: PASS, 7 files / 14 tests |
 | `npm run typecheck` | PASS |
 | `npm run build` | PASS |
 | `npm run fixtures:phase02` | PASS |
@@ -67,23 +69,24 @@ the final verdict without model authority.
 - PASS receipt: `fixtures/rate-limit-demo/pass/run-receipt.json`.
 - FAIL receipt: `fixtures/rate-limit-demo/fail/run-receipt.json`.
 - UNPROVEN receipt: `fixtures/rate-limit-demo/unproven/run-receipt.json`.
-- Raw evidence is stored beside each receipt and in the fixture SQLite database.
+- Raw evidence is stored beside each receipt. The generator creates its SQLite database in a temporary OS directory and removes it; no runtime database is part of the current fixture tree.
 - V42 final combined verification: task
   `task-0758f1d8bd8145f818c88b0f`, sealed commit
   `fd7426f481bc97f246c57d836d7bedfed47f3311`, final outcome PASS.
 
 ## Regression
 
-All Phase 00/01 tests remain green. Existing canonical fixture behavior is
-unchanged. The receipt migration is additive and uses schema version 2.
+All Phase 00/01 tests passed at the original checkpoint. The current final
+regression suite and schema migration details are recorded in
+`FINAL-COMPLETION-REPORT.md`.
 
 ## Known Limitations
 
 - GPT-5.6 is represented as a validated optional mapping boundary; no external
   model call is required for deterministic fixtures.
 - `node:sqlite` still requires Node 22.5+ as established by Phase 01.
-- `npm ci` reports five existing development-tool audit findings; no production
-  dependency was introduced in Phase 02.
+- The original Phase 02 install reported five development-tool audit findings.
+  Current final install status is recorded in `FINAL-COMPLETION-REPORT.md`.
 
 ## Scope Check
 

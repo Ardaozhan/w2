@@ -1,1 +1,0 @@
-import { statusFor } from './src/http.js'; if (statusFor(200) !== 'success' || statusFor(404) !== 'client-error' || statusFor(503) !== 'server-error') throw new Error('status mapping failed'); console.log(JSON.stringify({criterion:'statusFor',status:'PASS'}));

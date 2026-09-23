@@ -1,0 +1,54 @@
+{
+  "results": [
+    {
+      "verifier_id": "V1",
+      "name": "per-client-rate-limit-behavior",
+      "category": "test",
+      "command": "node --experimental-strip-types --test tests/rateLimit.behavior.test.ts",
+      "exit_code": 0,
+      "stdout": "TAP version 13\n# (node:27308) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: limits each client to five failed attempts in a rolling minute\nok 1 - limits each client to five failed attempts in a rolling minute\n  ---\n  duration_ms: 0.567\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 89.3453\n",
+      "stderr": "(node:30820) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "duration_ms": 153,
+      "status": "PASSED"
+    },
+    {
+      "verifier_id": "V2",
+      "name": "http-sixth-attempt-429",
+      "category": "test",
+      "command": "node --experimental-strip-types --test tests/rateLimit.http.test.ts",
+      "exit_code": 0,
+      "stdout": "TAP version 13\n# (node:27516) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: the sixth failed HTTP login request returns 429 after five 401 responses\nok 1 - the sixth failed HTTP login request returns 429 after five 401 responses\n  ---\n  duration_ms: 34.0858\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 175.6702\n",
+      "stderr": "(node:28756) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "duration_ms": 244,
+      "status": "PASSED"
+    },
+    {
+      "verifier_id": "V3",
+      "name": "existing-auth-regression",
+      "category": "test",
+      "command": "node --experimental-strip-types --test tests/auth.test.ts",
+      "exit_code": 0,
+      "stdout": "TAP version 13\n# (node:13692) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: existing login accepts valid credentials and rejects invalid credentials\nok 1 - existing login accepts valid credentials and rejects invalid credentials\n  ---\n  duration_ms: 29.6581\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 137.882\n",
+      "stderr": "(node:7756) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "duration_ms": 200,
+      "status": "PASSED"
+    },
+    {
+      "verifier_id": "V4",
+      "name": "rate-limit-test-presence",
+      "category": "custom",
+      "command": "node verify-file.mjs",
+      "exit_code": 0,
+      "stdout": "{\"verifier_id\":\"V4\",\"status\":\"PASSED\",\"files\":[\"tests/rateLimit.behavior.test.ts\",\"tests/rateLimit.http.test.ts\"]}\n",
+      "stderr": "",
+      "duration_ms": 66,
+      "status": "PASSED"
+    }
+  ],
+  "evidence_ids": [
+    "ev_363463d2aa63b1d7550a",
+    "ev_0231015139a443577f54",
+    "ev_dbc5cc9b0004241fef22",
+    "ev_b596e1da2c4d3bea5f29"
+  ]
+}

@@ -1,47 +1,69 @@
 {
   "condition": "raw_codex",
   "fixture_id": "api-behavior",
-  "baseline_commit": "cfc008171f3322e18a1a5a50751bb53935d58680",
+  "baseline_commit": "d308167110524d99772a3d8d91e3fc81857b34cb",
   "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
-  "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+  "task_semantics_hash": "c932cfc806443790b661346ea1d002540f57d24f72d7648e49452bf359bc2cce",
   "timeout_ms": 90000,
+  "model": "gpt-6-luna",
+  "model_config_sha256": "402bcbdf4bf1c61bbbb163e72f07cbcd1953b584eab9f817e693b7706e117e06",
   "execution_mode": "REAL_CODEX",
-  "status": "INFRASTRUCTURE_FAILURE",
-  "infrastructure_failure": true,
-  "timed_out": true,
-  "claim_done": false,
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "execution_failure": false,
+  "timed_out": false,
+  "claim_done": true,
   "agent_messages": [
-    "I’ll inspect the repository instructions and current implementation, then make the smallest change in `src/http.js` and run the required verifier."
+    "I’ll inspect `src/http.js`, implement the status mapping there, then run the required `node verify.mjs` command and report its actual result.",
+    "The verifier exposed the expected labels: `success`, `client-error`, and `server-error`. I’ll align the two error labels and rerun the declared command.",
+    "Implemented `statusFor` in [src/http.js](<WORKSPACE>/src/http.js): 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\n\n`node verify.mjs` passed."
   ],
   "claim_source": "Codex JSONL agent_message/assistant_message items only",
   "external_verification": {
-    "status": "NOT_RUN",
-    "exit_code": null,
-    "stdout": "",
-    "stderr": "Agent execution did not complete.",
-    "runtime_ms": 0
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 45
   },
-  "runtime_ms": 90128,
-  "model_calls": 1,
+  "verification_coverage": 1,
+  "runtime_ms": 31008,
+  "model_calls": null,
   "tool_calls": null,
-  "steps": null,
+  "event_count": 16,
   "retries": null,
   "manual_interventions": 0,
   "scope_violations": [],
+  "criterion_evidence_coverage": null,
+  "hermeticity": {
+    "status": "PASS",
+    "codex_home": "<CODEX_HOME>",
+    "workspaces": "<ISOLATED_WORKSPACES>",
+    "memory_files": 0,
+    "generated_runtime_skill_files": 0,
+    "global_credential_environment": "excluded",
+    "workspace_write_sandbox": "workspace-write",
+    "windows_sandbox": "unelevated",
+    "config_sha256": "402bcbdf4bf1c61bbbb163e72f07cbcd1953b584eab9f817e693b7706e117e06",
+    "runtime_file_reads": "UNOBSERVED: Codex CLI file reads outside captured events are not exposed by this adapter",
+    "model_prompt_validation": "PASS"
+  },
   "evidence": {
-    "context": "same normalized task contract in prompt",
-    "tool_trace": "Codex JSON stdout stored",
-    "diff": [],
+    "context": "normalized task and acceptance contract; explicit isolated CODEX_HOME; inherited instructions ignored",
+    "tool_trace": "Codex JSON stdout stored when hermeticity validation passes",
+    "diff": [
+      "src/http.js"
+    ],
     "verification": {
-      "status": "NOT_RUN",
-      "exit_code": null,
-      "stdout": "",
-      "stderr": "Agent execution did not complete.",
-      "runtime_ms": 0
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 45
     }
   },
-  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce3f-7487-7e13-b6b4-cb6bbe7d86f3\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and current implementation, then make the smallest change in `src/http.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content -Raw C:\\\\\\\\Users\\\\\\\\ardao\\\\\\\\.codex\\\\\\\\memories\\\\\\\\MEMORY.md; rg --files -g AGENTS.md -g 'src/http.js' -g 'verify.mjs' -g package.json\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content -Raw C:\\\\\\\\Users\\\\\\\\ardao\\\\\\\\.codex\\\\\\\\memories\\\\\\\\MEMORY.md; rg --files -g AGENTS.md -g 'src/http.js' -g 'verify.mjs' -g package.json\\\"\",\"aggregated_output\":\"verify.mjs\\nsrc\\\\http.js\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n",
-  "stderr": "Reading additional input from stdin...\n2026-09-23T12:31:05.233498Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit\n2026-09-23T12:31:24.903858Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Client(HttpRequest(HttpRequest(\"http/request failed: error sending request for url (https://chatgpt.com/backend-api/ps/mcp)\")))\n2026-09-23T12:31:31.217555Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Client(HttpRequest(HttpRequest(\"http/request failed: error sending request for url (https://chatgpt.com/backend-api/ps/mcp)\")))\n2026-09-23T12:32:01.231910Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Client(HttpRequest(HttpRequest(\"http/request failed: error sending request for url (https://chatgpt.com/backend-api/ps/mcp)\")))\n",
-  "exit_code": 1,
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cf75-9a33-74a3-bf0b-dbf9387af33c\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect `src/http.js`, implement the status mapping there, then run the required `node verify.mjs` command and report its actual result.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content -LiteralPath 'src/http.js'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content -LiteralPath 'src/http.js'\\\"\",\"aggregated_output\":\"export function statusFor(code) { return \\\"unknown\\\"; }\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"<WORKSPACE>\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"<WORKSPACE>\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"file:///<WORKSPACE>/verify.mjs:1\\r\\nimport { statusFor } from './src/http.js'; if (statusFor(200) !== 'success' || statusFor(404) !== 'client-error' || statusFor(503) !== 'server-error') throw new Error('status mapping failed'); console.log(JSON.stringify({criterion:'statusFor',status:'PASS'}));\\r\\n                                                                                                                                                             ^\\r\\n\\r\\nError: status mapping failed\\r\\n    at file:///<WORKSPACE>/verify.mjs:1:158\\r\\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\\r\\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\\r\\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\\r\\n\\r\\nNode.js v22.13.1\\r\\n\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"agent_message\",\"text\":\"The verifier exposed the expected labels: `success`, `client-error`, and `server-error`. I’ll align the two error labels and rerun the declared command.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"file_change\",\"changes\":[{\"path\":\"<WORKSPACE>\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"file_change\",\"changes\":[{\"path\":\"<WORKSPACE>\\\\src\\\\http.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_6\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"{\\\"criterion\\\":\\\"statusFor\\\",\\\"status\\\":\\\"PASS\\\"}\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_7\",\"type\":\"agent_message\",\"text\":\"Implemented `statusFor` in [src/http.js](<WORKSPACE>/src/http.js): 2xx returns `success`, 4xx returns `client-error`, and all other codes return `server-error`.\\n\\n`node verify.mjs` passed.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":84768,\"cached_input_tokens\":80384,\"cache_write_input_tokens\":0,\"output_tokens\":959,\"reasoning_output_tokens\":379}}\n",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 0,
   "false_done": false
 }

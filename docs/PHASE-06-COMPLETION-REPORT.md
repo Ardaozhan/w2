@@ -53,7 +53,7 @@ The final package documents the existing Run Engine → Context/Codex/Tool/Event
 
 ## Exit Evidence
 
-Final V42 record: `C:\Users\ardao\CODEX_V42\runtime\tasks\task-24ed3141f87cefdd4505dd2c\final-combined-verification.json` with sealed commit `0af992789bba94db28b81bcc9eb12c9d0a17eb87`. Current screenshot: `evidence/screenshots/phase05-demo.png`.
+Final V42 record: `<V42_RUNTIME>/runtime/tasks/task-24ed3141f87cefdd4505dd2c/final-combined-verification.json` with sealed commit `0af992789bba94db28b81bcc9d0a17eb87`. Historical screenshot at that phase: `evidence/screenshots/phase05-demo.png`.
 
 ## Regression
 

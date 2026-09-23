@@ -1,3 +1,0 @@
-﻿export function safeDivide(a, b) {
-  return b === 0 ? null : a / b;
-}

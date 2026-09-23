@@ -44,7 +44,32 @@
         else if (activePanel === 'trace') panel.append(card('Observed actions and events', receipt.actions));
         else if (activePanel === 'diff') panel.append(card('Captured repository changes', receipt.changes));
         else if (activePanel === 'verification') panel.append(card('Verifier results', receipt.verification));
-        else if (activePanel === 'acceptance') panel.append(card('Required criteria and linked evidence', receipt.acceptance), card('Evidence records', receipt.evidence));
+        else if (activePanel === 'acceptance') {
+          const criteria = document.createElement('article'); criteria.className = 'data-card criteria-card';
+          const criteriaHeading = document.createElement('h3'); criteriaHeading.textContent = 'Acceptance criteria'; criteria.append(criteriaHeading);
+          const list = document.createElement('div'); list.className = 'criteria-list';
+          for (const item of receipt.acceptance ?? []) {
+            const row = document.createElement('section'); row.className = 'criterion-row';
+            const heading = document.createElement('div'); heading.className = 'criterion-heading';
+            const id = document.createElement('strong'); id.textContent = item.criterion_id;
+            const status = document.createElement('span'); status.className = `criterion-status ${String(item.status).toLowerCase()}`; status.textContent = item.status;
+            heading.append(id, status); row.append(heading);
+            const description = document.createElement('p'); description.textContent = item.description ?? 'No criterion description recorded.'; row.append(description);
+            const definition = (receipt.task.acceptance_criteria ?? []).find((criterion) => typeof criterion !== 'string' && criterion.id === item.criterion_id);
+            const verifierRefs = Array.isArray(definition?.verification_refs) ? definition.verification_refs : [];
+            const verifier = document.createElement('p'); verifier.className = 'criterion-verifier'; verifier.textContent = verifierRefs.length ? `Verifier references: ${verifierRefs.join(', ')}` : 'Verifier references: none'; row.append(verifier);
+            const reason = document.createElement('p'); reason.className = 'criterion-reason'; reason.textContent = item.reason ?? 'No evaluation reason recorded.'; row.append(reason);
+            const evidenceIds = Array.isArray(item.evidence_ids) ? item.evidence_ids : [];
+            const evidenceLink = document.createElement('p'); evidenceLink.className = 'criterion-evidence'; evidenceLink.textContent = evidenceIds.length ? `Evidence IDs: ${evidenceIds.join(', ')}` : 'Linked evidence: none'; row.append(evidenceLink);
+            list.append(row);
+          }
+          criteria.append(list);
+          const evidence = document.createElement('article'); evidence.className = 'data-card';
+          const evidenceHeading = document.createElement('h3'); evidenceHeading.textContent = 'Evidence records';
+          const evidenceSummary = (receipt.evidence ?? []).map(({ evidence_id, type, source, summary, confidence_class }) => ({ evidence_id, type, source, summary, confidence_class }));
+          evidence.append(evidenceHeading, pre(evidenceSummary));
+          panel.append(criteria, evidence);
+        }
         else if (activePanel === 'benchmark') {
           const rows = data.benchmark.runs; const table = document.createElement('table'); table.innerHTML = '<thead><tr><th>Fixture</th><th>Condition</th><th>Outcome</th><th>False DONE</th><th>Coverage</th></tr></thead>';
           const body = document.createElement('tbody'); for (const run of rows) { const tr = document.createElement('tr'); for (const value of [run.fixture_id, run.condition, run.status, run.false_done, run.criterion_evidence_coverage]) { const td = document.createElement('td'); td.textContent = value == null ? '—' : String(value); tr.append(td); } body.append(tr); } table.append(body); panel.append(table);

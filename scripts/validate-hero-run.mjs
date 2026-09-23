@@ -1,0 +1,24 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { validateReceipt } from '../dist/src/core/evidence.js';
+import { assistantMessagesFromCodexEvents, hasCompletionClaim } from '../benchmarks/completion-claim.mjs';
+
+const root = 'evidence/hero-run';
+const required = ['task.json', 'context.json', 'events.jsonl', 'diff.patch', 'verification.json', 'acceptance-evidence.json', 'run-receipt.json', 'run-receipt.md', 'run-record.json', 'persistence-recovery.json'];
+for (const file of required) if (!existsSync(`${root}/${file}`)) throw new Error(`Hero run artifact missing: ${file}`);
+const read = (file) => JSON.parse(readFileSync(`${root}/${file}`, 'utf8'));
+const receipt = read('run-receipt.json');
+const task = read('task.json');
+const record = read('run-record.json');
+const events = readFileSync(`${root}/events.jsonl`, 'utf8').trim().split(/\r?\n/).map((line) => JSON.parse(line));
+validateReceipt(receipt);
+if (receipt.agent?.execution_mode !== 'REAL_CODEX' || record.execution_mode !== 'REAL_CODEX' || record.run_id !== receipt.run_id || task.task_id !== receipt.task.task_id) throw new Error('Hero task, run record, and receipt provenance do not match a stored REAL_CODEX run');
+if (receipt.outcome !== record.status || receipt.task.acceptance_criteria.length !== 4 || receipt.acceptance.length !== 4) throw new Error('Hero receipt outcome or criterion set is incomplete');
+if (receipt.acceptance.some((criterion) => criterion.status !== 'PASS') || receipt.verification.results.length !== 4 || receipt.verification.results.some((item) => item.status !== 'PASSED')) throw new Error('Hero receipt does not prove all four required criteria with passing verifier results');
+const payloads = events.filter((event) => event.type === 'agent_output').map((event) => event.payload).filter((payload) => payload && typeof payload === 'object');
+const raw = payloads.map((payload) => payload.raw).filter(Boolean);
+if (record.claim_done !== hasCompletionClaim(raw) || JSON.stringify(record.agent_messages) !== JSON.stringify(assistantMessagesFromCodexEvents(raw))) throw new Error('Hero completion claim is not derived from the stored Codex event stream');
+if (JSON.stringify(record.changed_files) !== JSON.stringify(receipt.changes.changed_files) || record.scope_violations.length !== 0) throw new Error('Hero diff summary differs from the Run Receipt or violates task scope');
+const publicText = required.map((file) => readFileSync(`${root}/${file}`, 'utf8')).join('\n');
+if (/[A-Za-z]:\\|(?:\/Users\/[^/\s]+\/|\/home\/[^/\s]+\/)|(?:\.codex[\\/](?:memories|prompts|rules|skills))/i.test(publicText)) throw new Error('Hero public evidence contains an absolute machine/profile path');
+if (/sk-[A-Za-z0-9_-]{16,}|Bearer\s+[A-Za-z0-9._~+/=-]{12,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i.test(publicText)) throw new Error('Hero public evidence contains a credential-like value');
+console.log(`Hero receipt validation: PASS (${receipt.run_id}, REAL_CODEX, ${receipt.outcome}, four verifier-backed criteria)`);

@@ -1,20 +1,24 @@
-# Claim Audit
+# Public claim audit
 
-Audit date: 2026-09-23. Scope: README, architecture, product, security, benchmark, and judge-demo claims. Earlier phase reports are historical and do not override this audit or `FINAL-SUBMISSION-READINESS.md`.
+Audit scope: artifacts named by [`evidence/PUBLIC-EVIDENCE-MANIFEST.md`](../evidence/PUBLIC-EVIDENCE-MANIFEST.md), README, judge demo, benchmark report, architecture/security/context docs, and hero case study. Historical phase/repair reports describe their original checkpoints; the current status is in `FINAL-COMPLETION-REPORT.md`.
 
-| Claim | Disposition | Evidence / limit |
+| Claim | Disposition | Evidence or wording limit |
 |---|---|---|
-| W2 stores task, selected context, recognized events, diff, verification, and evidence | SUPPORTED | Current REAL_CODEX receipts and receipt tests |
-| W2 proves every file the agent saw | REWRITE | W2-selected/provided context is recorded; exact Codex file-read access is unavailable |
-| W2 intercepts and authorizes every Codex tool call | REMOVE | Codex native tools use Codex sandbox; W2 observes recognized events |
-| W2 provides a local control and evidence layer | SUPPORTED WITH LIMIT | W2-owned ToolRuntime controls only apply to W2-owned calls; not an OS/container boundary |
-| GPT-5.6 maps evidence at runtime | REMOVE | No runtime mapper implementation or call evidence; outcomes remain deterministic |
-| GPT-5.6 contributed to final review | SUPPORTED | Authorized review model/task metadata and review artifact in `GPT56-FINAL-REVIEW.md` |
-| Resume continues an agent run | REWRITE | `RunEngine.resume()` is checkpoint recovery inspection only |
-| Benchmark proves a comparative product advantage | REMOVE | Eight paired runs are descriptive, one attempt per fixture/condition |
-| Windows, macOS, and Linux are verified | REWRITE | Windows 11 verified; other platforms are not independently verified |
-| Static demo runs an agent live | REMOVE | It replays stored artifacts; the separate `demo:live` command invokes Codex |
-| Benchmark false-DONE metric includes infrastructure timeouts | REMOVE | Infrastructure outcomes are excluded; false-DONE requires an actual assistant completion claim and failed/unproven acceptance verification |
-| Comparative performance or safety superiority | REMOVE | No such comparative conclusion follows from the current sample |
+| W2 is a verification layer for coding agents | SUPPORTED | RunEngine, CLI, automatic acceptance mapping, persisted receipt, and integration coverage. |
+| Coding agents can claim they finished; W2 shows evidence | SUPPORTED WITH LIMIT | Receipt outcome is computed from stored run status and verifier-linked deterministic evidence; the agent does not select it. |
+| No evidence, no PASS | SUPPORTED | Receipt validator rejects missing/non-deterministic evidence for required criteria and tests cover PASS, FAIL, and UNPROVEN. |
+| W2 automatically maps criteria to evidence in the normal product path | SUPPORTED | Hero REAL_CODEX receipt and RunEngine/CLI integration tests use task-contract verifier references without demo-only mapping. |
+| A task-specific verifier record proves its exact declared fixture checks | SUPPORTED WITH LIMIT | It supports only the named verifier result in that run; it is not a general or production guarantee. |
+| W2 proves a particular required criterion | REWRITE AS “the receipt has deterministic evidence for this declared criterion” | The evidence supports only the exact task, verifier, and recorded run; it is not a general guarantee. |
+| The context manifest proves every file Codex accessed | REWRITE | It records W2-selected and provided context; exact Codex reads are unknown with this adapter. |
+| The benchmark proves general observability | REWRITE | It shows recorded events and classification for this stored sample; direct OS-level reads remain unobserved. |
+| W2 sees every file Codex opened | REMOVE | W2 records considered, selected, and provided context. Exact Codex reads are unknown with this adapter. |
+| W2 controls or authorizes every Codex action | REMOVE | Codex-native calls use Codex's sandbox. W2's capability/path checks apply only to W2-owned ToolRuntime calls. |
+| The installed Codex CLI uses workspace-write for the isolated run | SUPPORTED FOR THIS WINDOWS RUN | Explicit isolated config, actual smoke write/verifier, and saved REAL_CODEX run events. The Windows implementation is `unelevated`; this does not make W2 an OS boundary. |
+| W2 is safer, more reliable, faster, or more accurate than raw Codex | REMOVE | Not claimed. The one-attempt-per-fixture sample cannot establish comparative superiority. |
+| W2 replaces CI | REMOVE | W2 can use test/CI output as evidence in a receipt; it does not replace a CI system. |
+| GPT-5.6 maps evidence or selects runtime outcomes | REMOVE | GPT-5.6 evidence is a development-time review only; the runtime outcome is deterministic. |
+| W2 is production-ready | REMOVE | Not claimed. The hero is an in-memory fixture; distributed limits, persistence, deployment, and operational review are outside its scope. |
+| The static judge demo runs Codex live | REMOVE | It is a no-build replay of verified stored artifacts. The separate `demo:live` command creates a real run. |
 
-The current README uses the above dispositions. Earlier completion reports are historical; the final submission readiness report supersedes conflicting status statements.
+Search terms reviewed: `better`, `safer`, `secure`, `reliable`, `proves`, `prevents`, `reduces`, `faster`, `more accurate`, `sees`, `controls`, `sandbox`, and `production-ready`. Direct Codex file reads and operating-system activity beyond the captured adapter events remain unobserved.

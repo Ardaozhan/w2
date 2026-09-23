@@ -16,11 +16,19 @@
       {
         "id": "AC-01",
         "statement": "Make isoDate return a UTC ISO date string for a Date input.",
-        "required": true
+        "required": true,
+        "verification_refs": [
+          "external-verifier"
+        ]
       }
     ],
     "verification_commands": [
-      "node verify.mjs"
+      {
+        "id": "external-verifier",
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
     ]
   },
   "category": "test repair",
