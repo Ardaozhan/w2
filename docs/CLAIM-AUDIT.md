@@ -15,6 +15,6 @@ Audit date: 2026-09-23. Scope: README, architecture, product, security, benchmar
 | Windows, macOS, and Linux are verified | REWRITE | Windows 11 verified; other platforms are not independently verified |
 | Static demo runs an agent live | REMOVE | It replays stored artifacts; the separate `demo:live` command invokes Codex |
 | Benchmark false-DONE metric includes infrastructure timeouts | REMOVE | Infrastructure outcomes are excluded; false-DONE requires an actual assistant completion claim and failed/unproven acceptance verification |
-| W2 is faster, safer, or more reliable | REMOVE | No such comparative conclusion follows from the current sample |
+| Comparative performance or safety superiority | REMOVE | No such comparative conclusion follows from the current sample |
 
 The current README uses the above dispositions. Earlier completion reports are historical; the final submission readiness report supersedes conflicting status statements.
