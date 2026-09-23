@@ -1,3 +1,3 @@
 # Fixture
 
-The default port is `3000` when the configured port is not a valid integer TCP port.
+The default server port is **3000**. A configured port is used only when it is an integer from 1 to 65535.

@@ -10,7 +10,7 @@
 - [ ] Demo video recorded
 - [ ] Demo video under required duration
 - [ ] Submission copy matches repository
-- [x] Code/evidence checkpoint `2def5ba` recorded in `FINAL-SUBMISSION-READINESS.md`; final report commit is supplied in delivery
+- [x] Final code/evidence checkpoint and final repository HEAD are recorded in `FINAL-SUBMISSION-READINESS.md` and the handoff
 - [x] Secret scan completed
 - [x] Final Git worktree clean (verified after the report commit)
 - [ ] Devpost/competition submission completed

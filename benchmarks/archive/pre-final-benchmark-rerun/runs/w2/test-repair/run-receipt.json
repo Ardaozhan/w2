@@ -1,0 +1,362 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+  "task": {
+    "task_id": "test-repair",
+    "title": "Repair date formatting",
+    "goal": "Make isoDate return a UTC ISO date string for a Date input.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/date.js"
+    ],
+    "acceptance_criteria": [
+      "Make isoDate return a UTC ISO date string for a Date input."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\test-repair",
+    "timeout_ms": 90000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "COMPLETED",
+    "error": null,
+    "execution_mode": "REAL_CODEX"
+  },
+  "context": {
+    "files_considered": 3,
+    "files_supplied": 1,
+    "approximate_tokens": 15,
+    "selected_paths": [
+      "src\\date.js"
+    ],
+    "accessed_files": null,
+    "access_observation": "UNAVAILABLE",
+    "evidence_ids": [
+      "ev_a8923139681fff75c636"
+    ]
+  },
+  "actions": {
+    "events": 62,
+    "tool_calls": 11,
+    "evidence_ids": [
+      "ev_8a9d01edc97130dc1ef0",
+      "ev_dd5ee14754748ed3d2e0",
+      "ev_ccedec834d6ab95602cc",
+      "ev_f86a095aab9f2f045c95",
+      "ev_9ecf88ed2daff4a4c6e7",
+      "ev_5ad41749289e6d608477",
+      "ev_d7aa55e1411e549a00a3",
+      "ev_0197702356c640d0f65e"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "src/date.js"
+    ],
+    "additions": 1,
+    "deletions": 1,
+    "evidence_ids": [
+      "ev_c4e883f4b0c4662a27e3"
+    ]
+  },
+  "verification": {
+    "results": [
+      {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 61,
+        "status": "PASSED"
+      }
+    ],
+    "evidence_ids": [
+      "ev_5ad41749289e6d608477"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_a8923139681fff75c636",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "1 files supplied from 3 considered",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:54:40.613Z",
+      "data": {
+        "files_considered": 3,
+        "files_included": 1,
+        "approximate_tokens": 15
+      }
+    },
+    {
+      "evidence_id": "ev_8a9d01edc97130dc1ef0",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:54:40.608Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_dd5ee14754748ed3d2e0",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:55:23.930Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "cmd.exe",
+          "args": [
+            "/d",
+            "/s",
+            "/c",
+            "node verify.mjs"
+          ]
+        },
+        "result": {
+          "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_ccedec834d6ab95602cc",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:55:23.984Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": " M src/date.js\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_f86a095aab9f2f045c95",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:55:24.023Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "diff --git a/src/date.js b/src/date.js\nindex 0d0f160..1a54ce7 100644\n--- a/src/date.js\n+++ b/src/date.js\n@@ -1 +1 @@\n-export function isoDate(value) { return String(value); }\n+export function isoDate(value) { return value.toISOString(); }\n",
+          "stderr": "warning: in the working copy of 'src/date.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_9ecf88ed2daff4a4c6e7",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:4",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:55:24.023Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "1\t1\tsrc/date.js\n",
+          "stderr": "warning: in the working copy of 'src/date.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_c4e883f4b0c4662a27e3",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "1 files changed (+1/-1)",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:55:24.031Z",
+      "data": {
+        "status_before": "",
+        "status_after": " M src/date.js\n",
+        "changed_files": [
+          "src/date.js"
+        ],
+        "additions": 1,
+        "deletions": 1,
+        "unified_diff": "diff --git a/src/date.js b/src/date.js\nindex 0d0f160..1a54ce7 100644\n--- a/src/date.js\n+++ b/src/date.js\n@@ -1 +1 @@\n-export function isoDate(value) { return String(value); }\n+export function isoDate(value) { return value.toISOString(); }\n"
+      }
+    },
+    {
+      "evidence_id": "ev_5ad41749289e6d608477",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "external-verifier: PASSED",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:55:24.031Z",
+      "data": {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 61,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_d7aa55e1411e549a00a3",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "62 ordered events and 11 persisted tool calls",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:55:24.031Z",
+      "data": {
+        "events": 62,
+        "tool_calls": 11
+      }
+    },
+    {
+      "evidence_id": "ev_0197702356c640d0f65e",
+      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "4 safety and durability events",
+      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T11:55:23.933Z",
+      "data": [
+        {
+          "event_id": "486c1437-f743-40ea-b073-8f422fb89fbb",
+          "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+          "sequence": 2,
+          "timestamp": "2026-09-23T11:54:40.566Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "fc49b671-869c-495a-8af6-074c7a615ed3",
+          "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+          "sequence": 7,
+          "timestamp": "2026-09-23T11:54:40.614Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "8e5d6242-a987-4fea-b003-5d01f963d907",
+          "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+          "sequence": 45,
+          "timestamp": "2026-09-23T11:55:23.868Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 44,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "cb6ecda5-848d-4295-b2af-d3c08802c2b7",
+          "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+          "sequence": 51,
+          "timestamp": "2026-09-23T11:55:23.933Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 50,
+            "completed_tool_calls": 2,
+            "verification_progress": 1
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Make isoDate return a UTC ISO date string for a Date input.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_5ad41749289e6d608477"
+      ],
+      "reason": "External verifier PASS."
+    }
+  ],
+  "outcome": "PASS",
+  "generated_at": "2026-09-23T11:55:24.039Z"
+}

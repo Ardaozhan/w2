@@ -1,0 +1,1 @@
+import { parseNumber } from './src/parse.js'; if (parseNumber('12.5') !== 12.5) throw new Error('parse number failed'); let threw = false; try { parseNumber('nope'); } catch { threw = true; } if (!threw) throw new Error('invalid input accepted'); console.log(JSON.stringify({criterion:'parseNumber',status:'PASS'}));

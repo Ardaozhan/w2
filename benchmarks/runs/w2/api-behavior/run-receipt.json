@@ -1,6 +1,6 @@
 {
   "receipt_version": "1.0",
-  "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
+  "run_id": "be08b581-28f9-488f-8e70-33592f466d07",
   "task": {
     "task_id": "api-behavior",
     "title": "Map HTTP status",
@@ -27,8 +27,8 @@
   },
   "agent": {
     "model": "codex",
-    "status": "COMPLETED",
-    "error": null,
+    "status": "ERROR",
+    "error": "Agent failure: Codex process timed out after 90000ms",
     "execution_mode": "REAL_CODEX"
   },
   "context": {
@@ -41,60 +41,39 @@
     "accessed_files": null,
     "access_observation": "UNAVAILABLE",
     "evidence_ids": [
-      "ev_cb0d3f5dc55717bbcef2"
+      "ev_73fdf2452d562f7cf980"
     ]
   },
   "actions": {
-    "events": 57,
-    "tool_calls": 10,
+    "events": 13,
+    "tool_calls": 1,
     "evidence_ids": [
-      "ev_847539133a9f49c16b51",
-      "ev_b8c7b10dfbddfbe13fb1",
-      "ev_9f8db4afb468892e0022",
-      "ev_65d1a6a5fdadf946b07d",
-      "ev_0cc64b924e30c502b5e3",
-      "ev_5547b040f427b80006b3",
-      "ev_36a55f73b432c9cfb8a2",
-      "ev_fe57403a6a80e9baa86c"
+      "ev_e02f959c19aa4501cfd4",
+      "ev_6c7e286957f8fd287348"
     ]
   },
   "changes": {
-    "changed_files": [
-      "src/http.js"
-    ],
-    "additions": 5,
-    "deletions": 1,
+    "changed_files": [],
+    "additions": 0,
+    "deletions": 0,
     "evidence_ids": [
-      "ev_09ac55b77bea8198e969"
+      "ev_caa5b0e259b1581ef0b2"
     ]
   },
   "verification": {
-    "results": [
-      {
-        "name": "external-verifier",
-        "category": "custom",
-        "command": "node verify.mjs",
-        "exit_code": 0,
-        "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
-        "stderr": "",
-        "duration_ms": 60,
-        "status": "PASSED"
-      }
-    ],
-    "evidence_ids": [
-      "ev_5547b040f427b80006b3"
-    ]
+    "results": [],
+    "evidence_ids": []
   },
   "evidence": [
     {
-      "evidence_id": "ev_cb0d3f5dc55717bbcef2",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
+      "evidence_id": "ev_73fdf2452d562f7cf980",
+      "run_id": "be08b581-28f9-488f-8e70-33592f466d07",
       "type": "CONTEXT_EVIDENCE",
       "source": "sqlite:runs.context_manifest",
       "summary": "1 files supplied from 3 considered",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:context",
+      "raw_reference": "run:be08b581-28f9-488f-8e70-33592f466d07:context",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:06.739Z",
+      "created_at": "2026-09-23T12:32:30.509Z",
       "data": {
         "files_considered": 3,
         "files_included": 1,
@@ -102,203 +81,52 @@
       }
     },
     {
-      "evidence_id": "ev_847539133a9f49c16b51",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
-      "type": "TOOL_EVIDENCE",
-      "source": "sqlite:tool_calls",
-      "summary": "shell executed",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:0",
-      "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:06.736Z",
-      "data": {
-        "tool_name": "shell",
-        "input": {
-          "command": "git",
-          "args": [
-            "status",
-            "--porcelain=v1"
-          ]
-        },
-        "result": {
-          "stdout": "",
-          "stderr": "",
-          "exitCode": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_b8c7b10dfbddfbe13fb1",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
-      "type": "TOOL_EVIDENCE",
-      "source": "sqlite:tool_calls",
-      "summary": "shell executed",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:1",
-      "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:45.428Z",
-      "data": {
-        "tool_name": "shell",
-        "input": {
-          "command": "cmd.exe",
-          "args": [
-            "/d",
-            "/s",
-            "/c",
-            "node verify.mjs"
-          ]
-        },
-        "result": {
-          "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
-          "stderr": "",
-          "exitCode": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_9f8db4afb468892e0022",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
-      "type": "TOOL_EVIDENCE",
-      "source": "sqlite:tool_calls",
-      "summary": "shell executed",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:2",
-      "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:45.466Z",
-      "data": {
-        "tool_name": "shell",
-        "input": {
-          "command": "git",
-          "args": [
-            "status",
-            "--porcelain=v1"
-          ]
-        },
-        "result": {
-          "stdout": " M src/http.js\n",
-          "stderr": "",
-          "exitCode": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_65d1a6a5fdadf946b07d",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
-      "type": "TOOL_EVIDENCE",
-      "source": "sqlite:tool_calls",
-      "summary": "shell executed",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:3",
-      "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:45.511Z",
-      "data": {
-        "tool_name": "shell",
-        "input": {
-          "command": "git",
-          "args": [
-            "diff",
-            "HEAD",
-            "--numstat"
-          ]
-        },
-        "result": {
-          "stdout": "5\t1\tsrc/http.js\n",
-          "stderr": "warning: in the working copy of 'src/http.js', LF will be replaced by CRLF the next time Git touches it\n",
-          "exitCode": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_0cc64b924e30c502b5e3",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
-      "type": "TOOL_EVIDENCE",
-      "source": "sqlite:tool_calls",
-      "summary": "shell executed",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:tool:4",
-      "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:45.511Z",
-      "data": {
-        "tool_name": "shell",
-        "input": {
-          "command": "git",
-          "args": [
-            "diff",
-            "HEAD",
-            "--"
-          ]
-        },
-        "result": {
-          "stdout": "diff --git a/src/http.js b/src/http.js\nindex 3846431..10a6a84 100644\n--- a/src/http.js\n+++ b/src/http.js\n@@ -1 +1,5 @@\n-export function statusFor(code) { return \"unknown\"; }\n+export function statusFor(code) {\n+  if (code >= 200 && code < 300) return \"success\";\n+  if (code >= 400 && code < 500) return \"client-error\";\n+  return \"server-error\";\n+}\n",
-          "stderr": "warning: in the working copy of 'src/http.js', LF will be replaced by CRLF the next time Git touches it\n",
-          "exitCode": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_09ac55b77bea8198e969",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
+      "evidence_id": "ev_caa5b0e259b1581ef0b2",
+      "run_id": "be08b581-28f9-488f-8e70-33592f466d07",
       "type": "DIFF_EVIDENCE",
       "source": "sqlite:runs.diff",
-      "summary": "1 files changed (+5/-1)",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:diff",
+      "summary": "0 files changed (+0/-0)",
+      "raw_reference": "run:be08b581-28f9-488f-8e70-33592f466d07:diff",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:45.520Z",
+      "created_at": "2026-09-23T12:34:00.657Z",
       "data": {
         "status_before": "",
-        "status_after": " M src/http.js\n",
-        "changed_files": [
-          "src/http.js"
-        ],
-        "additions": 5,
-        "deletions": 1,
-        "unified_diff": "diff --git a/src/http.js b/src/http.js\nindex 3846431..10a6a84 100644\n--- a/src/http.js\n+++ b/src/http.js\n@@ -1 +1,5 @@\n-export function statusFor(code) { return \"unknown\"; }\n+export function statusFor(code) {\n+  if (code >= 200 && code < 300) return \"success\";\n+  if (code >= 400 && code < 500) return \"client-error\";\n+  return \"server-error\";\n+}\n"
+        "status_after": "",
+        "changed_files": [],
+        "additions": 0,
+        "deletions": 0,
+        "unified_diff": ""
       }
     },
     {
-      "evidence_id": "ev_5547b040f427b80006b3",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
-      "type": "ASSERTION_EVIDENCE",
-      "source": "sqlite:verification_results",
-      "summary": "external-verifier: PASSED",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:verification:0",
-      "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:45.520Z",
-      "data": {
-        "name": "external-verifier",
-        "category": "custom",
-        "command": "node verify.mjs",
-        "exit_code": 0,
-        "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
-        "stderr": "",
-        "duration_ms": 60,
-        "status": "PASSED"
-      }
-    },
-    {
-      "evidence_id": "ev_36a55f73b432c9cfb8a2",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
+      "evidence_id": "ev_e02f959c19aa4501cfd4",
+      "run_id": "be08b581-28f9-488f-8e70-33592f466d07",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
-      "summary": "57 ordered events and 10 persisted tool calls",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:events",
+      "summary": "13 ordered events and 1 persisted tool calls",
+      "raw_reference": "run:be08b581-28f9-488f-8e70-33592f466d07:events",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:45.520Z",
+      "created_at": "2026-09-23T12:34:00.657Z",
       "data": {
-        "events": 57,
-        "tool_calls": 10
+        "events": 13,
+        "tool_calls": 1
       }
     },
     {
-      "evidence_id": "ev_fe57403a6a80e9baa86c",
-      "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
+      "evidence_id": "ev_6c7e286957f8fd287348",
+      "run_id": "be08b581-28f9-488f-8e70-33592f466d07",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
-      "summary": "4 safety and durability events",
-      "raw_reference": "run:a9f5b4bf-524d-4a49-bcea-886999d99d6d:safety",
+      "summary": "3 safety and durability events",
+      "raw_reference": "run:be08b581-28f9-488f-8e70-33592f466d07:safety",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:57:45.431Z",
+      "created_at": "2026-09-23T12:34:00.580Z",
       "data": [
         {
-          "event_id": "1b0521e4-0f1d-4f67-84ab-d929d45a843a",
-          "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
+          "event_id": "ac7371e6-c23e-4519-9d18-fd178c14d99a",
+          "run_id": "be08b581-28f9-488f-8e70-33592f466d07",
           "sequence": 2,
-          "timestamp": "2026-09-23T11:57:06.694Z",
+          "timestamp": "2026-09-23T12:32:30.469Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 1,
@@ -307,10 +135,10 @@
           }
         },
         {
-          "event_id": "180492d0-c141-400c-a70c-6cf7026c6406",
-          "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
+          "event_id": "36dd48c6-3637-4de3-99cd-e30c0bca563b",
+          "run_id": "be08b581-28f9-488f-8e70-33592f466d07",
           "sequence": 7,
-          "timestamp": "2026-09-23T11:57:06.740Z",
+          "timestamp": "2026-09-23T12:32:30.511Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 6,
@@ -319,27 +147,15 @@
           }
         },
         {
-          "event_id": "5fecd239-250e-41dd-a155-403b227b6333",
-          "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
-          "sequence": 40,
-          "timestamp": "2026-09-23T11:57:45.367Z",
+          "event_id": "074226e3-92ac-44dc-8845-0a05476331af",
+          "run_id": "be08b581-28f9-488f-8e70-33592f466d07",
+          "sequence": 11,
+          "timestamp": "2026-09-23T12:34:00.580Z",
           "type": "run_checkpointed",
           "payload": {
-            "sequence": 39,
+            "sequence": 10,
             "completed_tool_calls": 1,
             "verification_progress": 0
-          }
-        },
-        {
-          "event_id": "a1f07160-7371-43fc-8250-2bec4453aa85",
-          "run_id": "a9f5b4bf-524d-4a49-bcea-886999d99d6d",
-          "sequence": 46,
-          "timestamp": "2026-09-23T11:57:45.431Z",
-          "type": "run_checkpointed",
-          "payload": {
-            "sequence": 45,
-            "completed_tool_calls": 2,
-            "verification_progress": 1
           }
         }
       ]
@@ -350,13 +166,11 @@
       "criterion_id": "AC-01",
       "description": "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.",
       "required": true,
-      "status": "PASS",
-      "evidence_ids": [
-        "ev_5547b040f427b80006b3"
-      ],
-      "reason": "External verifier PASS."
+      "status": "UNPROVEN",
+      "evidence_ids": [],
+      "reason": "No evidence was mapped to this required criterion."
     }
   ],
-  "outcome": "PASS",
-  "generated_at": "2026-09-23T11:57:45.529Z"
+  "outcome": "ERROR",
+  "generated_at": "2026-09-23T12:34:00.662Z"
 }

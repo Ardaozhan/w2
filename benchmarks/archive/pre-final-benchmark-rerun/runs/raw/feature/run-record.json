@@ -1,0 +1,51 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "feature",
+  "baseline_commit": "85c5e4f89af88ed62c96ebe9109f69ff82e6417f",
+  "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
+  "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": true,
+  "agent_messages": [
+    "I’ll inspect the repository instructions and the current slug module, then make the smallest change in `src/slug.js` and run the required verifier.",
+    "The module is a one-line stub, and the verifier expects punctuation and surrounding whitespace to normalize to a hyphenated lowercase slug. I’ll implement that behavior using only the permitted file.",
+    "Implemented `slugify` in [src/slug.js](C:/Users/ardao/w2/benchmarks/runs/raw/feature/src/slug.js): it trims, lowercases, and converts non-alphanumeric runs to hyphens, removing leading and trailing hyphens.\n\n`node verify.mjs` passed."
+  ],
+  "claim_source": "Codex JSONL agent_message/assistant_message items only",
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 50
+  },
+  "runtime_ms": 37591,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [
+      "src/slug.js"
+    ],
+    "verification": {
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 50
+    }
+  },
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ce1b-c823-7c22-b361-8afbe10a6931\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and the current slug module, then make the smallest change in `src/slug.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'slug.js' -g 'verify.mjs' -g 'package.json'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'slug.js' -g 'verify.mjs' -g 'package.json'\\\"\",\"aggregated_output\":\"\\r\\n\\r\\n    Directory: C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\r\\n\\r\\n\\r\\nMode                 LastWriteTime         Length Name                                                                 \\r\\n----                 -------------         ------ ----                                                                 \\r\\nd--h--         9/23/2026   2:52 PM                .git                                                                 \\r\\nd-----         9/23/2026   2:52 PM                src                                                                  \\r\\n-a----         9/23/2026   2:50 PM            877 task.json                                                            \\r\\n-a----         9/23/2026   2:50 PM            192 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\slug.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content src/slug.js; Get-Content verify.mjs; Get-Content task.json; rg --files -g AGENTS.md -g '*.md'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-Content src/slug.js; Get-Content verify.mjs; Get-Content task.json; rg --files -g AGENTS.md -g '*.md'\\\"\",\"aggregated_output\":\"\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"The module is a one-line stub, and the verifier expects punctuation and surrounding whitespace to normalize to a hyphenated lowercase slug. I’ll implement that behavior using only the permitted file.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Implemented `slugify` in [src/slug.js](C:/Users/ardao/w2/benchmarks/runs/raw/feature/src/slug.js): it trims, lowercases, and converts non-alphanumeric runs to hyphens, removing leading and trailing hyphens.\\n\\n`node verify.mjs` passed.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":127183,\"cached_input_tokens\":112384,\"cache_write_input_tokens\":0,\"output_tokens\":531,\"reasoning_output_tokens\":0}}\n",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 0
+}

@@ -2,7 +2,7 @@
 
 ## Status
 
-Machine-actionable technical gates PASS for the verified Windows 11 scope. This report supersedes conflicting completion/readiness claims in earlier phase and repair reports. The supported V42 lifecycle accepted task `task-847f663dba32890404afcb58`; its readiness artifact records `PROJECT_RESOLUTION_STATUS=RESOLVED`, `GIT_REPOSITORY=true`, `V42_EXECUTION_READY=true`, and security preflight PASS. No gate was bypassed.
+The latest local test suite and benchmark validators pass after the fresh rerun. Final clean-clone and Phase 06 gates are rerun on the committed result/evidence package before the final YES status is recorded. This report supersedes conflicting completion/readiness claims in earlier phase and repair reports. The supported V42 lifecycle accepted task `task-847f663dba32890404afcb58`; its readiness artifact records `PROJECT_RESOLUTION_STATUS=RESOLVED`, `GIT_REPOSITORY=true`, `V42_EXECUTION_READY=true`, and security preflight PASS. No gate was bypassed.
 
 ## False-DONE Parser Fix
 
@@ -10,11 +10,11 @@ Machine-actionable technical gates PASS for the verified Windows 11 scope. This 
 
 ## Benchmark Re-run
 
-After the parser correction, all eight canonical fixtures were run in both conditions: 16 `REAL_CODEX` attempts. Raw and W2 use the same normalized contract, baseline, acceptance criteria, external verifier, model configuration where controllable, and 90,000 ms timeout. All result artifacts are retained and result validation re-derives claims from stored Codex assistant-message evidence.
+After the final parser correction, all eight canonical fixtures were freshly run in both conditions: 16 `REAL_CODEX` executions. Raw and W2 use the same normalized contract, baseline, acceptance criteria, external verifier, model configuration where controllable, and 90,000 ms timeout. All result artifacts are retained; completion claims are parsed from the new stored Codex assistant-message streams. The prior full set is preserved under `benchmarks/archive/pre-final-benchmark-rerun/`.
 
 ## Benchmark Results
 
-Current generated report: [BENCHMARK-REPORT.md](BENCHMARK-REPORT.md); raw data: [results.json](../benchmarks/results/results.json) and [results.csv](../benchmarks/results/results.csv). Raw Codex: 8/8 `TASK_PASS`, 0 task FAIL, 0 UNPROVEN, 0 infrastructure failures. W2 + Codex: 8/8 `TASK_PASS`, 0 task FAIL, 0 UNPROVEN, 0 infrastructure failures. False-DONE count is 0/8 for each condition. This is a one-run-per-fixture descriptive sample, not evidence of comparative advantage. Criterion evidence coverage counts attached, valid deterministic verifier/assertion evidence divided by required criteria; zero criteria yields 0.
+Current generated report: [BENCHMARK-REPORT.md](BENCHMARK-REPORT.md); raw data: [results.json](../benchmarks/results/results.json) and [results.csv](../benchmarks/results/results.csv). Raw Codex: 5/8 `TASK_PASS`, 0 task FAIL, 0 UNPROVEN, 3 infrastructure failures. W2 + Codex: 5/8 `TASK_PASS`, 0 task FAIL, 0 UNPROVEN, 3 infrastructure failures. The three infrastructure failures per condition are the same `type-error`, `api-behavior`, and `multi-file` fixture timeouts; they remain visible and are not scored as task outcomes. False-DONE count is 0/5 non-infrastructure attempts for each condition. This is a one-run-per-fixture descriptive sample, not evidence of comparative advantage. Criterion evidence coverage counts attached, valid deterministic verifier/assertion evidence divided by required criteria; zero criteria yields 0.
 
 ## Instant Judge Demo
 
@@ -73,7 +73,7 @@ Playwright opened the static demo from the local static server. PASS and UNPROVE
 
 ## Fresh Clone
 
-`npm run phase06:audit` PASS on code/evidence checkpoint `c7b00ba`. Its `git archive HEAD` copy used ordinary `npm ci` into an isolated directory and passed 12 test files / 41 tests, typecheck, build, Phase 02 integrity, 16-run benchmark verification, judge-demo verification, and demo smoke; Phase 06 ALL passed. The final readiness/status-only closeout commit is also covered by the post-commit Phase 06 ALL check recorded at handoff.
+The earlier clean-archive check passed on checkpoint `c7b00ba`, before the final 16-run dataset and screenshots were regenerated. This final result/evidence set is committed and then checked again with `npm run phase06:audit`, whose clean archive performs ordinary `npm ci`; only that post-rerun output is the final clone result.
 
 ## Secret Scan
 
@@ -81,7 +81,7 @@ Final repository scan: no dangerous Codex bypass match and no high-confidence cr
 
 ## Git State
 
-Code and evidence are committed at checkpoint `c7b00ba`; benchmark failures and earlier data are preserved under `benchmarks/archive/`, while current results are regenerated, not cherry-picked. The readiness/status closeout commit is documentation-only and its resulting HEAD is rechecked for a clean worktree and clean archive.
+The final rerun, report, judge data, screenshots, and readiness record are being assembled into the submission checkpoint. Previous attempts are preserved under `benchmarks/archive/`; current results are regenerated, not cherry-picked. Final Git state and archive verification are checked after the closeout commit.
 
 ## Human Actions Remaining
 
@@ -92,8 +92,8 @@ Code and evidence are committed at checkpoint `c7b00ba`; benchmark failures and 
 
 ## Final Commit
 
-Code/evidence checkpoint: `c7b00ba`. The final documentation closeout commit is the repository HEAD containing this report; the exact final hash is included in the handoff.
+The final submission checkpoint is the repository HEAD containing this report; the exact commit hash is included in the handoff.
 
 ## Final Gate
 
-`W2 TECHNICAL PACKAGE READY: YES` for the verified Windows 11 scope. The final report/status-only commit is rechecked post-commit; competition submission remains pending the human actions above.
+`W2 TECHNICAL PACKAGE READY: PENDING POST-RERUN CLEAN-ARCHIVE, PHASE 06, AND CLEAN-GIT VERIFICATION.` Competition submission also remains pending the human actions above.

@@ -1,9 +1,9 @@
 # W2 RUN RECEIPT
 
 - Receipt version: 1.0
-- Run: `a9f5b4bf-524d-4a49-bcea-886999d99d6d`
+- Run: `be08b581-28f9-488f-8e70-33592f466d07`
 - Execution mode: REAL_CODEX
-- Generated: 2026-09-23T11:57:45.529Z
+- Generated: 2026-09-23T12:34:00.662Z
 
 ## Task
 **Map HTTP status**
@@ -16,17 +16,17 @@ Implement statusFor so 2xx is success, 4xx is client error, and everything else 
 - Exact repository files accessed by Codex: not captured by this adapter
 
 ## What the agent did
-- 10 observable tool calls
-- 57 ordered events
-- 1 changed files
+- 1 observable tool calls
+- 13 ordered events
+- 0 changed files
 
 ## Verification
-- PASS external-verifier (exit 0)
+- UNPROVEN: no verification configured
 
 ## Acceptance Evidence
-- **PASS** AC-01: Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error. — External verifier PASS.
+- **UNPROVEN** AC-01: Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error. — No evidence was mapped to this required criterion.
 
 ## Outcome
-# PASS
+# ERROR
 
-**Why:** All required criteria have valid evidence.
+**Why:** No evidence was mapped to this required criterion.

@@ -15,17 +15,17 @@ Eight baseline-reset fixtures, Raw Codex and W2 + Codex, identical normalized ta
 
 | Outcome | Raw Codex | W2 + Codex |
 |---|---:|---:|
-| TASK_PASS | 8/8 | 8/8 |
+| TASK_PASS | 5/8 | 5/8 |
 | TASK_FAIL | 0/8 | 0/8 |
 | TASK_UNPROVEN | 0/8 | 0/8 |
-| INFRASTRUCTURE_FAILURE | 0/8 | 0/8 |
+| INFRASTRUCTURE_FAILURE | 3/8 | 3/8 |
 
 ## False-DONE metric
 
 | Condition | False-DONE | Non-infrastructure attempts |
 |---|---:|---:|
-| Raw Codex | 0 | 8 |
-| W2 + Codex | 0 | 8 |
+| Raw Codex | 0 | 5 |
+| W2 + Codex | 0 | 5 |
 
 ## Limitations
 

@@ -1,6 +1,6 @@
 {
   "receipt_version": "1.0",
-  "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+  "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
   "task": {
     "task_id": "test-repair",
     "title": "Repair date formatting",
@@ -41,21 +41,21 @@
     "accessed_files": null,
     "access_observation": "UNAVAILABLE",
     "evidence_ids": [
-      "ev_a8923139681fff75c636"
+      "ev_b1fdbb25fb3f769ddbeb"
     ]
   },
   "actions": {
-    "events": 62,
-    "tool_calls": 11,
+    "events": 56,
+    "tool_calls": 10,
     "evidence_ids": [
-      "ev_8a9d01edc97130dc1ef0",
-      "ev_dd5ee14754748ed3d2e0",
-      "ev_ccedec834d6ab95602cc",
-      "ev_f86a095aab9f2f045c95",
-      "ev_9ecf88ed2daff4a4c6e7",
-      "ev_5ad41749289e6d608477",
-      "ev_d7aa55e1411e549a00a3",
-      "ev_0197702356c640d0f65e"
+      "ev_1ea01bf3625363d3e7e7",
+      "ev_60878dc6c31e9d37f1b9",
+      "ev_a98f77e756bdbe4b75b3",
+      "ev_7e4a9e418111b654b915",
+      "ev_5068b2a7e8393df02cfe",
+      "ev_52b78e562f5dec541a3a",
+      "ev_ca141e1d50c6b2820d87",
+      "ev_c445d2390294997b495b"
     ]
   },
   "changes": {
@@ -65,7 +65,7 @@
     "additions": 1,
     "deletions": 1,
     "evidence_ids": [
-      "ev_c4e883f4b0c4662a27e3"
+      "ev_0949854d3ff94a5cd7c3"
     ]
   },
   "verification": {
@@ -77,24 +77,24 @@
         "exit_code": 0,
         "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
         "stderr": "",
-        "duration_ms": 61,
+        "duration_ms": 65,
         "status": "PASSED"
       }
     ],
     "evidence_ids": [
-      "ev_5ad41749289e6d608477"
+      "ev_52b78e562f5dec541a3a"
     ]
   },
   "evidence": [
     {
-      "evidence_id": "ev_a8923139681fff75c636",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_b1fdbb25fb3f769ddbeb",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "CONTEXT_EVIDENCE",
       "source": "sqlite:runs.context_manifest",
       "summary": "1 files supplied from 3 considered",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:context",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:context",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:54:40.613Z",
+      "created_at": "2026-09-23T12:26:36.074Z",
       "data": {
         "files_considered": 3,
         "files_included": 1,
@@ -102,14 +102,14 @@
       }
     },
     {
-      "evidence_id": "ev_8a9d01edc97130dc1ef0",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_1ea01bf3625363d3e7e7",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:0",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:tool:0",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:54:40.608Z",
+      "created_at": "2026-09-23T12:26:36.063Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -127,14 +127,14 @@
       }
     },
     {
-      "evidence_id": "ev_dd5ee14754748ed3d2e0",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_60878dc6c31e9d37f1b9",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:1",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:tool:1",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:55:23.930Z",
+      "created_at": "2026-09-23T12:27:58.780Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -154,14 +154,14 @@
       }
     },
     {
-      "evidence_id": "ev_ccedec834d6ab95602cc",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_a98f77e756bdbe4b75b3",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:2",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:tool:2",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:55:23.984Z",
+      "created_at": "2026-09-23T12:27:58.850Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -179,14 +179,14 @@
       }
     },
     {
-      "evidence_id": "ev_f86a095aab9f2f045c95",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_7e4a9e418111b654b915",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:3",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:tool:3",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:55:24.023Z",
+      "created_at": "2026-09-23T12:27:58.885Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -205,14 +205,14 @@
       }
     },
     {
-      "evidence_id": "ev_9ecf88ed2daff4a4c6e7",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_5068b2a7e8393df02cfe",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "TOOL_EVIDENCE",
       "source": "sqlite:tool_calls",
       "summary": "shell executed",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:tool:4",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:tool:4",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:55:24.023Z",
+      "created_at": "2026-09-23T12:27:58.886Z",
       "data": {
         "tool_name": "shell",
         "input": {
@@ -231,14 +231,14 @@
       }
     },
     {
-      "evidence_id": "ev_c4e883f4b0c4662a27e3",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_0949854d3ff94a5cd7c3",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "DIFF_EVIDENCE",
       "source": "sqlite:runs.diff",
       "summary": "1 files changed (+1/-1)",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:diff",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:diff",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:55:24.031Z",
+      "created_at": "2026-09-23T12:27:58.936Z",
       "data": {
         "status_before": "",
         "status_after": " M src/date.js\n",
@@ -251,14 +251,14 @@
       }
     },
     {
-      "evidence_id": "ev_5ad41749289e6d608477",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_52b78e562f5dec541a3a",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:verification_results",
       "summary": "external-verifier: PASSED",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:verification:0",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:verification:0",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:55:24.031Z",
+      "created_at": "2026-09-23T12:27:58.936Z",
       "data": {
         "name": "external-verifier",
         "category": "custom",
@@ -266,39 +266,39 @@
         "exit_code": 0,
         "stdout": "{\"criterion\":\"isoDate\",\"status\":\"PASS\"}\n",
         "stderr": "",
-        "duration_ms": 61,
+        "duration_ms": 65,
         "status": "PASSED"
       }
     },
     {
-      "evidence_id": "ev_d7aa55e1411e549a00a3",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_ca141e1d50c6b2820d87",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
-      "summary": "62 ordered events and 11 persisted tool calls",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:events",
+      "summary": "56 ordered events and 10 persisted tool calls",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:events",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:55:24.031Z",
+      "created_at": "2026-09-23T12:27:58.936Z",
       "data": {
-        "events": 62,
-        "tool_calls": 11
+        "events": 56,
+        "tool_calls": 10
       }
     },
     {
-      "evidence_id": "ev_0197702356c640d0f65e",
-      "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+      "evidence_id": "ev_c445d2390294997b495b",
+      "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
       "type": "ASSERTION_EVIDENCE",
       "source": "sqlite:events",
       "summary": "4 safety and durability events",
-      "raw_reference": "run:bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd:safety",
+      "raw_reference": "run:ef621e84-28b5-4f80-9dba-2fcbd336d746:safety",
       "confidence_class": "DETERMINISTIC",
-      "created_at": "2026-09-23T11:55:23.933Z",
+      "created_at": "2026-09-23T12:27:58.805Z",
       "data": [
         {
-          "event_id": "486c1437-f743-40ea-b073-8f422fb89fbb",
-          "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+          "event_id": "6a198d15-d6fa-4d45-ab6a-317c599be44a",
+          "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
           "sequence": 2,
-          "timestamp": "2026-09-23T11:54:40.566Z",
+          "timestamp": "2026-09-23T12:26:36.025Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 1,
@@ -307,10 +307,10 @@
           }
         },
         {
-          "event_id": "fc49b671-869c-495a-8af6-074c7a615ed3",
-          "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
+          "event_id": "f61e93c5-1a0d-4348-961f-612103a74cb3",
+          "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
           "sequence": 7,
-          "timestamp": "2026-09-23T11:54:40.614Z",
+          "timestamp": "2026-09-23T12:26:36.080Z",
           "type": "run_checkpointed",
           "payload": {
             "sequence": 6,
@@ -319,25 +319,25 @@
           }
         },
         {
-          "event_id": "8e5d6242-a987-4fea-b003-5d01f963d907",
-          "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
-          "sequence": 45,
-          "timestamp": "2026-09-23T11:55:23.868Z",
+          "event_id": "9fc94338-e2dc-4b47-a15f-f436ab808574",
+          "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
+          "sequence": 39,
+          "timestamp": "2026-09-23T12:27:58.705Z",
           "type": "run_checkpointed",
           "payload": {
-            "sequence": 44,
+            "sequence": 38,
             "completed_tool_calls": 1,
             "verification_progress": 0
           }
         },
         {
-          "event_id": "cb6ecda5-848d-4295-b2af-d3c08802c2b7",
-          "run_id": "bc78bd35-6f2b-4496-b2c2-bf8e5b6b18bd",
-          "sequence": 51,
-          "timestamp": "2026-09-23T11:55:23.933Z",
+          "event_id": "55283557-9eca-403c-b8e8-a01c6b38e1a6",
+          "run_id": "ef621e84-28b5-4f80-9dba-2fcbd336d746",
+          "sequence": 45,
+          "timestamp": "2026-09-23T12:27:58.805Z",
           "type": "run_checkpointed",
           "payload": {
-            "sequence": 50,
+            "sequence": 44,
             "completed_tool_calls": 2,
             "verification_progress": 1
           }
@@ -352,11 +352,11 @@
       "required": true,
       "status": "PASS",
       "evidence_ids": [
-        "ev_5ad41749289e6d608477"
+        "ev_52b78e562f5dec541a3a"
       ],
       "reason": "External verifier PASS."
     }
   ],
   "outcome": "PASS",
-  "generated_at": "2026-09-23T11:55:24.039Z"
+  "generated_at": "2026-09-23T12:27:58.985Z"
 }
