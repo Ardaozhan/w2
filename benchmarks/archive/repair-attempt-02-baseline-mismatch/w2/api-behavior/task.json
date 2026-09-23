@@ -1,0 +1,32 @@
+{
+  "fixture_id": "api-behavior",
+  "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+  "baseline_kind": "fixture-content-sha1",
+  "baseline_files": [
+    "src/http.js"
+  ],
+  "task": {
+    "title": "Map HTTP status",
+    "goal": "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "acceptance_criteria": [
+      {
+        "id": "AC-01",
+        "statement": "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.",
+        "required": true
+      }
+    ],
+    "verification_commands": [
+      "node verify.mjs"
+    ]
+  },
+  "category": "API behavior change",
+  "allowed_paths": [
+    "src/http.js"
+  ],
+  "external_verifier": "node verify.mjs",
+  "reset_command": "node benchmarks/prepare.mjs"
+}

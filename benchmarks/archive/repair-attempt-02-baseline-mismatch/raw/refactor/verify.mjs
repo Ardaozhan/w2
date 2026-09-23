@@ -1,0 +1,1 @@
+import { formatName } from './src/format.js'; if (formatName('  Ada   Lovelace ') !== 'Ada Lovelace') throw new Error('formatName failed'); console.log(JSON.stringify({criterion:'formatName',status:'PASS'}));

@@ -1,0 +1,360 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+  "task": {
+    "task_id": "refactor",
+    "title": "Normalize display names",
+    "goal": "Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/format.js"
+    ],
+    "acceptance_criteria": [
+      "Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\refactor",
+    "timeout_ms": 90000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "COMPLETED",
+    "error": null,
+    "execution_mode": "REAL_CODEX"
+  },
+  "context": {
+    "files_considered": 3,
+    "files_supplied": 1,
+    "approximate_tokens": 17,
+    "selected_paths": [
+      "src\\format.js"
+    ],
+    "accessed_files": null,
+    "access_observation": "UNAVAILABLE",
+    "evidence_ids": [
+      "ev_2c33c4cb4ac3fe448edd"
+    ]
+  },
+  "actions": {
+    "events": 41,
+    "tool_calls": 7,
+    "evidence_ids": [
+      "ev_75a78440f4cdad6acf96",
+      "ev_5e1b835fe2c677502c59",
+      "ev_ae1d86675d2dc8350bc9",
+      "ev_510dedb89b649096ebfd",
+      "ev_79ae2fbe279012d9531d",
+      "ev_1b6a5242325f5a8143ef",
+      "ev_63c56086e9d5db286cb0",
+      "ev_7d015a543249d58ee3a2"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "src/format.js"
+    ],
+    "additions": 1,
+    "deletions": 1,
+    "evidence_ids": [
+      "ev_868ae7ed65badb073b93"
+    ]
+  },
+  "verification": {
+    "results": [
+      {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 58,
+        "status": "PASSED"
+      }
+    ],
+    "evidence_ids": []
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_2c33c4cb4ac3fe448edd",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "1 files supplied from 3 considered",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:25.282Z",
+      "data": {
+        "files_considered": 3,
+        "files_included": 1,
+        "approximate_tokens": 17
+      }
+    },
+    {
+      "evidence_id": "ev_75a78440f4cdad6acf96",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:25.279Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_5e1b835fe2c677502c59",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:45.109Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "cmd.exe",
+          "args": [
+            "/d",
+            "/s",
+            "/c",
+            "node verify.mjs"
+          ]
+        },
+        "result": {
+          "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_ae1d86675d2dc8350bc9",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:45.145Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": " M src/format.js\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_510dedb89b649096ebfd",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:45.182Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "1\t1\tsrc/format.js\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_79ae2fbe279012d9531d",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:tool:4",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:45.183Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "diff --git a/src/format.js b/src/format.js\nindex 97e5726..73f234f 100644\n--- a/src/format.js\n+++ b/src/format.js\n@@ -1 +1 @@\n-export function formatName(value) { return value.toUpperCase(); }\n+export function formatName(value) { return value.trim().replace(/\\s+/g, ' '); }\n\\ No newline at end of file\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_868ae7ed65badb073b93",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "1 files changed (+1/-1)",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:45.188Z",
+      "data": {
+        "status_before": "",
+        "status_after": " M src/format.js\n",
+        "changed_files": [
+          "src/format.js"
+        ],
+        "additions": 1,
+        "deletions": 1,
+        "unified_diff": "diff --git a/src/format.js b/src/format.js\nindex 97e5726..73f234f 100644\n--- a/src/format.js\n+++ b/src/format.js\n@@ -1 +1 @@\n-export function formatName(value) { return value.toUpperCase(); }\n+export function formatName(value) { return value.trim().replace(/\\s+/g, ' '); }\n\\ No newline at end of file\n"
+      }
+    },
+    {
+      "evidence_id": "ev_1b6a5242325f5a8143ef",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "external-verifier: PASSED",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:45.188Z",
+      "data": {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 58,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_63c56086e9d5db286cb0",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "41 ordered events and 7 persisted tool calls",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:45.188Z",
+      "data": {
+        "events": 41,
+        "tool_calls": 7
+      }
+    },
+    {
+      "evidence_id": "ev_7d015a543249d58ee3a2",
+      "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "4 safety and durability events",
+      "raw_reference": "run:7bab08c0-41fb-4dc1-a5f9-6872a915ea46:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:52:45.112Z",
+      "data": [
+        {
+          "event_id": "97949133-7713-4336-b96f-9ea3e646bde4",
+          "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+          "sequence": 2,
+          "timestamp": "2026-09-23T09:52:25.246Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "abbbbbe5-335e-4e13-be62-4259e77b740d",
+          "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+          "sequence": 7,
+          "timestamp": "2026-09-23T09:52:25.283Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "e6eef22e-a48f-4b3e-aa79-1694fdef2e60",
+          "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+          "sequence": 24,
+          "timestamp": "2026-09-23T09:52:45.050Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 23,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "a01325cb-61b1-4e69-ac45-6496ef86799f",
+          "run_id": "7bab08c0-41fb-4dc1-a5f9-6872a915ea46",
+          "sequence": 30,
+          "timestamp": "2026-09-23T09:52:45.112Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 29,
+            "completed_tool_calls": 2,
+            "verification_progress": 1
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Refactor formatName so it trims surrounding whitespace and collapses repeated internal spaces.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_1b6a5242325f5a8143ef"
+      ],
+      "reason": "External verifier PASS."
+    }
+  ],
+  "outcome": "PASS",
+  "generated_at": "2026-09-23T09:52:45.193Z"
+}

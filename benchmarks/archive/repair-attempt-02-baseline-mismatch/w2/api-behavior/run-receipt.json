@@ -1,0 +1,362 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+  "task": {
+    "task_id": "api-behavior",
+    "title": "Map HTTP status",
+    "goal": "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/http.js"
+    ],
+    "acceptance_criteria": [
+      "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\api-behavior",
+    "timeout_ms": 90000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "COMPLETED",
+    "error": null,
+    "execution_mode": "REAL_CODEX"
+  },
+  "context": {
+    "files_considered": 3,
+    "files_supplied": 1,
+    "approximate_tokens": 14,
+    "selected_paths": [
+      "src\\http.js"
+    ],
+    "accessed_files": null,
+    "access_observation": "UNAVAILABLE",
+    "evidence_ids": [
+      "ev_dda82f05ede00ba0e32d"
+    ]
+  },
+  "actions": {
+    "events": 46,
+    "tool_calls": 8,
+    "evidence_ids": [
+      "ev_f217cccdc430ff9f212c",
+      "ev_01b6cb46221ff78c4081",
+      "ev_d7aba21c4b8e289e9a30",
+      "ev_5f9dfa000dfb9581bc2e",
+      "ev_0f0fbbf03dea93c469a1",
+      "ev_876649814fc635f88aea",
+      "ev_64168a8b82aca945026c",
+      "ev_bcce1e14e78b3e839222"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "src/http.js"
+    ],
+    "additions": 5,
+    "deletions": 1,
+    "evidence_ids": [
+      "ev_b6ea3f64f72537f46bee"
+    ]
+  },
+  "verification": {
+    "results": [
+      {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 55,
+        "status": "PASSED"
+      }
+    ],
+    "evidence_ids": [
+      "ev_876649814fc635f88aea"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_dda82f05ede00ba0e32d",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "1 files supplied from 3 considered",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:03.101Z",
+      "data": {
+        "files_considered": 3,
+        "files_included": 1,
+        "approximate_tokens": 14
+      }
+    },
+    {
+      "evidence_id": "ev_f217cccdc430ff9f212c",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:03.099Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_01b6cb46221ff78c4081",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:28.311Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "cmd.exe",
+          "args": [
+            "/d",
+            "/s",
+            "/c",
+            "node verify.mjs"
+          ]
+        },
+        "result": {
+          "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_d7aba21c4b8e289e9a30",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:28.348Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": " M src/http.js\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_5f9dfa000dfb9581bc2e",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:28.382Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "diff --git a/src/http.js b/src/http.js\nindex 3846431..10a6a84 100644\n--- a/src/http.js\n+++ b/src/http.js\n@@ -1 +1,5 @@\n-export function statusFor(code) { return \"unknown\"; }\n+export function statusFor(code) {\n+  if (code >= 200 && code < 300) return \"success\";\n+  if (code >= 400 && code < 500) return \"client-error\";\n+  return \"server-error\";\n+}\n",
+          "stderr": "warning: in the working copy of 'src/http.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_0f0fbbf03dea93c469a1",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:tool:4",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:28.382Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "5\t1\tsrc/http.js\n",
+          "stderr": "warning: in the working copy of 'src/http.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_b6ea3f64f72537f46bee",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "1 files changed (+5/-1)",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:28.388Z",
+      "data": {
+        "status_before": "",
+        "status_after": " M src/http.js\n",
+        "changed_files": [
+          "src/http.js"
+        ],
+        "additions": 5,
+        "deletions": 1,
+        "unified_diff": "diff --git a/src/http.js b/src/http.js\nindex 3846431..10a6a84 100644\n--- a/src/http.js\n+++ b/src/http.js\n@@ -1 +1,5 @@\n-export function statusFor(code) { return \"unknown\"; }\n+export function statusFor(code) {\n+  if (code >= 200 && code < 300) return \"success\";\n+  if (code >= 400 && code < 500) return \"client-error\";\n+  return \"server-error\";\n+}\n"
+      }
+    },
+    {
+      "evidence_id": "ev_876649814fc635f88aea",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "external-verifier: PASSED",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:28.388Z",
+      "data": {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 55,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_64168a8b82aca945026c",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "46 ordered events and 8 persisted tool calls",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:28.388Z",
+      "data": {
+        "events": 46,
+        "tool_calls": 8
+      }
+    },
+    {
+      "evidence_id": "ev_bcce1e14e78b3e839222",
+      "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "4 safety and durability events",
+      "raw_reference": "run:b08b87b4-d071-4c4b-922b-115c5955cb91:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T10:20:28.314Z",
+      "data": [
+        {
+          "event_id": "2b19de2e-c11d-4d7a-ac6f-866113f20ca7",
+          "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+          "sequence": 2,
+          "timestamp": "2026-09-23T10:20:03.068Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "4fc65843-c64d-4ec7-b6e3-de24ee313754",
+          "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+          "sequence": 7,
+          "timestamp": "2026-09-23T10:20:03.102Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "fbe86a71-6f8e-4f67-8df4-8e1a53bcdf66",
+          "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+          "sequence": 29,
+          "timestamp": "2026-09-23T10:20:28.255Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 28,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "f84729bb-1888-4259-bda5-eb0a633cff8b",
+          "run_id": "b08b87b4-d071-4c4b-922b-115c5955cb91",
+          "sequence": 35,
+          "timestamp": "2026-09-23T10:20:28.314Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 34,
+            "completed_tool_calls": 2,
+            "verification_progress": 1
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Implement statusFor so 2xx is success, 4xx is client error, and everything else is server error.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_876649814fc635f88aea"
+      ],
+      "reason": "External verifier PASS."
+    }
+  ],
+  "outcome": "PASS",
+  "generated_at": "2026-09-23T10:20:28.392Z"
+}

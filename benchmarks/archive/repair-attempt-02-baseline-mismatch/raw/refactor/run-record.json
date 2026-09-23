@@ -1,0 +1,45 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "refactor",
+  "baseline_commit": "4d204c7d72662e6211179116bc9c074579e8c4c1",
+  "baseline_hash": "c877c10902e9546fe87e172576579c76e21c9f50",
+  "task_semantics_hash": "868cfc0475507fa33111ab5ae0adf39d206ce243e200723d7b22cfc7b35ee857",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": true,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 44
+  },
+  "runtime_ms": 53208,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [
+      "src/format.js"
+    ],
+    "verification": {
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"formatName\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 44
+    }
+  },
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdc3-bfe3-7731-8ea3-05eabef05511\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the repository instructions and current formatter, then make the smallest change in `src/format.js` and run the required verification command.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/format.js' -g 'verify.mjs' -g 'package.json' -g 'README*'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g 'AGENTS.md' -g 'src/format.js' -g 'verify.mjs' -g 'package.json' -g 'README*'\\\"\",\"aggregated_output\":\"d-----         9/23/2026   1:15 PM                src                                                                  \\r\\n-a----         9/23/2026   1:13 PM            916 task.json                                                            \\r\\n-a----         9/23/2026   1:13 PM            209 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\format.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw verify.mjs; Get-Content -Raw task.json'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw src/format.js'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"rg --files -g 'AGENTS.md' ..\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw src/format.js'\",\"aggregated_output\":\"export function formatName(value) { return value.toUpperCase(); }\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"rg --files -g 'AGENTS.md' ..\\\"\",\"aggregated_output\":\"\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"agent_message\",\"text\":\"The formatter currently only uppercases input. I’m preserving that behavior while normalizing whitespace first; the verifier’s expected result confirms casing should remain unchanged.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_6\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_7\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_7\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"file:///C:/Users/ardao/w2/benchmarks/runs/raw/refactor/verify.mjs:1\\r\\nimport { formatName } from './src/format.js'; if (formatName('  Ada   Lovelace ') !== 'Ada Lovelace') throw new Error('formatName failed'); console.log(JSON.stringify({criterion:'formatName',status:'PASS'}));\\r\\n                                                                                                            ^\\r\\n\\r\\nError: formatName failed\\r\\n    at file:///C:/Users/ardao/w2/benchmarks/runs/raw/refactor/verify.mjs:1:109\\r\\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\\r\\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\\r\\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\\r\\n\\r\\nNode.js v22.13.1\\r\\n\",\"exit_code\":1,\"status\":\"failed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_8\",\"type\":\"agent_message\",\"text\":\"The first required run failed because the existing uppercasing conflicts with the verifier’s expected display name (`Ada Lovelace`). I’m removing that unrelated casing transformation and rerunning the same verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_9\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_9\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\refactor\\\\src\\\\format.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_10\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_10\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_11\",\"type\":\"agent_message\",\"text\":\"Updated [src/format.js](C:/Users/ardao/w2/benchmarks/runs/raw/refactor/src/format.js) to trim surrounding whitespace and collapse repeated spaces while preserving the input’s casing.\\n\\n`node verify.mjs` passed.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":157972,\"cached_input_tokens\":139520,\"cache_write_input_tokens\":0,\"output_tokens\":931,\"reasoning_output_tokens\":122}}\n",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 0
+}

@@ -1,0 +1,45 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "type-error",
+  "baseline_commit": "7530c54b16cf380485d11ef9f73421398062bbaf",
+  "baseline_hash": "e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46",
+  "task_semantics_hash": "c04589684dc15fb485db5bc374ed1435a029b291fc7bab15ba38a8229b91f40c",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": true,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 43
+  },
+  "runtime_ms": 30571,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [
+      "src/parse.js"
+    ],
+    "verification": {
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 43
+    }
+  },
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdc6-2c67-7501-bdb3-f52b8a37d4aa\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"I’ll inspect the task files and repository instructions first, then make the smallest change in `src/parse.js` and run the required verifier.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/parse.js' -g 'package.json' -g 'README*'\\\"\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Get-ChildItem -Force; rg --files -g AGENTS.md -g 'verify.mjs' -g 'src/parse.js' -g 'package.json' -g 'README*'\\\"\",\"aggregated_output\":\"-a----         9/23/2026   1:13 PM            902 task.json                                                            \\r\\n-a----         9/23/2026   1:13 PM            317 verify.mjs                                                           \\r\\nverify.mjs\\nsrc\\\\parse.js\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/parse.js; Get-Content verify.mjs; Get-Content task.json; rg --files'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content src/parse.js; Get-Content verify.mjs; Get-Content task.json; rg --files'\",\"aggregated_output\":\"export function parseNumber(value) { return value; }\\r\\nimport { parseNumber } from './src/parse.js'; if (parseNumber('12.5') !== 12.5) throw new Error('parse number failed'); let threw = false; try { parseNumber('nope'); } catch { threw = true; } if (!threw) throw new Error('invalid input accepted'); console.log(JSON.stringify({criterion:'parseNumber',status:'PASS'}));\\r\\n{\\r\\n  \\\"fixture_id\\\": \\\"type-error\\\",\\r\\n  \\\"baseline_hash\\\": \\\"e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46\\\",\\r\\n  \\\"baseline_kind\\\": \\\"fixture-content-sha1\\\",\\r\\n  \\\"baseline_files\\\": [\\r\\n    \\\"src/parse.js\\\"\\r\\n  ],\\r\\n  \\\"task\\\": {\\r\\n    \\\"title\\\": \\\"Parse numeric input\\\",\\r\\n    \\\"goal\\\": \\\"Make parseNumber return a finite number for numeric strings and throw for invalid input.\\\",\\r\\n    \\\"constraints\\\": [\\r\\n      \\\"Use only the allowed paths.\\\",\\r\\n      \\\"Run node verify.mjs before claiming completion.\\\"\\r\\n    ],\\r\\n    \\\"acceptance_criteria\\\": [\\r\\n      {\\r\\n        \\\"id\\\": \\\"AC-01\\\",\\r\\n        \\\"statement\\\": \\\"Make parseNumber return a finite number for numeric strings and throw for invalid input.\\\",\\r\\n        \\\"required\\\": true\\r\\n      }\\r\\n    ],\\r\\n    \\\"verification_commands\\\": [\\r\\n      \\\"node verify.mjs\\\"\\r\\n    ]\\r\\n  },\\r\\n  \\\"category\\\": \\\"type error\\\",\\r\\n  \\\"allowed_paths\\\": [\\r\\n    \\\"src/parse.js\\\"\\r\\n  ],\\r\\n  \\\"external_verifier\\\": \\\"node verify.mjs\\\",\\r\\n  \\\"reset_command\\\": \\\"node benchmarks/prepare.mjs\\\"\\r\\n}\\r\\nverify.mjs\\ntask.json\\nsrc\\\\parse.js\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"`parseNumber` currently returns its input unchanged. I’ll convert with `Number` and reject non-finite results, covering malformed strings and values like `\\\"Infinity\\\"` while preserving valid numeric input.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\\\src\\\\parse.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\type-error\\\\src\\\\parse.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_5\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_6\",\"type\":\"agent_message\",\"text\":\"Implemented `parseNumber` in [src/parse.js](C:/Users/ardao/w2/benchmarks/runs/raw/type-error/src/parse.js) to return finite numeric values and throw `TypeError` for non-finite or invalid input.\\n\\n`node verify.mjs` passed.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":127093,\"cached_input_tokens\":121600,\"cache_write_input_tokens\":0,\"output_tokens\":524,\"reasoning_output_tokens\":0}}\n",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 0
+}

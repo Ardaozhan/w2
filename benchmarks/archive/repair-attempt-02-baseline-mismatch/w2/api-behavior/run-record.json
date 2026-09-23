@@ -1,0 +1,87 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "api-behavior",
+  "baseline_commit": "4b8c0c689605210f14220c2a58f69f5bed1791c4",
+  "baseline_hash": "cca7197876239f0cd7e90ba92ba29fe78b2147aa",
+  "task_semantics_hash": "bf1d860a184a3ebdc093e66d3ac80274d62bef27923ec1b723d86ac3631fb4b2",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 55
+  },
+  "runtime_ms": 25354,
+  "model_calls": 1,
+  "tool_calls": 8,
+  "steps": 46,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "criterion_evidence_coverage": 1,
+  "evidence": {
+    "context": {
+      "files_considered": 3,
+      "files_supplied": 1,
+      "approximate_tokens": 14,
+      "selected_paths": [
+        "src\\http.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
+      "evidence_ids": [
+        "ev_dda82f05ede00ba0e32d"
+      ]
+    },
+    "tool_trace": {
+      "events": 46,
+      "tool_calls": 8,
+      "evidence_ids": [
+        "ev_f217cccdc430ff9f212c",
+        "ev_01b6cb46221ff78c4081",
+        "ev_d7aba21c4b8e289e9a30",
+        "ev_5f9dfa000dfb9581bc2e",
+        "ev_0f0fbbf03dea93c469a1",
+        "ev_876649814fc635f88aea",
+        "ev_64168a8b82aca945026c",
+        "ev_bcce1e14e78b3e839222"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "src/http.js"
+      ],
+      "additions": 5,
+      "deletions": 1,
+      "evidence_ids": [
+        "ev_b6ea3f64f72537f46bee"
+      ]
+    },
+    "verification": {
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"statusFor\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 55,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_876649814fc635f88aea"
+      ]
+    },
+    "receipt": "benchmarks\\runs\\w2\\api-behavior\\run-receipt.json"
+  },
+  "output": ""
+}

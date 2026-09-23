@@ -1,0 +1,45 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "feature",
+  "baseline_commit": "9c69791c36f432cb4274ce86577d1fdb5a948217",
+  "baseline_hash": "12909df8ec4b338dc7042b77080667b08cd410b5",
+  "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": true,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 46
+  },
+  "runtime_ms": 29705,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [
+      "src/slug.js"
+    ],
+    "verification": {
+      "status": "PASS",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"slugify\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "runtime_ms": 46
+    }
+  },
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"01a0cdc2-b0b7-7b53-934c-36bf8d43e445\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"agent_message\",\"text\":\"Bu görevi yalnızca izin verilen `src/slug.js` dosyasında tamamlayacağım; önce mevcut dosyayı ve doğrulama komutunun bağlamını inceleyip ardından `node verify.mjs` çalıştıracağım.\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw src/slug.js; Get-Content -Raw verify.mjs; Get-ChildItem -Force'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'Get-Content -Raw src/slug.js; Get-Content -Raw verify.mjs; Get-ChildItem -Force'\",\"aggregated_output\":\"-a----         9/23/2026   1:13 PM            877 task.json                                                            \\r\\n-a----         9/23/2026   1:13 PM            192 verify.mjs                                                           \\r\\n\\r\\n\\r\\n\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"file_change\",\"changes\":[{\"path\":\"C:\\\\Users\\\\ardao\\\\w2\\\\benchmarks\\\\runs\\\\raw\\\\feature\\\\src\\\\slug.js\",\"kind\":\"update\"}],\"status\":\"completed\"}}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"command_execution\",\"command\":\"\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command 'node verify.mjs'\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"completed\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_4\",\"type\":\"agent_message\",\"text\":\"Implemented `slugify(text)` in [src/slug.js](/C:/Users/ardao/w2/benchmarks/runs/raw/feature/src/slug.js): it lowercases and trims text, then replaces runs of non-letter or non-number characters with hyphens.\\n\\n`node verify.mjs` passed.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":100862,\"cached_input_tokens\":74752,\"cache_write_input_tokens\":0,\"output_tokens\":505,\"reasoning_output_tokens\":91}}\n",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 0
+}

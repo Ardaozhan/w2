@@ -1,0 +1,87 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "type-error",
+  "baseline_commit": "c3f7a3f67a3f938852672c809ad5baea891f9fa8",
+  "baseline_hash": "e8861f4f2e2fa7ea6d70ce35d461d65a48ec1a46",
+  "task_semantics_hash": "c04589684dc15fb485db5bc374ed1435a029b291fc7bab15ba38a8229b91f40c",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 56
+  },
+  "runtime_ms": 23914,
+  "model_calls": 1,
+  "tool_calls": 8,
+  "steps": 46,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "criterion_evidence_coverage": 1,
+  "evidence": {
+    "context": {
+      "files_considered": 3,
+      "files_supplied": 1,
+      "approximate_tokens": 14,
+      "selected_paths": [
+        "src\\parse.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
+      "evidence_ids": [
+        "ev_75f0943ce1dfe808369a"
+      ]
+    },
+    "tool_trace": {
+      "events": 46,
+      "tool_calls": 8,
+      "evidence_ids": [
+        "ev_52cc8eb81c5d472435bc",
+        "ev_6a0cd74754022adfc792",
+        "ev_dab0327c19afb892d81a",
+        "ev_4569c3e6cdc79edb3f94",
+        "ev_e43b6ed4fb34387d06f2",
+        "ev_1bd9df119da96ca6efb0",
+        "ev_1c05e38f01eca242f4e3",
+        "ev_d5fdd43bdffee459e871"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "src/parse.js"
+      ],
+      "additions": 5,
+      "deletions": 1,
+      "evidence_ids": [
+        "ev_ca9b4dbec9c0b0a3e74d"
+      ]
+    },
+    "verification": {
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"parseNumber\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 56,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": [
+        "ev_1bd9df119da96ca6efb0"
+      ]
+    },
+    "receipt": "benchmarks\\runs\\w2\\type-error\\run-receipt.json"
+  },
+  "output": ""
+}

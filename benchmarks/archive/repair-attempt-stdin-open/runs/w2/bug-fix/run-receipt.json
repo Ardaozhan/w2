@@ -1,0 +1,360 @@
+{
+  "receipt_version": "1.0",
+  "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+  "task": {
+    "task_id": "bug-fix",
+    "title": "Fix multiplication",
+    "goal": "Fix multiply(a,b) so it returns the mathematical product.",
+    "constraints": [
+      "Use only the allowed paths.",
+      "Run node verify.mjs before claiming completion."
+    ],
+    "allowed_paths": [
+      "src/math.js"
+    ],
+    "acceptance_criteria": [
+      "Fix multiply(a,b) so it returns the mathematical product."
+    ],
+    "verification_commands": [
+      {
+        "name": "external-verifier",
+        "command": "node verify.mjs",
+        "category": "custom"
+      }
+    ],
+    "workspace": "C:\\Users\\ardao\\w2\\benchmarks\\runs\\w2\\bug-fix",
+    "timeout_ms": 90000
+  },
+  "agent": {
+    "model": "codex",
+    "status": "COMPLETED",
+    "error": null,
+    "execution_mode": "REAL_CODEX"
+  },
+  "context": {
+    "files_considered": 3,
+    "files_supplied": 1,
+    "approximate_tokens": 13,
+    "selected_paths": [
+      "src\\math.js"
+    ],
+    "accessed_files": null,
+    "access_observation": "UNAVAILABLE",
+    "evidence_ids": [
+      "ev_bec9024111a9d07495d4"
+    ]
+  },
+  "actions": {
+    "events": 46,
+    "tool_calls": 8,
+    "evidence_ids": [
+      "ev_ed25902c78cdf4d4a27b",
+      "ev_8fc3bcf6597e21a170ce",
+      "ev_e03701535cb426230b34",
+      "ev_c4381cbee2c38a707882",
+      "ev_964334448dcebf114931",
+      "ev_6926febaf4a4e628313d",
+      "ev_657a4d8165ee8c589d59",
+      "ev_334d0874c9c8b080e6ee"
+    ]
+  },
+  "changes": {
+    "changed_files": [
+      "src/math.js"
+    ],
+    "additions": 1,
+    "deletions": 1,
+    "evidence_ids": [
+      "ev_4dca5485f40ad79ba9e9"
+    ]
+  },
+  "verification": {
+    "results": [
+      {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 64,
+        "status": "PASSED"
+      }
+    ],
+    "evidence_ids": []
+  },
+  "evidence": [
+    {
+      "evidence_id": "ev_bec9024111a9d07495d4",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "CONTEXT_EVIDENCE",
+      "source": "sqlite:runs.context_manifest",
+      "summary": "1 files supplied from 3 considered",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:context",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:02.326Z",
+      "data": {
+        "files_considered": 3,
+        "files_included": 1,
+        "approximate_tokens": 13
+      }
+    },
+    {
+      "evidence_id": "ev_ed25902c78cdf4d4a27b",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:tool:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:02.323Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": "",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_8fc3bcf6597e21a170ce",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:tool:1",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:53.302Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "cmd.exe",
+          "args": [
+            "/d",
+            "/s",
+            "/c",
+            "node verify.mjs"
+          ]
+        },
+        "result": {
+          "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_e03701535cb426230b34",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:tool:2",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:53.342Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "status",
+            "--porcelain=v1"
+          ]
+        },
+        "result": {
+          "stdout": " M src/math.js\n",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_c4381cbee2c38a707882",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:tool:3",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:53.389Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--numstat"
+          ]
+        },
+        "result": {
+          "stdout": "1\t1\tsrc/math.js\n",
+          "stderr": "warning: in the working copy of 'src/math.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_964334448dcebf114931",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "TOOL_EVIDENCE",
+      "source": "sqlite:tool_calls",
+      "summary": "shell executed",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:tool:4",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:53.390Z",
+      "data": {
+        "tool_name": "shell",
+        "input": {
+          "command": "git",
+          "args": [
+            "diff",
+            "HEAD",
+            "--"
+          ]
+        },
+        "result": {
+          "stdout": "diff --git a/src/math.js b/src/math.js\nindex 4d13975..fc97e18 100644\n--- a/src/math.js\n+++ b/src/math.js\n@@ -1 +1 @@\n-export function multiply(a, b) { return a + b; }\n+export function multiply(a, b) { return a * b; }\n",
+          "stderr": "warning: in the working copy of 'src/math.js', LF will be replaced by CRLF the next time Git touches it\n",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_4dca5485f40ad79ba9e9",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "DIFF_EVIDENCE",
+      "source": "sqlite:runs.diff",
+      "summary": "1 files changed (+1/-1)",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:diff",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:53.450Z",
+      "data": {
+        "status_before": "",
+        "status_after": " M src/math.js\n",
+        "changed_files": [
+          "src/math.js"
+        ],
+        "additions": 1,
+        "deletions": 1,
+        "unified_diff": "diff --git a/src/math.js b/src/math.js\nindex 4d13975..fc97e18 100644\n--- a/src/math.js\n+++ b/src/math.js\n@@ -1 +1 @@\n-export function multiply(a, b) { return a + b; }\n+export function multiply(a, b) { return a * b; }\n"
+      }
+    },
+    {
+      "evidence_id": "ev_6926febaf4a4e628313d",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "external-verifier: PASSED",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:53.450Z",
+      "data": {
+        "name": "external-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 64,
+        "status": "PASSED"
+      }
+    },
+    {
+      "evidence_id": "ev_657a4d8165ee8c589d59",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "46 ordered events and 8 persisted tool calls",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:events",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:53.450Z",
+      "data": {
+        "events": 46,
+        "tool_calls": 8
+      }
+    },
+    {
+      "evidence_id": "ev_334d0874c9c8b080e6ee",
+      "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:events",
+      "summary": "4 safety and durability events",
+      "raw_reference": "run:45457fb5-2a0b-40e3-8898-2a6a197db662:safety",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-23T09:48:53.305Z",
+      "data": [
+        {
+          "event_id": "680c5eac-a332-4f6f-b002-7a416f483239",
+          "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+          "sequence": 2,
+          "timestamp": "2026-09-23T09:48:02.287Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 1,
+            "completed_tool_calls": 0,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "92e296c2-4dcc-43e4-890b-6e84deaa6e82",
+          "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+          "sequence": 7,
+          "timestamp": "2026-09-23T09:48:02.328Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 6,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "4062f5cc-b389-4379-bbd7-b50da088d60c",
+          "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+          "sequence": 29,
+          "timestamp": "2026-09-23T09:48:53.237Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 28,
+            "completed_tool_calls": 1,
+            "verification_progress": 0
+          }
+        },
+        {
+          "event_id": "121a4111-d158-4a6d-9459-b37b97a2186b",
+          "run_id": "45457fb5-2a0b-40e3-8898-2a6a197db662",
+          "sequence": 35,
+          "timestamp": "2026-09-23T09:48:53.305Z",
+          "type": "run_checkpointed",
+          "payload": {
+            "sequence": 34,
+            "completed_tool_calls": 2,
+            "verification_progress": 1
+          }
+        }
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Fix multiply(a,b) so it returns the mathematical product.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_6926febaf4a4e628313d"
+      ],
+      "reason": "External verifier PASS."
+    }
+  ],
+  "outcome": "PASS",
+  "generated_at": "2026-09-23T09:48:53.459Z"
+}

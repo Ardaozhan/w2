@@ -1,0 +1,84 @@
+{
+  "condition": "w2_codex",
+  "fixture_id": "bug-fix",
+  "baseline_commit": "ed6dd68a28321adafb1c56e586545337fc5a3d6a",
+  "task_semantics_hash": "34c7363d6e48bf2507f714b8f03426c6a9cce3fb0e83c9504bcaf0555efe2158",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "TASK_PASS",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "claim_done": true,
+  "false_done": false,
+  "external_verification": {
+    "status": "PASS",
+    "exit_code": 0,
+    "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+    "stderr": "",
+    "runtime_ms": 64
+  },
+  "runtime_ms": 51177,
+  "model_calls": 1,
+  "tool_calls": 8,
+  "steps": 46,
+  "retries": 0,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "criterion_evidence_coverage": 1,
+  "evidence": {
+    "context": {
+      "files_considered": 3,
+      "files_supplied": 1,
+      "approximate_tokens": 13,
+      "selected_paths": [
+        "src\\math.js"
+      ],
+      "accessed_files": null,
+      "access_observation": "UNAVAILABLE",
+      "evidence_ids": [
+        "ev_bec9024111a9d07495d4"
+      ]
+    },
+    "tool_trace": {
+      "events": 46,
+      "tool_calls": 8,
+      "evidence_ids": [
+        "ev_ed25902c78cdf4d4a27b",
+        "ev_8fc3bcf6597e21a170ce",
+        "ev_e03701535cb426230b34",
+        "ev_c4381cbee2c38a707882",
+        "ev_964334448dcebf114931",
+        "ev_6926febaf4a4e628313d",
+        "ev_657a4d8165ee8c589d59",
+        "ev_334d0874c9c8b080e6ee"
+      ]
+    },
+    "diff": {
+      "changed_files": [
+        "src/math.js"
+      ],
+      "additions": 1,
+      "deletions": 1,
+      "evidence_ids": [
+        "ev_4dca5485f40ad79ba9e9"
+      ]
+    },
+    "verification": {
+      "results": [
+        {
+          "name": "external-verifier",
+          "category": "custom",
+          "command": "node verify.mjs",
+          "exit_code": 0,
+          "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+          "stderr": "",
+          "duration_ms": 64,
+          "status": "PASSED"
+        }
+      ],
+      "evidence_ids": []
+    },
+    "receipt": "benchmarks\\runs\\w2\\bug-fix\\run-receipt.json"
+  },
+  "output": ""
+}

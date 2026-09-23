@@ -1,0 +1,42 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "refactor",
+  "baseline_commit": "c877c10902e9546fe87e172576579c76e21c9f50",
+  "task_semantics_hash": "868cfc0475507fa33111ab5ae0adf39d206ce243e200723d7b22cfc7b35ee857",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "INFRASTRUCTURE_FAILURE",
+  "infrastructure_failure": true,
+  "timed_out": true,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "NOT_RUN",
+    "exit_code": null,
+    "stdout": "",
+    "stderr": "Agent execution did not complete.",
+    "runtime_ms": 0
+  },
+  "runtime_ms": 90065,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [],
+    "verification": {
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "stdout": "",
+      "stderr": "Agent execution did not complete.",
+      "runtime_ms": 0
+    }
+  },
+  "output": "",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 1
+}

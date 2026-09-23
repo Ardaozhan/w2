@@ -1,0 +1,42 @@
+{
+  "condition": "raw_codex",
+  "fixture_id": "feature",
+  "baseline_commit": "12909df8ec4b338dc7042b77080667b08cd410b5",
+  "task_semantics_hash": "ae34d484a136300c4c4a57cdd19424df9cc796bb47efa0ee280a8ee7d73fd5ac",
+  "timeout_ms": 90000,
+  "execution_mode": "REAL_CODEX",
+  "status": "INFRASTRUCTURE_FAILURE",
+  "infrastructure_failure": true,
+  "timed_out": true,
+  "claim_done": false,
+  "false_done": false,
+  "external_verification": {
+    "status": "NOT_RUN",
+    "exit_code": null,
+    "stdout": "",
+    "stderr": "Agent execution did not complete.",
+    "runtime_ms": 0
+  },
+  "runtime_ms": 90073,
+  "model_calls": 1,
+  "tool_calls": null,
+  "steps": null,
+  "retries": null,
+  "manual_interventions": 0,
+  "scope_violations": [],
+  "evidence": {
+    "context": "same normalized task contract in prompt",
+    "tool_trace": "Codex JSON stdout stored",
+    "diff": [],
+    "verification": {
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "stdout": "",
+      "stderr": "Agent execution did not complete.",
+      "runtime_ms": 0
+    }
+  },
+  "output": "",
+  "stderr": "Reading additional input from stdin...\n",
+  "exit_code": 1
+}
