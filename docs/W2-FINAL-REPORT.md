@@ -1,143 +1,77 @@
-# W2 Final Report
+# W2 Final Preparation Report (2026-09-24)
 
-This is the current source of truth for W2's technical and submission status.
+## Status
 
-## Overall Status
+`LOCAL v0.1.0 PACKAGE PREPARED`. Hosted competition readiness is `BLOCKED / HUMAN DECISION REQUIRED`: this checkout has no Git remote, no matching `w2` repository was found in the authenticated GitHub account, and no target competition is identified in the repository. No push, hosted release, or visibility change was attempted. The demo video is intentionally not created.
 
-`W2 TECHNICAL PACKAGE READY: YES`
+The known-good starting checkpoint was `a1a73a9aa60fe0f2e0261f5e233aa621a476d555` (`feat: integrate W2 verification with interactive Codex hooks`).
 
-## Product
+## Product and semantic evidence
 
-W2 is a verification layer for coding agents. It turns a run into an auditable Run Receipt. The governing rule is: no evidence, no PASS.
+W2 remains a local verification layer for coding-agent runs. It records task, W2-supplied context, recognized events, Git diff, verifier results, criterion evidence, and a deterministic Run Receipt. No evidence still means no PASS.
 
-## Standalone Status
+Interactive prompts with an explicit `Acceptance criteria`, `Acceptance requirements`, `Definition of done`, or supported Turkish heading now produce individual criteria. Parsing is bounded at 50 items; an overflow marker is left unproven. W2 maps a criterion to a discovered package check only if the criterion directly asserts that exact command passes. A generic passing test suite does not prove behavior statements such as a return value, error type, or edge case. Those stay `UNPROVEN` unless an appropriate verifier is directly linked. Manual `task.json` verifier mappings and the existing Run Receipt calculation remain unchanged.
 
-- Package name: `w2`; Node.js requirement: `>=22.13`, matching the README and lockfile.
-- The project uses Git, Node.js/npm, and the installed Codex CLI for live agent runs. No private service, external project path, or user-level script is required.
-- `npm ci` installed 41 packages and reported zero vulnerabilities.
-- `npm run standalone:check` passed: 27 npm scripts, all local script references resolved, zero absolute local imports, zero active retired-system matches, `workspace-write` Codex sandbox, and zero tracked runtime databases.
-- `.codex-project` and the obsolete ignored runtime state were removed. Historical planning documents are excluded from the current project and evidence manifest.
+Regression coverage verifies separate criteria, direct `npm test passes` evidence, semantic criteria remaining `UNPROVEN`, named evidence in Markdown receipts, and the existing no-false-PASS hook boundary.
 
-## Architecture
+## Interactive Codex status
 
-```text
-Task and acceptance criteria
-    -> W2 Run Engine
-    -> Context Manifest
-    -> Codex Adapter and workspace-write sandbox
-    -> Repository changes
-    -> Recognized events, diff, and verifier results
-    -> Evidence Engine
-    -> Deterministic criterion and outcome calculation
-    -> Run Receipt
-    -> CLI, local UI, and static judge demo
-```
+The supplied real Windows Codex TUI test at the known-good checkpoint recorded `UNPROVEN`, two of three criteria proven, project tests passing, and a two-file diff. The persisted `.w2` receipt was re-read in this checkout and matches those values.
 
-W2 checks calls made through its own `ToolRuntime` and records recognized execution evidence. The Codex sandbox controls native Codex execution. W2 is not an OS/container security boundary or a universal pre-execution tool broker.
+On the final source tree, `npm test` reran the native hook command boundary for `UserPromptSubmit`, `Stop`, `Interrupt`, and `SessionEnd`; it passed and persisted an `UNPROVEN` receipt with passing `npm test` evidence. The full model-driven Codex TUI was not rerun after the criterion parser change. A disposable TUI launch reached Codex's folder-trust prompt and was exited without adding a new persistent trust decision.
 
-## Interactive Codex Mode
+Normal `codex` remains unchanged. The Windows `w2` launcher and native Codex hook integration were not modified.
 
-The PowerShell `w2` launcher opens the standard Codex TUI in the current project and passes only per-run native hook configuration. Codex's `UserPromptSubmit`, `Stop`, `Interrupt`, and `SessionEnd` lifecycle events drive interactive capture after the user reviews and trusts the hook with `/hooks`; the launcher does not bypass hook trust. Captured turns use the same `RunEngine`, verification runner, deterministic outcome logic, and Run Receipt writer as task-file mode. The canonical runtime is W2's ignored `.w2/interactive/` directory, with project-hash state subdirectories and a safe `hook-diagnostics.jsonl` log at the root.
+## Version, license, and package
 
-The action-word prompt filter is heuristic, and `Stop` marks the end of an assistant turn rather than completion of a multi-turn task. Receipts are therefore per turn. W2 snapshots Git-visible paths and automatically discovers only conventional `test`, `typecheck`, `lint`, and `build` package scripts whose command graph does not appear to run browser or visual automation. Those checks prove only that the commands passed; without direct verifier mappings to the prompt's semantic requirements, the semantic criterion remains `UNPROVEN`. The Stop hook records Codex's latest message only as context, never as evidence. No transcript scraping, terminal polling, browser QA, or project-local W2 files are used.
+- Package version and lockfile version: `0.1.0`.
+- License: MIT, with the existing Git author name and current copyright year.
+- Package metadata includes description, author, license, and relevant keywords.
+- `private: true` remains set; W2 is not prepared for npm publication.
+- Release notes: [`submission/RELEASE-NOTES-v0.1.0.md`](submission/RELEASE-NOTES-v0.1.0.md).
 
-## Run Receipt
+## Verification results
 
-The receipt outcomes are `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, and `ERROR`. Agent completion text cannot set `PASS`; missing required evidence stays `UNPROVEN`; a verifier failure yields `FAIL`; aborts stay `ABORTED`; and timeout or infrastructure failure yields `ERROR`.
+All listed local checks passed on Windows 11 with Node.js 22.13+:
 
-Receipt integrity is exercised by the product-path tests, the stored REAL_CODEX cases, `npm run hero:validate`, `npm run judge-demo:verify`, and the synthetic receipt fixture validator. Synthetic `FAKE_ADAPTER` fixtures are explicitly excluded from REAL_CODEX evidence.
-
-## Automatic Criterion Evidence Mapping
-
-Each acceptance criterion declares verifier IDs in the task contract. W2 validates references, stores verifier results, builds deterministic evidence, maps evidence to the referenced criterion, and recomputes the receipt outcome. Tests cover mapped PASS, mapped FAIL, missing evidence as `UNPROVEN`, completion claims, invalid references, multiple passing verifiers, and one failing verifier.
-
-## Real Codex Evidence
-
-- `npm run demo:live` completed a live run with Codex and stored a sanitized REAL_CODEX UNPROVEN package under `evidence/demo/unproven/20260924133117996/`.
-- That run's receipt ID is `4ace33db-c824-4cc4-9e70-21ea121a2663`. The agent completed and reported done; its multiplication verifier passed; AC-01 is `PASS`, while the required documentation criterion AC-02 is `UNPROVEN` because it has no verifier reference.
-- A separate temporary CLI smoke used the documented `npm run w2 -- run <task> --db <path>` command on an isolated bug-fix fixture. It returned a REAL_CODEX `PASS` with one verifier-backed criterion; its ignored scratch database was removed after the `receipt` command re-read and validated it. This smoke is not part of the submission evidence set.
-
-## Hero Case
-
-The stored login rate-limit run is REAL_CODEX `PASS`, run ID `4a1a90fa-c013-4437-aa14-cc335b5a3062`. It covers four required criteria with four passing verifiers and a two-file source diff. `npm run hero:validate` passed against the stored receipt.
-
-## Semantic UNPROVEN Case
-
-The stored example demonstrates a completed REAL_CODEX run with a passing implementation verifier while a separate required documentation criterion has no verifier reference. The outcome is `UNPROVEN`, not `PASS`, timeout, or infrastructure error. The current static demo manifest points to this latest run.
-
-## Benchmark
-
-The current matrix contains 8 Raw Codex and 8 W2 + Codex runs; all 16 are marked REAL_CODEX. The independent external verifier passed 8/8 in each condition. All 16 stored task outcomes are `TASK_PASS`. The sample has one attempt per fixture and condition; it does not establish that W2 writes better code, is faster, or reduces failures. W2's demonstrated value is criterion-level evidence, receipt traceability, inspectable runs, and explicit `UNPROVEN` status.
-
-## Security Model
-
-The active adapter requests Codex `workspace-write`. Codex's sandbox controls native execution. W2 applies capability and path checks only to W2-owned `ToolRuntime` calls and records recognized events, repository changes, and verifier results. W2 is not an OS/container boundary and does not intercept every native Codex operation.
-
-## Context Model
-
-W2 records files considered, selected, and provided to its adapter. It records observed or accessed files only when supported telemetry reports them; exact Codex file reads otherwise remain unknown. Context selection is not a filesystem restriction.
-
-## Static Judge Demo
-
-The static demo is served from local HTML, CSS, and stored data. It has no build step, API key, backend, or external asset request. Browser QA exercised both REAL_CODEX cases and all seven receipt tabs. At 390px the document width was 390px with no horizontal overflow. The browser console reported zero errors and warnings; observed requests were all to the loopback demo server. Desktop and mobile screenshots were regenerated.
-
-The Playwright CLI blocks direct `file:` navigation, so browser QA used the documented local static server. The demo's source references only local static assets.
-
-## GPT-5.6 Contribution
-
-The recorded GPT-5.6 work was a read-only development-time review of benchmark methodology, Run Receipt semantics, and public claims. The model did not map runtime evidence or choose outcomes. The collaboration host did not expose a separate provider session ID, and none is claimed.
-
-## Privacy Audit
-
-`npm run audit:public` passed with zero privacy findings across 97 public evidence files and 237 tracked project files. See [Public Artifact Audit](PUBLIC-ARTIFACT-AUDIT.md) for the scan scope. The ignored local archive is excluded from the judge package and fresh-copy verification.
-
-## Secret Audit
-
-`npm run audit:public` passed with zero credential findings in selected public evidence and tracked project files.
-
-## Tests
-
-- `npm ci`: PASS; zero vulnerabilities reported.
-- `npm test`: PASS; 14 files and 57 tests.
+- `npm test`: PASS, 17 test files and 71 tests; native interactive hook boundary PASS for all four hook events. Node emitted its documented experimental SQLite warning.
 - `npm run typecheck`: PASS.
 - `npm run build`: PASS.
-- Fixture, synthetic receipt integrity, benchmark schema/result/hermeticity, hero receipt, judge demo integrity, public privacy/secret, and local UI smoke validators: PASS.
-- The current Windows environment is Node.js 22.13.1 and npm 10.9.2. SQLite emits Node's experimental API warning under this supported Node 22 runtime.
+- `npm run fresh:check`: PASS on 261 candidate paths; it installed 41 packages and reran tests, typecheck, build, standalone, receipt, benchmark, hero, judge-demo, privacy, and non-browser demo smoke checks.
+- `npm run standalone:check`: PASS; 28 npm scripts, local script references resolved, zero absolute local imports, zero active legacy matches, `workspace-write` sandbox, and zero tracked runtime databases.
+- `npm run fixtures:check`: PASS; 8 benchmark fixtures and synthetic PASS/FAIL/UNPROVEN receipt integrity.
+- `npm run benchmark:verify`: PASS; 16 stored REAL_CODEX runs.
+- `npm run benchmark:hermeticity`: PASS; configured isolation checks passed, with direct OS-level Codex reads explicitly outside the observation claim.
+- `npm run hero:validate`: PASS; REAL_CODEX PASS with four verifier-backed criteria.
+- `npm run judge-demo:verify`: PASS; stored REAL_CODEX PASS and UNPROVEN cases plus 16 benchmark runs.
+- `npm run demo:smoke`: PASS; non-browser static-data smoke check.
+- `npm audit --audit-level=high`: PASS; zero vulnerabilities reported.
+- `npm run audit:public`: PASS; zero secret or privacy findings in 111 selected public evidence files. The clean-copy run repeated the audit across 260 project files with zero findings.
+- Markdown link audit: PASS across 49 Markdown files; zero broken relative links.
+- `git diff --check`: PASS on both the working-tree and staged diffs.
 
-## Browser QA
+No browser QA or Playwright ran. Ten existing PNG captures remain organized under `evidence/screenshots/`; they were checked only for visible private paths or personal data and were not used as behavioral verification. The editable social preview is [`assets/w2-og.svg`](assets/w2-og.svg).
 
-Playwright Chromium passed the static judge demo at 1440×1000 and 390×844. Both stored cases rendered, all seven receipt tabs switched correctly, the semantic case showed AC-02 as `UNPROVEN`, the mobile layout had no horizontal overflow, and the browser console had zero errors or warnings.
+## Security and privacy
 
-## Fresh Copy Verification
+`.gitignore` excludes `.w2/`, SQLite/database files, logs, build output, dependencies, and common local OS artifacts. Runtime receipts and hook diagnostics are ignored. The public-artifact and clean-copy secret/privacy scans found no credentials, private user paths, personal email addresses, or scanned privacy findings. No runtime database or user PowerShell profile file is tracked.
 
-`npm run fresh:check` passed against a clean project copy with 238 candidate paths. It installed dependencies and passed all 57 tests, typecheck, build, standalone checks, fixture and receipt validation, benchmark validation, hero and demo checks, privacy/secret scans, and local UI smoke. The copy excluded `node_modules`, `dist`, runtime databases, and ignored local archives.
+The repository history was not rewritten. Before any public push, repeat a history-aware privacy review against the confirmed repository target.
 
-## Legacy System Cleanup
+## Submission pack
 
-The standalone checker and repository scans found zero active retired-system matches, zero machine-specific imports, zero missing local script targets, zero sandbox-bypass flags in the active runtime, and zero tracked runtime databases. Current architecture, package scripts, judge UI, and submission documents describe W2 only.
+The reusable materials are in [`submission/`](submission/): short and long descriptions, technical summary, problem/solution, architecture, impact, demo script, judges quickstart, FAQ, v0.1.0 release notes, competition checklist, and form pack. No official competition URL or name was found in the repository, so the checklist leaves eligibility, deadline, demo rules, and public-repository requirement for current official verification.
 
-## Known Limitations
+The existing screenshots are present; no screenshot TODO was needed. The 60–90 second script is prepared, but no video was created.
 
-- The benchmark is descriptive: one run per fixture and condition.
-- Exact Codex file-read access is not available from this adapter.
-- W2 is not an OS/container security boundary or a complete native-tool broker.
-- Only Windows 11 with Node.js 22.13.1 has been independently exercised here; other operating systems remain unverified.
-- Node's built-in `node:sqlite` API remains experimental in Node 22 and may change.
-- The static judge demo replays stored runs; it does not launch Codex or provide a hosted multi-user service.
+## GitHub and remaining actions
 
-## Human Actions Remaining
+- `git remote -v` is empty. GitHub CLI is authenticated, but the account's repository list has no exact `w2` match.
+- Hosted repository description, homepage, topics, visibility, default branch, and release list therefore cannot be inspected safely.
+- No repository was created or modified, and visibility was not changed because neither the target competition nor repository identity is known.
+- Push and GitHub Release are blocked until an exact remote URL is supplied or configured.
+- Select the competition, verify its current official requirements, decide repository visibility, and submit the prepared form. Record the demo video separately.
 
-- Run `/feedback` interactively and record the real session ID if required by the submission.
-- Record and review the demo video.
-- Choose repository visibility and add a license if publishing.
-- Submit the competition form.
+## Final status
 
-## Final Commit
-
-Requested completion commit: `b5889104675ffd1397838d6925e23e0f9902477a` (`final: make W2 standalone and complete`). Final closeout documentation is committed separately so this report can record that hash without rewriting history.
-
-## Final Gate
-
-`W2 TECHNICAL PACKAGE READY: YES`
-
-`W2 SUBMISSION READY: PENDING HUMAN ACTIONS`
+The W2 code, v0.1.0 metadata, MIT license, local verification, and submission assets are prepared. Hosted release and competition submission are not complete. Do not describe the hosted project as competition-ready until the exact target repository and competition rules are confirmed.

@@ -14,6 +14,9 @@ This manifest lists the sanitized artifacts intended for judge review. No reposi
 - [`docs/GPT56-CONTRIBUTION.md`](../docs/GPT56-CONTRIBUTION.md)
 - [`docs/GPT56-FINAL-REVIEW.md`](../docs/GPT56-FINAL-REVIEW.md)
 - [`docs/W2-FINAL-REPORT.md`](../docs/W2-FINAL-REPORT.md)
+- [`docs/submission/`](../docs/submission/): descriptions, technical and impact summaries, problem/solution and architecture, demo script, judges quickstart, FAQ, release notes, checklist, and form pack.
+- [`docs/assets/w2-og.svg`](../docs/assets/w2-og.svg): editable repository/social preview artwork.
+- [`LICENSE`](../LICENSE): MIT License.
 
 ## Verified stored runs
 
@@ -25,6 +28,8 @@ This manifest lists the sanitized artifacts intended for judge review. No reposi
 
 - Static no-build demo: [`judge-demo/index.html`](../judge-demo/index.html), `judge-demo/assets/demo.css`, and the generated `judge-demo/assets/demo-data.js`.
 - Current screenshots: [`hero-receipt.png`](screenshots/hero-receipt.png), [`semantic-unproven-receipt.png`](screenshots/semantic-unproven-receipt.png), [`context.png`](screenshots/context.png), [`trace.png`](screenshots/trace.png), [`diff.png`](screenshots/diff.png), [`verification.png`](screenshots/verification.png), [`acceptance-evidence.png`](screenshots/acceptance-evidence.png), [`benchmark.png`](screenshots/benchmark.png), [`static-judge-demo.png`](screenshots/static-judge-demo.png), and [`static-judge-demo-mobile.png`](screenshots/static-judge-demo-mobile.png).
+
+These are existing real UI captures already organized under `evidence/screenshots/`. They were not refreshed or used as behavioral verification during v0.1.0 preparation.
 
 ## Excluded from this manifest
 

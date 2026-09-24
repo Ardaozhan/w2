@@ -2,4 +2,6 @@
 
 ## Publication license
 
-No Git remote is configured in this checkout, so hosted repository visibility has not been independently established. `package.json` marks the npm package as private. No `LICENSE` is added before publication intent is confirmed. If the repository will be made public before submission, choose a publication license compatible with the owner's intent and add the corresponding license text. This is a publication decision, not an implementation claim.
+W2 uses the MIT License for the competition source package. The copyright line uses the existing Git author name, Arda Özhan. `package.json` retains `private: true`; W2 is not configured for npm publication.
+
+No Git remote is configured in this checkout, and the authenticated GitHub account has no repository named `w2`. The hosted target, visibility, and release cannot be verified or changed from this checkout. Repository publication remains a human decision until a target URL and competition requirement are known.

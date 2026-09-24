@@ -1,4 +1,6 @@
-# W2 Standalone Final Audit
+# Historical Standalone Audit (Superseded)
+
+> This audit records a prior project-copy snapshot based on commit `983f9c0`. Its counts and browser-check results are historical and do not verify the current `a1a73a9` interactive integration or v0.1.0 preparation. Use the current [W2 Final Preparation Report](W2-FINAL-REPORT.md) for present status.
 
 ## Initial State
 
@@ -45,4 +47,4 @@ Checks completed against the current W2 project copy:
 | Fresh project copy | PASS | 238 candidate paths copied without ignored dependencies/runtime data; install and all critical checks pass |
 | Requested CLI path | PASS | A real isolated `w2 run` returned PASS with one verifier; stored receipt was read back |
 
-The final report [`W2-FINAL-REPORT.md`](W2-FINAL-REPORT.md) is the current source of truth. The requested completion commit is `b5889104675ffd1397838d6925e23e0f9902477a`; final closeout documentation and the clean-worktree result are recorded there.
+At the time of this historical audit, the report [`W2-FINAL-REPORT.md`](W2-FINAL-REPORT.md) described the then-current source state. It has since been superseded; see the current report linked above.

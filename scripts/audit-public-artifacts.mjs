@@ -5,7 +5,7 @@ import path from 'node:path';
 const cases = JSON.parse(readFileSync('evidence/demo/cases.json', 'utf8'));
 const roots = [
   'docs',
-  'README.md',
+  'README.md', 'LICENSE',
   'docs/ARCHITECTURE.md', 'docs/SECURITY-MODEL.md', 'docs/CONTEXT-MANIFEST.md', 'docs/CLAIM-AUDIT.md',
   'docs/BENCHMARK-REPORT.md', 'docs/HERO-CASE-STUDY.md', 'docs/GPT56-CONTRIBUTION.md', 'docs/GPT56-FINAL-REVIEW.md',
   'docs/DEMO-VIDEO-SCRIPT.md', 'evidence/PUBLIC-EVIDENCE-MANIFEST.md',

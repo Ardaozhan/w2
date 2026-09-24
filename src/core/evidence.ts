@@ -247,7 +247,19 @@ export function renderReceiptMarkdown(receipt: RunReceipt): string {
   validateReceipt(receipt);
   const lines = ["# W2 RUN RECEIPT", "", `- Receipt version: ${receipt.receipt_version}`, `- Run: \`${receipt.run_id}\``, `- Execution mode: ${receipt.agent.execution_mode}`, `- Generated: ${receipt.generated_at}`, "", "## Task", `**${receipt.task.title}**`, "", receipt.task.goal, "", "## Context W2 provided", `- ${receipt.context.files_supplied}/${receipt.context.files_considered} files selected for the prompt`, `- ${receipt.context.approximate_tokens} approximate tokens`, "- Exact repository files accessed by Codex: not captured by this adapter", "", "## What the agent did", `- ${receipt.actions.tool_calls} observable tool calls`, `- ${receipt.actions.events} ordered events`, `- ${receipt.changes.changed_files.length} changed files`, "", "## Verification"];
   lines.push(...(receipt.verification.results.length ? receipt.verification.results.map((result) => `- ${result.status === "PASSED" ? "PASS" : "FAIL"} ${result.name} (exit ${result.exit_code ?? "n/a"})`) : ["- UNPROVEN: no verification configured"]));
-  lines.push("", "## Acceptance Evidence", ...receipt.acceptance.map((criterion) => "- **" + criterion.status + "** " + criterion.criterion_id + ": " + criterion.description + " - " + criterion.reason), "", "## Outcome", "# " + receipt.outcome, "", "**Why:** " + (receipt.acceptance.find((criterion) => criterion.required && criterion.status !== "PASS")?.reason ?? "All required criteria have valid evidence."), "");
+  const evidenceById = new Map(receipt.evidence.map((item) => [item.evidence_id, item]));
+  const acceptanceLines: string[] = [];
+  for (const criterion of receipt.acceptance) {
+    acceptanceLines.push(`- **${criterion.status}** ${criterion.criterion_id}: ${criterion.description} - ${criterion.reason}`);
+    for (const evidenceId of criterion.evidence_ids) {
+      const evidence = evidenceById.get(evidenceId);
+      if (!evidence) continue;
+      const verifier = evidence.data as { command?: unknown } | undefined;
+      const command = typeof verifier?.command === "string" ? ` (\`${verifier.command}\`)` : "";
+      acceptanceLines.push(`  - Evidence: ${evidence.summary}${command}`);
+    }
+  }
+  lines.push("", "## Acceptance Evidence", ...acceptanceLines, "", "## Outcome", "# " + receipt.outcome, "", "**Why:** " + (receipt.acceptance.find((criterion) => criterion.required && criterion.status !== "PASS")?.reason ?? "All required criteria have valid evidence."), "");
   return lines.join("\n");
 }
 

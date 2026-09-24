@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { getInteractiveRunStorage, handleInteractiveHook, isMeaningfulEngineeringPrompt } from "../../src/core/interactive.js";
+import { renderReceiptMarkdown } from "../../src/core/evidence.js";
 import type { RunReceipt } from "../../src/core/types.js";
 
 const temporaryRoots: string[] = [];
@@ -112,6 +113,64 @@ describe("interactive Codex hook integration", () => {
     expect(result?.systemMessage).toContain(storage.receiptDirectory);
     const targetGitState = execFileSync("git", ["status", "--porcelain=v1"], { cwd: workspace, encoding: "utf8" });
     expect(targetGitState).not.toContain(".w2");
+  });
+
+  it("records explicit acceptance items separately and maps only directly named passing commands", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject(true);
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    let receipt: RunReceipt | undefined;
+
+    await submit(w2Home, workspace, [
+      "Please update the arithmetic behavior.",
+      "Acceptance criteria:",
+      "- A total of 0 throws RangeError.",
+      "- Negative values behave mathematically.",
+      "- The return type is number.",
+      "- npm test passes.",
+    ].join("\n"), "criteria-session", "criteria-turn");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    await stop(w2Home, workspace, "criteria-session", "criteria-turn", (captured) => { receipt = captured; });
+
+    expect(receipt?.task.acceptance_criteria.map((criterion) => criterion.statement)).toEqual([
+      "At least one project file changed during this Codex turn.",
+      "All discovered project checks pass: test.",
+      "A total of 0 throws RangeError.",
+      "Negative values behave mathematically.",
+      "The return type is number.",
+      "npm test passes.",
+    ]);
+    expect(receipt?.task.acceptance_criteria.map((criterion) => criterion.verification_refs)).toEqual([
+      ["V-W2-TURN-DIFF"],
+      ["V-PROJECT-TEST"],
+      [],
+      [],
+      [],
+      ["V-PROJECT-TEST"],
+    ]);
+    expect(receipt?.acceptance.map((criterion) => criterion.status)).toEqual(["PASS", "PASS", "UNPROVEN", "UNPROVEN", "UNPROVEN", "PASS"]);
+    expect(receipt?.outcome).toBe("UNPROVEN");
+    const markdown = renderReceiptMarkdown(receipt!);
+    expect(markdown).toContain("AC-04: Negative values behave mathematically.");
+    expect(markdown).toContain("Evidence: Project tests: PASSED (`npm run test`)");
+  });
+
+  it("keeps criteria beyond the bounded parser limit explicitly UNPROVEN", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject();
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    let receipt: RunReceipt | undefined;
+    const criteria = Array.from({ length: 51 }, (_, index) => `- Criterion ${index + 1} is satisfied.`);
+
+    await submit(w2Home, workspace, ["Please implement the requested behavior.", "Acceptance criteria:", ...criteria].join("\n"), "overflow-session", "overflow-turn");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    await stop(w2Home, workspace, "overflow-session", "overflow-turn", (captured) => { receipt = captured; });
+
+    expect(receipt?.task.acceptance_criteria).toHaveLength(53);
+    expect(receipt?.task.acceptance_criteria.at(-1)?.statement).toContain("50-criterion limit");
+    expect(receipt?.task.acceptance_criteria.at(-1)?.verification_refs).toEqual([]);
+    expect(receipt?.acceptance.at(-1)?.status).toBe("UNPROVEN");
+    expect(receipt?.outcome).toBe("UNPROVEN");
   });
 
   it("keeps missing project verification evidence UNPROVEN", async () => {

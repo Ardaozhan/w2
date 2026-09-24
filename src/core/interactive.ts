@@ -271,6 +271,62 @@ function referencesBrowserAutomation(scriptName: string, scripts: Record<string,
   return false;
 }
 
+function parseExplicitAcceptanceCriteria(prompt: string): string[] {
+  const criteria: string[] = [];
+  let inAcceptanceSection = false;
+  const add = (value: string) => {
+    const statement = value.trim().replace(/^(?:AC|ACCEPTANCE)-\d+\s*[:.)-]\s*/i, "");
+    if (statement && criteria.length < 50) criteria.push(statement);
+    else if (statement && criteria.length === 50) criteria.push("Additional acceptance criteria were not individually parsed because the 50-criterion limit was reached.");
+  };
+
+  for (const line of prompt.replace(/\r\n?/g, "\n").split("\n")) {
+    const heading = line.match(/^\s*(?:#{1,6}\s*)?(?:acceptance criteria|acceptance requirements|definition of done|kabul kriterleri|kabul ko[sş]ulları)\s*:?[ \t]*(.*)$/i);
+    if (heading) {
+      inAcceptanceSection = true;
+      const inline = heading[1]?.trim();
+      if (inline && !/^(?:are|are as follows|include)\s*:?$/i.test(inline)) {
+        const inlineBullet = inline.match(/^(?:[-*+]|\d+[.)])\s+(.+)$/);
+        add(inlineBullet?.[1] ?? inline);
+      }
+      continue;
+    }
+    if (!inAcceptanceSection) continue;
+
+    const bullet = line.match(/^\s*(?:[-*+]|\d+[.)])\s+(?:\[[ xX]\]\s*)?(.+?)\s*$/);
+    if (bullet?.[1]) {
+      add(bullet[1]);
+      continue;
+    }
+    if (!line.trim()) continue;
+    if (/^\s*#{1,6}\s/.test(line)) {
+      inAcceptanceSection = false;
+      continue;
+    }
+    inAcceptanceSection = false;
+  }
+
+  return criteria;
+}
+
+function directlyNamesPassingVerifier(statement: string, verifier: VerificationCommand): boolean {
+  // Only an assertion about the named check itself can use its result; a green generic suite is not semantic evidence.
+  const command = verifier.command.match(/^(npm|pnpm|yarn|bun)\s+run\s+([A-Za-z0-9][A-Za-z0-9:._-]*)$/i);
+  if (!command) return false;
+  const manager = command[1]!;
+  const script = command[2]!;
+  const commandNames = [verifier.command];
+  if (script === "test") commandNames.push(`${manager} test`);
+  const normalized = statement.replace(/[\u0060"“”]/g, "").replace(/[.!?]+$/, "").replace(/\s+/g, " ").trim();
+
+  return commandNames.some((commandName) => {
+    const escaped = commandName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const success = new RegExp(`^(?:the )?${escaped}(?: (?:must|should|needs to|has to))? (?:pass(?:es)?|succeed(?:s)?|be (?:green|successful))$`, "i");
+    const explicitRun = new RegExp(`^run ${escaped} and (?:ensure|verify) it (?:passes|succeeds)$`, "i");
+    return success.test(normalized) || explicitRun.test(normalized);
+  });
+}
+
 async function discoverProjectVerifiers(workspace: string): Promise<VerificationCommand[]> {
   let packageJson: Record<string, unknown>;
   try {
@@ -304,6 +360,19 @@ function buildInteractiveTask(state: InteractiveTurnState, changedPaths: string[
   const checkStatement = discoveredNames.length
     ? `All discovered project checks pass: ${discoveredNames.join(", ")}.`
     : "Task-specific behavior has a detectable project verifier.";
+  const explicitCriteria = parseExplicitAcceptanceCriteria(state.prompt);
+  const acceptanceCriteria = [
+    { id: "AC-01", statement: "At least one project file changed during this Codex turn.", required: true, verification_refs: [diffVerifier.id] },
+    { id: "AC-02", statement: checkStatement, required: true, verification_refs: checkRefs },
+    ...(explicitCriteria.length
+      ? explicitCriteria.map((statement, index) => ({
+          id: `AC-${String(index + 3).padStart(2, "0")}`,
+          statement,
+          required: true,
+          verification_refs: projectVerifiers.filter((verifier) => directlyNamesPassingVerifier(statement, verifier)).map((verifier) => verifier.id),
+        }))
+      : [{ id: "AC-03", statement: "The prompt's task-specific semantic requirements have direct deterministic verifier evidence.", required: true, verification_refs: [] }]),
+  ];
   return {
     task_id: `interactive-${randomUUID()}`,
     title: `Codex: ${state.prompt.trim().replace(/\s+/g, " ").slice(0, 112)}`,
@@ -314,11 +383,7 @@ function buildInteractiveTask(state: InteractiveTurnState, changedPaths: string[
       "Passing declared project checks proves only those commands passed; it is not a general correctness guarantee.",
     ],
     allowed_paths: changedPaths.length ? changedPaths : ["."],
-    acceptance_criteria: [
-      { id: "AC-01", statement: "At least one project file changed during this Codex turn.", required: true, verification_refs: [diffVerifier.id] },
-      { id: "AC-02", statement: checkStatement, required: true, verification_refs: checkRefs },
-      { id: "AC-03", statement: "The prompt's task-specific semantic requirements have direct deterministic verifier evidence.", required: true, verification_refs: [] },
-    ],
+    acceptance_criteria: acceptanceCriteria,
     verification_commands: [diffVerifier, ...projectVerifiers],
     workspace: state.workspace,
     ...(state.model ? { model: state.model } : {}),

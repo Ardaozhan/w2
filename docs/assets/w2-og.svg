@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">W2 — Know what your coding agent actually did.</title>
+  <desc id="description">A technical preview card showing the W2 wordmark, headline, and task to diff to verify to receipt flow.</desc>
+  <rect width="1200" height="630" fill="#101319"/>
+  <rect x="58" y="54" width="1084" height="522" rx="18" fill="#151922" stroke="#303744" stroke-width="2"/>
+  <rect x="96" y="98" width="54" height="54" rx="9" fill="#d7f0ef"/>
+  <path d="M108 113h8l6 22 6-22h8l-10 29h-8l-10-29z" fill="#101319"/>
+  <path d="M137 113h8v29h-8z" fill="#101319"/>
+  <text x="168" y="137" fill="#e8edf3" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="650" letter-spacing="1">W2</text>
+  <text x="96" y="252" fill="#f3f5f8" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="650" letter-spacing="-1.8">Know what your coding agent</text>
+  <text x="96" y="324" fill="#f3f5f8" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="650" letter-spacing="-1.8">actually did.</text>
+  <text x="98" y="372" fill="#aeb7c4" font-family="Segoe UI, Arial, sans-serif" font-size="23">Evidence-backed verification and run receipts for coding agents.</text>
+  <line x1="98" y1="415" x2="1102" y2="415" stroke="#303744" stroke-width="2"/>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="650" letter-spacing="1.4" text-anchor="middle">
+    <rect x="98" y="454" width="180" height="66" rx="9" fill="#1c222c" stroke="#46515f"/>
+    <text x="188" y="496" fill="#e8edf3">TASK</text>
+    <text x="320" y="496" fill="#748394" font-size="24">→</text>
+    <rect x="354" y="454" width="180" height="66" rx="9" fill="#1c222c" stroke="#46515f"/>
+    <text x="444" y="496" fill="#e8edf3">DIFF</text>
+    <text x="576" y="496" fill="#748394" font-size="24">→</text>
+    <rect x="610" y="454" width="180" height="66" rx="9" fill="#1c222c" stroke="#46515f"/>
+    <text x="700" y="496" fill="#e8edf3">VERIFY</text>
+    <text x="832" y="496" fill="#748394" font-size="24">→</text>
+    <rect x="866" y="454" width="236" height="66" rx="9" fill="#d7f0ef" stroke="#d7f0ef"/>
+    <text x="984" y="496" fill="#101319">RECEIPT</text>
+  </g>
+</svg>

@@ -1,9 +1,20 @@
 {
   "name": "w2",
   "version": "0.1.0",
+  "author": "Arda Özhan",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "description": "Verification layer for coding agents; turns runs into auditable Run Receipts.",
+  "keywords": [
+    "coding-agents",
+    "ai-agents",
+    "developer-tools",
+    "verification",
+    "codex",
+    "testing",
+    "evidence"
+  ],
   "engines": {
     "node": ">=22.13"
   },
