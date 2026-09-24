@@ -1,103 +1,99 @@
 # W2
 
-**Verification layer for coding agents.**
+**A verification layer for coding agents.**
 
-Coding agents can claim they finished. W2 turns each run into a Run Receipt.
+Coding agents can claim they finished. W2 shows the evidence.
 
 **No evidence, no PASS.**
 
-## The Problem
+## Why W2
 
-A green test suite answers whether configured checks passed. It does not automatically show which task requirements those checks support, what context W2 supplied, what changed, or where evidence is missing. W2 keeps those facts in one inspectable record.
+A passing test suite does not show which task requirements it covered. W2 connects a task's acceptance criteria to declared verifiers, stores the results and repository changes, and derives a reviewable outcome. The agent's completion message cannot select that outcome.
 
 ## Run Receipt
 
-A Run Receipt records the task contract, W2-selected and provided context, recognized agent events, repository diff, verifier results, deterministic evidence, per-criterion status, and a computed outcome. It is available as JSON and Markdown. Codex's exact file-read access is reported as unknown unless actual telemetry establishes it.
+The Run Receipt is W2's main artifact. It records the task contract, context W2 considered/selected/provided, recognized agent events, repository diff, verifier results, deterministic evidence, criterion statuses, and computed outcome. Receipts are available as JSON and Markdown.
+
+The adapter does not expose a complete file-read trace. A receipt reports exact accessed files as unknown unless separate telemetry establishes them.
 
 ## No Evidence, No PASS
 
-Each acceptance criterion names zero or more verifier IDs. W2 checks the task contract, runs its declared verification commands, creates evidence from stored results, attaches that evidence to the referenced criteria, and derives each criterion and final outcome. The model cannot set the outcome.
+Each criterion names verifier IDs in the task contract. W2 validates those references, runs the declared verification commands after agent execution, creates evidence from stored results, attaches it to the referenced criteria, and calculates the final outcome. A task with no verifier mapping cannot pass through an unrelated green test suite.
 
 ## PASS / FAIL / UNPROVEN
 
-- **PASS** means every required criterion has successful deterministic evidence from all its referenced verifiers.
-- **FAIL** means a required referenced verifier failed or the completed run failed verification.
-- **UNPROVEN** means a required criterion has no mapping or lacks sufficient evidence.
-- **ERROR** means execution or verification infrastructure failed. **ABORTED** means the run was stopped.
+- **PASS:** every required criterion has deterministic passing evidence from all referenced verifiers.
+- **FAIL:** a required referenced verifier failed, or the completed run failed verification.
+- **UNPROVEN:** a required criterion has no verifier mapping or lacks enough evidence.
+- **ABORTED:** the run was stopped.
+- **ERROR:** execution or verification infrastructure failed, including a timeout.
 
-An agent saying `DONE` does not change the outcome. A test suite passing does not prove criteria that it does not verify.
+Agent `DONE` is not evidence. A test passing does not make every criterion pass.
+
+## How It Works
+
+```text
+Task and acceptance criteria
+    -> W2 Run Engine
+    -> Context Manifest
+    -> Codex Adapter
+    -> Codex workspace-write sandbox
+    -> Repository changes
+    -> Events + diff + verification
+    -> Evidence Engine
+    -> Deterministic criterion and outcome calculation
+    -> Run Receipt
+    -> CLI / local UI / static judge demo
+```
 
 ## How W2 Differs from CI
 
-**CI:** Did predefined checks pass?
-
-**W2:** Which task requirements are supported by the evidence recorded during this run?
-
-W2 combines the task, acceptance criteria, agent execution, diff, verification, evidence, and outcome in a receipt. It can use CI or test output as evidence; it does not replace CI.
+CI answers whether configured checks passed. W2 connects verifier results to declared task criteria and puts that evidence alongside the run's recognized events and diff. W2 can use test or CI output as evidence; it does not replace CI.
 
 ## Architecture
 
-```text
-Task contract -> Context manifest -> Codex CLI (workspace-write) -> Diff capture
-       |                                               |                 |
-       +-- criterion/verifier IDs <--- verification results              |
-                                         |                               |
-                              deterministic evidence <-------------------+
-                                         |
-                              acceptance mapping -> Run Receipt
-```
+W2 is a local Node.js tool. Codex native operations use the installed Codex CLI sandbox. W2's `ToolRuntime` applies capability and path checks only to calls made through W2-owned runtime APIs. W2 records recognized events, repository changes, and verification results; it is not an OS/container security boundary or a universal pre-execution tool broker.
 
-W2's `ToolRuntime` enforces capabilities and path checks for W2-owned calls. Codex native tools use Codex's supported workspace-write sandbox. W2 captures recognized events and resulting repository diffs; it is not an operating-system boundary or a universal tool-call broker. See [Architecture](docs/ARCHITECTURE.md), [Security Model](docs/SECURITY-MODEL.md), and [Context Model](docs/CONTEXT-MANIFEST.md).
+See [Architecture](docs/ARCHITECTURE.md), [Security Model](docs/SECURITY-MODEL.md), and [Context Model](docs/CONTEXT-MANIFEST.md).
 
 ## Automatic Criterion Evidence Mapping
 
-Task contracts use stable criterion IDs and explicit verifier references. The schema rejects duplicate IDs, malformed criteria, empty references, and references to missing verifiers. A normal RunEngine/CLI run creates evidence and a Run Receipt without benchmark-only mappings. Integration tests cover automatic PASS, FAIL, UNPROVEN, multiple verifiers, forged receipts, and persisted CLI output.
+Use stable criterion IDs and reference verifier IDs declared in the same task file. Unknown or duplicate references are rejected. A normal `w2 run` command creates verifier evidence, criterion results, and a Run Receipt without benchmark-only mapping. Integration tests cover PASS, FAIL, UNPROVEN, multiple verifiers, invalid references, completion claims, and infrastructure failures.
 
-## Instant Judge Demo
+Example task contract:
 
-Open [`judge-demo/index.html`](judge-demo/index.html) directly. It is a static, no-build replay of stored run data; it needs no backend or API key. The current demo shows the stored REAL_CODEX hero receipt and a separate semantic UNPROVEN receipt, with every case labeled `VERIFIED STORED RUN` and replay labeled `REPLAY OF VERIFIED REAL RUN`.
+```json
+{
+  "task_id": "fix-search",
+  "title": "Fix search behavior",
+  "goal": "Return matching results for the documented query cases.",
+  "constraints": [],
+  "allowed_paths": ["src/search.ts"],
+  "acceptance_criteria": [
+    {
+      "id": "AC-01",
+      "statement": "All declared search behavior tests pass.",
+      "required": true,
+      "verification_refs": ["V1"]
+    }
+  ],
+  "verification_commands": [
+    {
+      "id": "V1",
+      "name": "search tests",
+      "command": "npm test -- --run search",
+      "category": "test"
+    }
+  ],
+  "workspace": "."
+}
+```
 
-## Real Hero Run
+`allowed_paths` is part of the task contract and prompt. The Codex workspace sandbox controls its writable workspace; W2 does not enforce per-file authorization for Codex-native operations.
 
-The TypeScript/Node login fixture exercises per-client failed-login limits, the sixth HTTP request returning 429, the existing authentication regression, and verifier-test presence. The real Codex task, context, events, diff, verification, acceptance evidence, and receipt are stored under [`evidence/hero-run/`](evidence/hero-run/). Its outcome is the value in that stored receipt; no result is chosen in advance.
+## Quick Start
 
-## Semantic UNPROVEN Example
-
-The second stored REAL_CODEX example verifies a multiplication fix but leaves its separate documentation criterion without a verifier. W2 reports that criterion as `UNPROVEN`; the case is not a timeout or infrastructure failure. See [`evidence/demo/cases.json`](evidence/demo/cases.json) and the referenced receipt.
-
-## Benchmark
-
-The canonical benchmark contains eight Raw Codex runs and eight W2 + Codex runs. It uses the same normalized task, criterion-to-verifier contract, model/config, baseline, timeout, and external verifier in both conditions. Every canonical run, including task failures and infrastructure failures, remains in the result set.
-
-See [Benchmark Report](docs/BENCHMARK-REPORT.md) for the measured outcomes, evidence coverage, runtime, scope violations, verification coverage, and event-count limits.
-
-## Methodology
-
-Raw and W2 runs use a fresh isolated `CODEX_HOME` and profile per condition, an explicit model/config, disabled memory and skill-instruction injection, ignored inherited project rules, and Codex's `workspace-write` sandbox with its supported Windows `unelevated` implementation. Only one isolated fixture path is writable and it resets to baseline before each paired run. A `codex debug prompt-input` preflight checks the actual model-visible prompt for user-profile and host-repository context. This adapter does not expose a complete operating-system file-read trace; that limit is explicit in the benchmark report.
-
-One run per fixture and condition is descriptive. The benchmark does not establish a correctness advantage unless the measured results support one.
-
-## Built with Codex and GPT-5.6
-
-Codex CLI was used as the real agent for stored runs and as development assistance. The recorded GPT-5.6 contribution is an independent development-time review; GPT-5.6 does not map evidence or select runtime outcomes. See [GPT-5.6 contribution evidence](docs/GPT56-CONTRIBUTION.md) and [review record](docs/GPT56-FINAL-REVIEW.md).
-
-Human engineering decisions set the receipt contract, evidence rules, deterministic outcomes, benchmark controls, and release scope.
-
-## Security Model
-
-W2 is a local evidence layer, not an OS/container security boundary, network firewall, or secrets vault. W2-owned runtime calls use W2 capability/path checks. Codex native execution uses the installed Codex CLI's supported sandbox. W2 does not intercept every native filesystem or shell action. See [Security Model](docs/SECURITY-MODEL.md).
-
-## Context Model
-
-The receipt distinguishes files W2 considered, selected, and provided from files whose access was actually observed. Context selection is not an access restriction. Exact Codex reads remain unknown unless supported by telemetry.
-
-## Supported Platforms
-
-Windows 11 is verified. Other platforms have not been independently verified.
-
-## Installation
-
-Requirements: Node.js 22.12+, npm, and Git.
+Requirements: Git, Node.js 22.13 or newer, and npm. A Codex CLI installation is required for live agent runs; authenticate it using your normal Codex setup.
 
 ```bash
 npm ci
@@ -105,6 +101,84 @@ npm test
 npm run typecheck
 npm run build
 ```
+
+Save the example contract as `task.json`, then run:
+
+```bash
+npm run w2 -- run task.json
+```
+
+W2 stores its local SQLite run state under `.w2/` and writes JSON/Markdown receipts alongside the selected database. The default database is `.w2/runs.sqlite`; pass `--db <path>` after the task file to choose another location.
+
+## Instant Judge Demo
+
+Open [`judge-demo/index.html`](judge-demo/index.html) directly. It is a standalone, no-build replay of stored evidence and needs no API key or network service. The primary cases are the stored REAL_CODEX hero PASS and the stored REAL_CODEX semantic UNPROVEN run. Both are labeled as replays, not live executions.
+
+To serve it locally, run `npm run judge-demo:serve`. Validate the stored demo with `npm run judge-demo:verify`.
+
+## Live Codex Run
+
+`npm run demo:live` runs the semantic UNPROVEN example with the authenticated Codex CLI and writes an additional sanitized evidence package under `evidence/demo/unproven/<run-id>/`. It needs Codex authentication. `npm run hero:run` starts a fresh real run of the login rate-limit fixture. Existing verified evidence remains available in the repository without rerunning either command.
+
+`npm run demo` starts the local W2 walkthrough. `npm run demo:smoke` performs its non-browser smoke check.
+
+## Hero Case
+
+The real login rate-limit fixture covers five failed attempts per client in a rolling minute, HTTP 429 on the sixth request, unchanged authentication behavior, and required tests. The stored REAL_CODEX receipt records four criteria, four passing verifiers, and a two-file diff. See [Hero Case Study](docs/HERO-CASE-STUDY.md) and [`evidence/hero-run/`](evidence/hero-run/).
+
+## Semantic UNPROVEN Example
+
+In the stored REAL_CODEX example, the agent fixes multiplication and a verifier passes. A separate required documentation criterion has no verifier reference, so the outcome stays `UNPROVEN`. This is a completed run with missing criterion evidence, not a timeout or infrastructure error. See [`evidence/demo/cases.json`](evidence/demo/cases.json).
+
+## Benchmark
+
+The stored benchmark contains **8 Raw Codex runs and 8 W2 + Codex runs**. All 16 are marked `REAL_CODEX`; the external verifier passed 8/8 in each condition. W2's mean criterion evidence coverage is 100%; Raw Codex has no receipt mapping, so that metric is not applicable there.
+
+These results describe one attempt for each of eight fixtures per condition. They do not establish that W2 writes better code, is faster, or reduces failures. See [Benchmark Report](docs/BENCHMARK-REPORT.md) for outcomes, methodology, and limitations.
+
+## Benchmark Methodology
+
+Both conditions use the same normalized tasks, model/configuration, source baselines, 90-second timeout, and independent external verifier. Every run starts from a reset fixture in an isolated Codex home and workspace. The configured Codex sandbox is `workspace-write`; only the isolated fixture workspace is writable. The benchmark disables inherited project rules, user memories, and skill-instruction injection. The adapter does not provide a complete operating-system file-read trace.
+
+## Security Model
+
+Codex's sandbox controls native Codex execution. W2 capability and path checks apply to W2-owned `ToolRuntime` calls. W2 records recognized execution evidence and results; it does not broker every native call and is not an OS/container security boundary. See [Security Model](docs/SECURITY-MODEL.md).
+
+## Context Model
+
+The context record distinguishes files considered, selected, and provided. Accessed files are recorded only when observed through supported telemetry; otherwise exact agent reads are unknown. Context selection is not a filesystem restriction. See [Context Model](docs/CONTEXT-MANIFEST.md).
+
+## Built with Codex and GPT-5.6
+
+Codex CLI was used for real stored coding-agent runs, implementation support, and repository validation. GPT-5.6 performed a documented development-time review of benchmark methodology, Run Receipt semantics, and public claims; it does not map runtime evidence or select outcomes. See [Codex session evidence](docs/CODEX-SESSION-EVIDENCE.md), [GPT-5.6 contribution](docs/GPT56-CONTRIBUTION.md), and [review record](docs/GPT56-FINAL-REVIEW.md).
+
+## Supported Platforms
+
+Windows 11 with Node.js 22.13+ is verified. Other operating systems have not been independently verified. `package.json` carries the same minimum Node.js version.
+
+## Privacy
+
+W2 runs locally and stores run state in the selected SQLite database. The public evidence manifest lists the artifacts intended for review. Current public evidence and the tracked project are scanned for local paths and common credential patterns. No hosted service is provided.
+
+## Limitations
+
+- A verifier supports only its declared check in that recorded run; it is not a general correctness guarantee.
+- Exact Codex file-read access is not captured by this adapter, and W2 does not intercept every Codex-native operation.
+- The benchmark has one attempt per fixture and condition; it is descriptive, not statistically conclusive.
+- W2 uses Node's built-in [`node:sqlite` API](https://nodejs.org/api/sqlite.html), which remains experimental in Node 22 and may change; Node can emit an ExperimentalWarning for SQLite operations.
+- GPT-5.6 is not called at runtime.
+- `RunEngine.resume()` inspects persisted checkpoints; it does not continue agent execution.
+- The local walkthrough and judge demo do not provide a hosted multi-user service.
+- Public repository visibility, license selection, video recording, and competition submission remain human decisions.
+
+## Repository Structure
+
+- `src/core/` — task contracts, run engine, runtime, evidence, and outcome calculation.
+- `tests/` — core, integration, security, durability, benchmark, and UI smoke coverage.
+- `benchmarks/` — fixtures, isolated Codex harness, current results, and validators.
+- `evidence/` — stored REAL_CODEX hero and semantic UNPROVEN artifacts, screenshots, and public manifest.
+- `judge-demo/` — static offline-capable judge interface.
+- `docs/` — architecture, security, methodology, submission notes, and current final report.
 
 ## Reproducing the Evidence
 
@@ -113,30 +187,20 @@ npm ci
 npm test
 npm run typecheck
 npm run build
-npm run verify:phase02
+npm run standalone:check
+npm run fixtures:check
 npm run benchmark:validate
 npm run benchmark:verify
 npm run benchmark:hermeticity
 npm run hero:validate
-npm run audit:public
 npm run judge-demo:verify
+npm run audit:public
 npm run demo:smoke
-npm run phase06:audit
+npm run fresh:check
 ```
 
-To run the product path and persist a receipt, use `npm run w2 -- run task.json`. The command stores JSON and Markdown receipts next to the selected database. `npm run benchmark` regenerates the paired benchmark and requires an authenticated Codex CLI. `npm run hero:run` creates a new REAL_CODEX hero run. The no-build demo is local and stored-data based.
+`npm run benchmark` and `npm run hero:run` start new authenticated Codex runs and replace their generated result artifacts. Run them only when intentionally collecting a new sample; the stored current results can be verified with the commands above.
 
-## Privacy / Public Evidence
+## Public Evidence Manifest
 
-The public evidence manifest names the artifacts intended for judge review. Local machine paths are replaced with placeholders, and the pre-hermetic benchmark archive is gitignored and excluded. See [`evidence/PUBLIC-EVIDENCE-MANIFEST.md`](evidence/PUBLIC-EVIDENCE-MANIFEST.md) and [`docs/PUBLIC-ARTIFACT-AUDIT.md`](docs/PUBLIC-ARTIFACT-AUDIT.md).
-
-## Limitations
-
-- Exact Codex file-read access is not captured by this adapter.
-- W2 does not intercept every Codex-native call and is not an OS/container boundary.
-- Codex runs can fail, time out, or leave criteria unproven; those outcomes remain visible.
-- The benchmark has one attempt per fixture and condition and is not statistically conclusive.
-- GPT-5.6 is not called at runtime.
-- `RunEngine.resume()` inspects checkpoint state; it does not continue agent execution.
-- The demo is local and stored-data based. No hosted service is provided.
-- Repository visibility is unchanged. A public release requires a license choice and public-evidence review.
+See [`evidence/PUBLIC-EVIDENCE-MANIFEST.md`](evidence/PUBLIC-EVIDENCE-MANIFEST.md) for the exact review set. The current report is [W2 Final Report](docs/W2-FINAL-REPORT.md); it supersedes older checkpoint material in Git history.

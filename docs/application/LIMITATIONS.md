@@ -1,9 +1,11 @@
 # Limitations
 
-- The demo is local and replays stored evidence; there is no hosted service or multi-user collaboration.
-- W2 is a local control/evidence layer, not an OS/container security boundary. Codex enforces its own workspace-write sandbox; W2 does not broker every native call.
-- The benchmark is one run per condition per fixture and records timeouts; it does not support a generalized speed, safety, or reliability claim.
+- The local demo replays stored evidence; there is no hosted service or multi-user collaboration.
+- Codex's sandbox controls native Codex execution. W2 checks only W2-owned `ToolRuntime` calls and is not an OS/container security boundary.
+- The benchmark has one attempt per fixture and condition; it does not support generalized speed, correctness, safety, or reliability claims.
 - W2 records selected/provided context and recognized events, not exact Codex file-read access.
 - GPT-5.6 is development-time review only and is not called at runtime.
-- The static demo depends on committed generated evidence files; updating source evidence requires running its refresh/validation script.
-- Public repository visibility, publication license, video recording, and competition submission are human decisions/actions.
+- `RunEngine.resume()` inspects checkpoint state and does not continue agent execution.
+- Run storage uses Node's built-in [`node:sqlite` API](https://nodejs.org/api/sqlite.html), which remains experimental in Node 22 and can emit an ExperimentalWarning.
+- Live runs require Codex CLI availability and authentication. Other operating systems have not been independently verified.
+- Repository visibility, license selection, video recording, and competition submission are human decisions/actions.

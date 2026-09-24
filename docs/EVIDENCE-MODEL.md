@@ -1,7 +1,7 @@
 # W2 Evidence Model
 
-Phase 02 turns the Phase 01 SQLite run record into auditable evidence. Every
-record has a stable `evidence_id`, the owning `run_id`, a typed source, a raw
+W2 creates auditable evidence from its persisted run record. Every evidence
+item has a stable `evidence_id`, the owning `run_id`, a typed source, a raw
 reference back to SQLite, a timestamp, and an explicit confidence class.
 
 ## Trust boundary

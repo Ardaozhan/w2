@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-23T18:13:23.791Z",
+  "updated_at": "2026-09-24T13:36:12.251Z",
   "cases": {
     "pass": {
       "label": "REAL_CODEX PASS — hero rate-limit fixture",
@@ -9,8 +9,8 @@
     },
     "unproven": {
       "label": "REAL_CODEX UNPROVEN — required criterion has no verifier",
-      "receipt": "evidence/demo/unproven/20260923175634680/run-receipt.json",
-      "record": "evidence/demo/unproven/20260923175634680/run-record.json"
+      "receipt": "evidence/demo/unproven/20260924133117996/run-receipt.json",
+      "record": "evidence/demo/unproven/20260924133117996/run-record.json"
     }
   }
 }

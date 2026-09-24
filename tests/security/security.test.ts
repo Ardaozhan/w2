@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { ToolRuntime } from "../../src/core/runtime.js";
 import { redactSecrets, SafetyError } from "../../src/core/safety.js";
 
-describe("Phase 03 safety boundary", () => {
+describe("W2-owned runtime security boundary", () => {
   it("denies missing capabilities, traversal, and symlink escape", async () => {
     const workspace = mkdtempSync(path.join(os.tmpdir(), "w2-security-"));
     const outside = mkdtempSync(path.join(os.tmpdir(), "w2-outside-"));

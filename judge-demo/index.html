@@ -10,7 +10,7 @@
 <body>
   <header class="topbar"><a class="brand" href="#top"><span class="brand-mark">W2</span><span>Run Receipt Inspector<small>Local evidence viewer</small></span></a><span class="offline">STATIC · OFFLINE · NO BUILD</span></header>
   <main id="top">
-    <section class="intro"><p class="eyebrow">INDEPENDENTLY INSPECTABLE RUNS</p><h1>Completion is a claim.<br><em>Evidence is the receipt.</em></h1><p>Switch between two verified, stored Codex runs. This page replays persisted artifacts; it does not run an agent.</p></section>
+    <section class="intro"><p class="eyebrow">INDEPENDENTLY INSPECTABLE RUNS</p><h1>Completion is a claim.<br><em>Evidence is the receipt.</em></h1><p>Switch between two stored REAL_CODEX runs. This page replays persisted artifacts; it does not run an agent.</p></section>
     <section class="case-switch" aria-label="Choose a stored run">
       <button class="case-button active" data-case="pass"><span>01 / VERIFIED RUN</span><strong>PASS</strong><small>All required evidence attached</small></button>
       <button class="case-button" data-case="unproven"><span>02 / EVIDENCE GAP</span><strong>UNPROVEN</strong><small>Required criterion lacks evidence</small></button>
@@ -21,7 +21,7 @@
       <button class="tab active" data-panel="overview">Receipt</button><button class="tab" data-panel="context">Context</button><button class="tab" data-panel="trace">Trace</button><button class="tab" data-panel="diff">Diff</button><button class="tab" data-panel="verification">Verification</button><button class="tab" data-panel="acceptance">Acceptance Evidence</button><button class="tab" data-panel="benchmark">Benchmark</button>
     </nav>
     <section id="panel" class="panel" tabindex="-1"></section>
-    <footer>W2 is a local control and evidence layer, not an OS/container security boundary. Stored evidence is shown as recorded; it is not a guarantee of general agent behavior.</footer>
+    <footer>Codex's sandbox controls native execution. W2 checks only calls made through its own ToolRuntime and records run evidence; it is not an OS/container boundary or a universal tool broker.</footer>
   </main>
   <script>
     (() => {

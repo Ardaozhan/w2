@@ -52,7 +52,7 @@ const trackedFiles = (() => {
   try { return execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).split('\0'); }
   catch {
     const output = [];
-    const ignoredDirectories = new Set(['.git', 'node_modules', 'dist', 'output', '.playwright-cli', '.v42-runtime', '.w2']);
+    const ignoredDirectories = new Set(['.git', 'node_modules', 'dist', 'output', '.playwright-cli', '.w2', 'internal-history']);
     const walk = (directory) => {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
         const file = path.join(directory, entry.name);

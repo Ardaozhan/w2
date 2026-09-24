@@ -5,8 +5,8 @@
 - Model label reported by the authorized review invocation: **GPT-5.6**.
 - Model route requested: `gpt-5.6-sol`.
 - Host-exposed task ID: `w2-gpt56-final-review-20260923`.
-- Agent path: `/root/gpt56_final_review`.
 - Separate provider/session ID: not exposed by the collaboration host; none is claimed.
+- The collaboration host's filesystem path is omitted from this public record.
 - Date: 2026-09-23.
 - Mode: read-only, no files changed by reviewer.
 

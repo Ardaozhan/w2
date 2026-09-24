@@ -28,10 +28,11 @@ The review found underinclusive completion-claim detection, broken links to not-
 - Authorized model route requested: `gpt-5.6-sol`.
 - Model label returned by the review invocation: `GPT-5.6`.
 - Host task ID: `w2-gpt56-final-review-20260923`.
-- Host agent path: `/root/gpt56_final_review`.
 - Date: 2026-09-23.
 - The host did not expose a separate model-provider session ID. No session ID is invented or claimed.
 - Review output was received through the collaboration host and preserved in `GPT56-FINAL-REVIEW.md`.
+
+The collaboration host's filesystem path is omitted from this public record.
 
 ## What remained deterministic
 

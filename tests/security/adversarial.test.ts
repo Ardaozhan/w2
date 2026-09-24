@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { RetryPolicy, SafetyError, assertCapability, assertWorkspacePath, redactSecrets } from '../../src/core/safety.js';
 import { ToolRuntime } from '../../src/core/runtime.js';
 
-describe('Phase 03 adversarial scenarios', () => {
+describe('W2 adversarial scenarios', () => {
   it('ADV-SECURITY-INJECTION rejects traversal and redacts injected secrets', () => {
     expect(() => assertWorkspacePath(process.cwd(), '..\\outside.txt')).toThrow('Path escapes workspace');
     expect(redactSecrets('token=placeholder-secret')).toContain('[REDACTED]');

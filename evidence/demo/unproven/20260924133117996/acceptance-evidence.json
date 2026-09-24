@@ -1,0 +1,45 @@
+{
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Fix multiply(a,b) so it returns the mathematical product.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_45e624ea75aa530cbe6e"
+      ],
+      "reason": "Every referenced verifier passed with deterministic evidence."
+    },
+    {
+      "criterion_id": "AC-02",
+      "description": "Document the public multiply(a,b) contract in README.md.",
+      "required": true,
+      "status": "UNPROVEN",
+      "evidence_ids": [],
+      "reason": "No verifier is mapped to this criterion."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev_45e624ea75aa530cbe6e",
+      "run_id": "4ace33db-c824-4cc4-9e70-21ea121a2663",
+      "type": "ASSERTION_EVIDENCE",
+      "source": "sqlite:verification_results",
+      "summary": "multiply-verifier: PASSED",
+      "raw_reference": "run:4ace33db-c824-4cc4-9e70-21ea121a2663:verification:0",
+      "confidence_class": "DETERMINISTIC",
+      "created_at": "2026-09-24T13:31:48.210Z",
+      "data": {
+        "verifier_id": "multiply-verifier",
+        "name": "multiply-verifier",
+        "category": "custom",
+        "command": "node verify.mjs",
+        "exit_code": 0,
+        "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+        "stderr": "",
+        "duration_ms": 66,
+        "status": "PASSED"
+      }
+    }
+  ]
+}

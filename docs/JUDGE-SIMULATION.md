@@ -1,13 +1,11 @@
-# Judge Simulation
+# Judge Walkthrough
 
-1. Read `README.md` and identify the three-question thesis.
-2. Run `npm ci` and `npm run demo`.
-3. Confirm the hero receipt says `UNPROVEN`, not a vague success state.
-4. Open Context, Trace, Diff, Verification, Acceptance Evidence, and Benchmark tabs.
-5. Run `npm test`, `npm run typecheck`, and `npm run build`.
-6. Run `npm run benchmark:validate` and `npm run benchmark:verify`.
-7. Inspect the proof map, claim audit, limitations, and stored raw run records.
+1. Read `README.md` and identify W2's evidence-first product claim.
+2. Open the no-build `judge-demo/index.html` or run `npm run judge-demo:serve`.
+3. Inspect the stored REAL_CODEX hero PASS receipt and its four verifier-linked criteria.
+4. Switch to the stored REAL_CODEX semantic UNPROVEN example and inspect the unmapped required criterion.
+5. Open Context, Trace, Diff, Verification, Acceptance Evidence, and Benchmark in the demo.
+6. Run `npm ci`, `npm test`, `npm run typecheck`, and `npm run build`.
+7. Run the benchmark, hero, public-artifact, standalone, receipt, and fresh-copy validators listed in the README.
 
-Observed friction: the demo is local and read-only, and the benchmark sample records Codex timeouts. Both are called out explicitly rather than hidden behind a hosted or synthetic flow.
-
-Final audit command: `npm run phase06:audit`.
+The judge demo is a static replay of stored evidence; it does not start Codex. The separate live-run commands require an authenticated Codex CLI. W2 reports exact Codex file access as unknown unless supported telemetry establishes it.

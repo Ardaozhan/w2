@@ -1,0 +1,55 @@
+{
+  "execution_mode": "REAL_CODEX",
+  "run_id": "4ace33db-c824-4cc4-9e70-21ea121a2663",
+  "task_id": "semantic-unproven-20260924133117996",
+  "status": "UNPROVEN",
+  "agent_run_status": "COMPLETED",
+  "infrastructure_failure": false,
+  "timed_out": false,
+  "prompt_isolation": {
+    "status": "PASS",
+    "source": "codex debug prompt-input",
+    "global_profile_references": 0,
+    "host_repository_references": 0
+  },
+  "external_verification": [
+    {
+      "verifier_id": "multiply-verifier",
+      "name": "multiply-verifier",
+      "category": "custom",
+      "command": "node verify.mjs",
+      "exit_code": 0,
+      "stdout": "{\"criterion\":\"multiply\",\"status\":\"PASS\"}\n",
+      "stderr": "",
+      "duration_ms": 66,
+      "status": "PASSED"
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Fix multiply(a,b) so it returns the mathematical product.",
+      "required": true,
+      "status": "PASS",
+      "evidence_ids": [
+        "ev_45e624ea75aa530cbe6e"
+      ],
+      "reason": "Every referenced verifier passed with deterministic evidence."
+    },
+    {
+      "criterion_id": "AC-02",
+      "description": "Document the public multiply(a,b) contract in README.md.",
+      "required": true,
+      "status": "UNPROVEN",
+      "evidence_ids": [],
+      "reason": "No verifier is mapped to this criterion."
+    }
+  ],
+  "claim_done": true,
+  "changed_files": [
+    "README.md",
+    "src/math.js"
+  ],
+  "receipt": "evidence/demo/unproven/20260924133117996/run-receipt.json",
+  "generated_at": "2026-09-24T13:31:48.219Z"
+}

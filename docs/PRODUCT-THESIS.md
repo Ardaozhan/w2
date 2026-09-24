@@ -15,9 +15,9 @@ final sentence as evidence.
 
 ## Solution
 
-W2 is an evidence and control layer around coding-agent execution. It captures
-context, actions, tool traces, code diffs, verification results, and acceptance
-evidence in one inspectable run flow.
+W2 is a verification layer for coding agents. It records the context W2
+provided, recognized run events, repository diff, verifier results, and
+criterion evidence in one inspectable Run Receipt flow.
 
 ## Run Receipt
 
@@ -25,7 +25,7 @@ The Run Receipt is W2's core product artifact. It is both human-readable and
 machine-readable and records:
 
 ```text
-TASK -> CONTEXT MANIFEST -> AGENT ACTIONS -> TOOL TRACE -> CODE DIFF
+TASK -> CONTEXT MANIFEST -> RECOGNIZED EVENTS -> CODE DIFF
      -> VERIFICATION -> ACCEPTANCE EVIDENCE -> RUN RECEIPT
 ```
 
@@ -34,4 +34,3 @@ TASK -> CONTEXT MANIFEST -> AGENT ACTIONS -> TOOL TRACE -> CODE DIFF
 W2 makes completion evidence-first: deterministic facts are captured by the
 system, AI interpretation is explicitly bounded, and missing evidence remains
 `UNPROVEN` rather than being promoted to `PASS`.
-

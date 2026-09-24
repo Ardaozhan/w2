@@ -1,0 +1,95 @@
+{
+  "workspace": "<WORKSPACE>",
+  "generated_at": "2026-09-24T13:31:20.318Z",
+  "task_id": "semantic-unproven-20260924133117996",
+  "files_considered": [
+    {
+      "path": "README.md",
+      "source_path": "<WORKSPACE>\\README.md",
+      "included": true,
+      "selection_reason": "allowed_paths",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 51,
+      "approximate_tokens": 13
+    },
+    {
+      "path": "src\\math.js",
+      "source_path": "<WORKSPACE>\\src\\math.js",
+      "included": true,
+      "selection_reason": "allowed_paths",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 49,
+      "approximate_tokens": 13
+    },
+    {
+      "path": "task.json",
+      "source_path": "<WORKSPACE>\\task.json",
+      "included": false,
+      "selection_reason": "not selected by task scope",
+      "sections": [],
+      "bytes": 1040,
+      "approximate_tokens": 260
+    },
+    {
+      "path": "verify.mjs",
+      "source_path": "<WORKSPACE>\\verify.mjs",
+      "included": false,
+      "selection_reason": "not selected by task scope",
+      "sections": [],
+      "bytes": 172,
+      "approximate_tokens": 43
+    }
+  ],
+  "files_included": [
+    {
+      "path": "README.md",
+      "source_path": "<WORKSPACE>\\README.md",
+      "included": true,
+      "selection_reason": "allowed_paths",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 51,
+      "approximate_tokens": 13
+    },
+    {
+      "path": "src\\math.js",
+      "source_path": "<WORKSPACE>\\src\\math.js",
+      "included": true,
+      "selection_reason": "allowed_paths",
+      "sections": [
+        "full-file"
+      ],
+      "bytes": 49,
+      "approximate_tokens": 13
+    }
+  ],
+  "excluded_candidates": [
+    {
+      "path": "task.json",
+      "source_path": "<WORKSPACE>\\task.json",
+      "included": false,
+      "selection_reason": "not selected by task scope",
+      "sections": [],
+      "bytes": 1040,
+      "approximate_tokens": 260
+    },
+    {
+      "path": "verify.mjs",
+      "source_path": "<WORKSPACE>\\verify.mjs",
+      "included": false,
+      "selection_reason": "not selected by task scope",
+      "sections": [],
+      "bytes": 172,
+      "approximate_tokens": 43
+    }
+  ],
+  "accessed_files": [],
+  "access_observation": "UNAVAILABLE",
+  "total_bytes": 100,
+  "approximate_tokens": 25
+}

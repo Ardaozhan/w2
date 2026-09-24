@@ -1,7 +1,0 @@
-{
-  "AC-EVIDENCE": {"command": "npm test -- --run tests/evidence/evidence.test.ts"},
-  "AC-MAPPING": {"command": "npm test -- --run tests/evidence/evidence.test.ts"},
-  "AC-OUTCOME": {"command": "npm test -- --run tests/evidence/evidence.test.ts"},
-  "AC-RECEIPT": {"command": "npm test -- --run tests/evidence/evidence.test.ts"},
-  "AC-FIXTURES": {"command": "npm run verify:phase02"}
-}

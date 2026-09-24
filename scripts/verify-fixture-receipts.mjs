@@ -13,4 +13,4 @@ for (const [variant, outcome] of Object.entries(expected)) {
   if (receipt.agent.execution_mode !== "FAKE_ADAPTER") throw new Error(`${variant} is a synthetic test fixture, not a REAL_CODEX run`);
   if (JSON.stringify(rawEvidence.evidence) !== JSON.stringify(receipt.evidence) || JSON.stringify(rawEvidence.acceptance) !== JSON.stringify(receipt.acceptance)) throw new Error(`${variant} raw evidence differs from its Run Receipt`);
 }
-console.log("Phase 02 synthetic RunEngine fixture integrity: PASS (PASS, FAIL, UNPROVEN; not benchmark or REAL_CODEX evidence)");
+console.log("Run Receipt fixture integrity: PASS (synthetic PASS, FAIL, UNPROVEN; excluded from REAL_CODEX evidence)");

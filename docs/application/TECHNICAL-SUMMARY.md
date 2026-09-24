@@ -1,9 +1,9 @@
 # Technical Summary
 
-The Run Engine creates a run contract, builds a Context Manifest, invokes the Codex adapter, records ordered events in SQLite, captures Git diff, runs declared verification, and projects the result into JSON/Markdown Run Receipts. ToolRuntime capability/path/approval/time/output controls apply to W2-owned tool calls. The Evidence Engine validates attached records before the deterministic Outcome Engine computes `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR`.
+The W2 Run Engine validates a task contract, builds a Context Manifest, invokes the Codex adapter, records recognized events in SQLite, captures the Git diff, and runs declared verification commands. The Evidence Engine creates deterministic verifier records and maps them to task criteria. The Outcome Engine derives `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR`; JSON and Markdown Run Receipts expose the result.
 
-The Codex adapter invokes the CLI with its `workspace-write` sandbox. W2 observes recognized structured events and resulting diffs, but does not intercept every native Codex operation. Context records considered/selected/provided data where available; exact file-read access is not claimed.
+The Codex adapter invokes the installed CLI with the `workspace-write` sandbox. W2 observes recognized structured events and resulting diffs, but does not intercept every native Codex operation. Context records what W2 considered, selected, and provided; exact file-read access is not claimed.
 
-There is no runtime GPT-5.6 Evidence Mapper. Evidence mapping/validation and outcome computation remain deterministic; a development-time GPT-5.6 review is documented separately and does not participate in receipts.
+W2 capability, path, approval, timeout, and output controls apply to W2-owned `ToolRuntime` calls. W2 is not an OS/container security boundary or a universal native-tool broker.
 
-`RunEngine.resume()` loads persisted checkpoint information for inspection and records recovery events; it does not resume agent execution. See the README and Security Model for the precise limits.
+There is no runtime GPT-5.6 evidence mapper. Criterion mapping and outcome calculation are deterministic. `RunEngine.resume()` inspects persisted checkpoint information; it does not resume agent execution.

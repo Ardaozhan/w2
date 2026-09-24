@@ -1,6 +1,0 @@
-{
-  "ADV-TIME-BOUNDARY": {
-    "command": "npm test -- --run tests/evidence/evidence.test.ts -t ADV-TIME-BOUNDARY",
-    "test_selector": "ADV-TIME-BOUNDARY"
-  }
-}

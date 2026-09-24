@@ -21,7 +21,7 @@ function task(workspace: string): TaskDefinition {
   return { task_id: "durability-task", title: "durability", goal: "checkpoint", constraints: [], allowed_paths: ["."], acceptance_criteria: [{ id: "AC-01", statement: "checkpoint exists", required: true, verification_refs: ["ok"] }], verification_commands: [{ id: "ok", name: "ok", category: "custom", command: process.platform === "win32" ? "exit /b 0" : "true" }], workspace };
 }
 
-describe("Phase 03 durability", () => {
+describe("W2 run persistence and checkpoint durability", () => {
   it("inspects checkpoint recovery state without claiming resumed execution", async () => {
     const workspace = mkdtempSync(path.join(os.tmpdir(), "w2-durable-"));
     const adapter = new DurableAdapter();

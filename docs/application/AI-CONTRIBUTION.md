@@ -2,12 +2,12 @@
 
 ## Codex
 
-Codex CLI is the real coding-agent participant in stored benchmark and demo executions, and Codex also assisted implementation and local verification. Codex/V42 sessions were used for task acceptance and the audit lifecycle where recorded. W2 stores recognized events and resulting diffs; it does not intercept every native Codex tool call.
+Codex CLI was used for real coding-agent executions preserved in the benchmark and demo evidence. It also assisted implementation and repository validation. W2 stores the structured events it recognizes and resulting diffs; it does not intercept every Codex-native tool call.
 
 ## GPT-5.6
 
-GPT-5.6 was used for an independent development-time review of final submission claims, benchmark methodology, and Run Receipt semantics. It was not used as a runtime evidence mapper and does not determine outcomes. Exact model/session provenance and review findings are recorded in [GPT56-CONTRIBUTION.md](../GPT56-CONTRIBUTION.md) and [GPT56-FINAL-REVIEW.md](../GPT56-FINAL-REVIEW.md).
+GPT-5.6 reviewed benchmark methodology, Run Receipt semantics, and public claims during development. It did not run W2, map runtime evidence, or select outcomes. The recorded review provenance and findings are in [GPT-5.6 Contribution](../GPT56-CONTRIBUTION.md) and [GPT-5.6 Final Review](../GPT56-FINAL-REVIEW.md). No separate provider session ID was exposed by that review host.
 
 ## Human decisions
 
-Human architecture decisions covered the Run Receipt abstraction, deterministic outcome engine, PASS/FAIL/UNPROVEN semantics, benchmark fairness, safety boundaries, project scope, claim review, and final acceptance. Failed, timed-out, and unproven benchmark runs are retained.
+Human engineering decisions set the Run Receipt contract, deterministic evidence rules, outcome semantics, benchmark controls, security boundaries, and product scope. Failed and infrastructure-failed runs remain visible in the benchmark results.

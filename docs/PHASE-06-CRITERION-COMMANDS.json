@@ -1,8 +1,0 @@
-{
-  "AC-README": {"command": "node scripts/phase06-audit.mjs AC-README"},
-  "AC-DOCS": {"command": "node scripts/phase06-audit.mjs AC-DOCS"},
-  "AC-PROOF": {"command": "node scripts/phase06-audit.mjs AC-PROOF"},
-  "AC-FRESH": {"command": "node scripts/phase06-audit.mjs AC-FRESH"},
-  "AC-SECURITY": {"command": "node scripts/phase06-audit.mjs AC-SECURITY"},
-  "AC-JUDGE": {"command": "node scripts/phase06-audit.mjs AC-JUDGE"}
-}

@@ -4,4 +4,4 @@ The `pass`, `fail`, and `unproven` folders are synthetic schema and integrity-te
 
 The PASS fixture maps AC-01 and AC-02 to separate verifier IDs. The FAIL fixture has a failed AC-01 verifier and a passing AC-02 verifier. The UNPROVEN fixture leaves AC-02 unmapped while retaining a verifier result for the task, showing that unrelated test success does not prove that criterion.
 
-Regenerate with `npm run fixtures:phase02` and validate with `npm run verify:phase02`. The generator stores its temporary SQLite database outside the repository and removes it after producing the JSON and Markdown fixtures.
+Regenerate with `npm run fixtures:receipts:generate` and validate with `npm run fixtures:receipts:check`. The generator stores its temporary SQLite database outside the repository and removes it after producing the JSON and Markdown fixtures.

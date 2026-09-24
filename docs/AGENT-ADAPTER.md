@@ -1,5 +1,5 @@
 # Agent Adapter
 
-Phase 01 has one provider: `CodexAgentAdapter`. It is the only production adapter and invokes the installed `codex exec --json` CLI in the task workspace. Because Phase 01 has no approval broker yet, the non-interactive adapter uses Codex's explicit bypass flag; Phase 03 is responsible for execution safety and approvals. The engine depends only on the `AgentAdapter` boundary: `startRun`, `sendTask`, `receiveAction`, `receiveOutput`, and `cancel`.
+`CodexAgentAdapter` is W2's production agent adapter. It invokes the installed `codex exec --json` CLI with the supported `workspace-write` sandbox and the task workspace as its working directory. The engine depends on the `AgentAdapter` boundary: `startRun`, `sendTask`, `receiveAction`, `receiveOutput`, and `cancel`.
 
-JSONL output is retained as ordered `agent_output` events. Observable command/tool items become tool-call records. Non-zero exit, process errors, or timeout are persisted as run failure; an agent’s final text cannot complete a run without verification.
+JSONL output recognized by the adapter is retained as ordered `agent_output` events. Recognized command/tool items become tool-call records. The adapter does not observe every native operation or file read. Non-zero exit, process errors, or timeout become infrastructure errors; an agent's final text cannot set the receipt outcome.

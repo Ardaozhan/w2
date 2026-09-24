@@ -8,7 +8,7 @@ import { buildRunReceipt, renderReceiptMarkdown } from "../dist/src/core/evidenc
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const output = path.join(root, "fixtures", "rate-limit-demo");
 fs.mkdirSync(output, { recursive: true });
-const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "w2-phase02-fixtures-"));
+const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "w2-fixture-receipts-"));
 const dbPath = path.join(temporary, "runs.sqlite");
 const store = new RunStore(dbPath);
 const commands = [
@@ -66,4 +66,4 @@ try {
   store.close();
   fs.rmSync(temporary, { recursive: true, force: true });
 }
-console.log(`Generated synthetic RunEngine PASS, FAIL, and UNPROVEN test fixtures under ${output}`);
+console.log(`Generated clearly labeled synthetic Run Receipt fixtures under ${output}`);

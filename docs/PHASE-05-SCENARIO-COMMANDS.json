@@ -1,5 +1,0 @@
-{
-  "ADV-SECURITY-INJECTION": {"command": "npm run demo:smoke -- ADV-SECURITY-INJECTION", "test_selector": "ADV-SECURITY-INJECTION"},
-  "ADV-TIME-BOUNDARY": {"command": "npm run demo:smoke -- ADV-TIME-BOUNDARY", "test_selector": "ADV-TIME-BOUNDARY"},
-  "ADV-IDEMPOTENCY-REPEAT": {"command": "npm run demo:smoke -- ADV-IDEMPOTENCY-REPEAT", "test_selector": "ADV-IDEMPOTENCY-REPEAT"}
-}

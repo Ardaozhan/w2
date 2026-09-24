@@ -1,5 +1,7 @@
 # W2 Permissions
 
+This table applies only to calls routed through W2's `ToolRuntime`. Codex-native file and shell operations are governed by the installed Codex CLI's sandbox and are not intercepted by W2.
+
 | Capability | Default | Gate |
 | --- | --- | --- |
 | `fs.read` | allow | workspace canonical path |

@@ -1,23 +1,25 @@
-# W2 Architecture
+# W2 Run Flow
 
 ```mermaid
 flowchart TD
-  U[User task] --> R[W2 Run Engine]
+  U[User task + acceptance criteria] --> R[W2 Run Engine]
   R --> C[Context Manifest]
-  R --> A[Codex Adapter]
+  C --> A[Codex Adapter]
   A --> SBOX[Codex workspace-write sandbox]
   SBOX --> REPO[Repository]
-  A -. recognized events .-> R
+  A -. recognized events .-> EV[Event Store]
+  REPO --> D[Diff Capture]
+  R --> V[Declared Verification]
   R --> T[W2-owned ToolRuntime calls]
-  R --> S[(SQLite Event Store)]
-  R --> D[Diff Capture]
-  R --> V[Verification Runner]
-  D --> E[Evidence Engine]
+  EV --> E[Evidence Engine]
+  D --> E
   V --> E
-  S --> E
-  E --> O[Deterministic Outcome Engine]
+  E --> AC[Criterion statuses]
+  AC --> O[Deterministic Outcome Engine]
   O --> Q[Run Receipt]
-  Q --> J[JSON / Markdown / Receipt UI]
+  Q --> CLI[CLI]
+  Q --> UI[Local UI]
+  Q --> J[Static judge demo]
 ```
 
-Native Codex calls use Codex's sandbox and do not pass through W2 ToolRuntime. W2 observes recognized events, the resulting repository diff, and verifier results; it does not capture all file reads or broker every native action. No live GPT-5.6 evidence mapper is installed.
+Codex native operations use the Codex sandbox and do not pass through W2 `ToolRuntime`. W2 stores recognized events, repository diffs, and verifier results. The context record distinguishes what W2 considered, selected, and provided; exact Codex file reads remain unknown unless telemetry establishes them.

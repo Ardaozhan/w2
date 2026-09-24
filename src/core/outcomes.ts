@@ -1,4 +1,4 @@
-/** The only top-level outcomes permitted by the Phase 00 system contract. */
+/** The complete set of Run Receipt outcomes. */
 export const RUN_OUTCOMES = [
   "PASS",
   "FAIL",

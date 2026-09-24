@@ -1,45 +1,52 @@
 # W2 Architecture
 
-## Boundary
+## Product boundary
 
-W2 is a local task-evidence and control layer around one Codex CLI execution. It does not replace Codex and is not a universal pre-execution tool broker.
+W2 is a local verification layer for coding-agent runs. It connects a task contract, Codex execution evidence, repository changes, declared verification, and a deterministic Run Receipt. It does not replace Codex, CI, or the operating system's security boundary.
 
-## Data flow
+## Run flow
 
 ```text
-Task contract
-    -> Context Manifest (candidate/selected/provided where recorded)
+User task and acceptance criteria
+    -> W2 Run Engine
+    -> Context Manifest
     -> Codex Adapter
     -> Codex CLI workspace-write sandbox
     -> Repository
-         | recognized structured events and resulting Git diff
-         v
-    W2 Run Engine -> declared verification -> evidence/acceptance mapping
-         -> deterministic Outcome Engine -> JSON/Markdown Run Receipt
+    -> recognized events + Git diff + verifier results
+    -> Evidence Engine
+    -> criterion statuses
+    -> deterministic Outcome Engine
+    -> JSON / Markdown Run Receipt
+    -> CLI / local UI / static judge demo
 ```
-
-The Codex process uses native Codex file/shell tools within Codex's workspace-write sandbox. W2 records recognized structured output and repository changes; those native operations do not pass through W2's `ToolRuntime`.
 
 ## Components
 
 | Component | Responsibility | Evidence limit |
 | --- | --- | --- |
-| Context Manifest | Stores repository context considered and selected for the prompt, where available | Selection is not an access restriction; exact file reads are not proven |
-| Codex Adapter | Starts Codex with `workspace-write` and records recognized JSONL events | Not a complete record of every Codex-side operation |
-| ToolRuntime | Applies capabilities, workspace checks, approvals, timeout/output limits, budgets, and retries to W2-owned calls | Does not mediate Codex native calls |
-| Change observer | Captures repository diff and changed paths | Git working-tree state can include unrelated concurrent writes unless workspace is isolated |
-| Verification runner | Executes configured verification commands and stores results | Verifier success alone does not automatically prove every criterion |
-| Evidence/Outcome Engine | Checks references and derives PASS/FAIL/UNPROVEN/ERROR/ABORTED deterministically | Does not use a model to decide outcome |
-| Run Receipt | Presents task, selected context, recognized events, diff, verification, evidence, and outcome | A record of observed artifacts, not a general security guarantee |
+| Task contract | Declares task scope, required criteria, verifier references, and commands | A declared allowed path is contract context; W2 does not enforce per-file authorization for Codex-native calls |
+| Context Manifest | Records files considered, selected, and provided to the adapter | Selection is not an access restriction; exact Codex reads are unknown without supporting telemetry |
+| Codex Adapter | Starts Codex with `workspace-write` and records recognized structured events | Does not record every Codex-side operation or every file read |
+| `ToolRuntime` | Applies capabilities, workspace checks, approvals, timeout/output limits, budgets, and retries to W2-owned calls | Does not mediate Codex native calls |
+| Change observer | Captures repository diff and changed paths | Concurrent repository writes can appear in the same diff; isolated workspaces provide cleaner attribution |
+| Verification runner | Executes task-declared verification commands and stores results | A passing verifier proves only its declared check in that run |
+| Evidence Engine | Creates verifier evidence, validates references, and maps evidence to each criterion | Does not use a model to determine criterion status |
+| Outcome Engine | Computes `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR` | Agent completion text cannot select the result |
+| Run Receipt | Presents the task, context, recognized events, diff, verification, criterion evidence, and outcome | Records observed artifacts; it is not a general security guarantee |
+
+## Automatic criterion evidence mapping
+
+Each criterion carries verifier IDs in the task contract. Task validation rejects duplicate IDs and references to unknown verifiers. After execution, W2 creates deterministic evidence from the stored verifier results and maps only evidence from the referenced verifiers. Every referenced verifier must pass for the criterion to pass. A failed referenced verifier makes the criterion fail; absent mappings or evidence leave it unproven. Receipt validation recomputes this mapping from canonical verifier records before accepting the stored outcome.
 
 ## Persistence and recovery
 
-Run state, events, tool calls, and checkpoints persist in SQLite. `RunEngine.resume()` loads checkpoint state for inspection and appends recovery events; it does not continue agent execution. Completed destructive actions are not replayed because execution is not resumed.
+Run state, events, tool calls, and checkpoints persist in SQLite. `RunEngine.resume()` loads checkpoint state for inspection and appends recovery events; it does not continue agent execution. Completed actions are not replayed.
 
 ## Model boundary
 
-Codex is the real coding agent in live runs. GPT-5.6 is used for development-time review only when an authorized review session is recorded; it is not called by runtime receipts. Verification, evidence reference validation, and outcome calculation are deterministic.
+Codex is the real coding agent in live runs. GPT-5.6 was used for documented development-time review only; it is not called by runtime receipts. Verification, criterion mapping, and outcome calculation are deterministic.
 
 ## Security boundary
 
-W2 enforces local controls for W2-owned ToolRuntime calls. Codex enforces its workspace-write sandbox for native Codex tools. W2 observes outputs and resulting changes but does not intercept every native tool call. This is not an OS/container security boundary; see [SECURITY-MODEL.md](SECURITY-MODEL.md).
+Codex's sandbox controls native Codex execution. W2 capability and path checks apply only to W2-owned `ToolRuntime` calls. W2 records recognized output, resulting changes, and verifier results; it does not broker every native call and is not an OS/container security boundary. See [Security Model](SECURITY-MODEL.md).

@@ -1,7 +1,7 @@
 # Demo Flow
 
-Run `npm run demo` and open the printed local URL. The deterministic story opens the captured W2 bug-fix receipt, whose persisted outcome is `UNPROVEN` because the required criterion has no evidence. Use the tabs to inspect Context, Trace, Diff, Verification, Acceptance Evidence, and the benchmark table.
+Run `npm run demo` and open the printed local URL. The default view shows the stored REAL_CODEX hero PASS receipt. Follow the UNPROVEN link to inspect the stored semantic example, where one required criterion has no verifier mapping. Use the tabs to review context, recognized events, diff, verification, acceptance evidence, and benchmark results.
 
-For a non-network smoke check, run `npm run demo:smoke`. The smoke check verifies the hero copy, all primary views, and the explicit `UNPROVEN` label without starting a long-lived server.
+For a local runtime smoke check, run `npm run demo:smoke`. It verifies the primary receipt views and the stored REAL_CODEX PASS and UNPROVEN cases without leaving a long-lived server running.
 
-Current browser evidence is captured in `evidence/screenshots/`, including the hero rate-limit PASS receipt, the semantic multiplication/documentation UNPROVEN receipt, per-tab views, and a 390px mobile view. The Phase 05 screenshot remains historical phase evidence only.
+Current screenshots are listed in the public evidence manifest. The static judge demo has refreshed desktop and 390px mobile captures; per-section screenshots show the stored receipt, context, events, diff, verification, acceptance evidence, and benchmark views.
