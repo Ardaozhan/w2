@@ -31,7 +31,12 @@ export interface RunEngineOptions {
   adapter?: AgentAdapter;
   now?: () => Date;
   runtime?: Omit<ToolRuntimeOptions, "onSafetyEvent" | "runId">;
-  workspaceBaseline?: { statusBefore: string; changedPaths: string[]; captureError?: string };
+  workspaceBaseline?: {
+    statusBefore: string;
+    changedPaths: string[];
+    captureError?: string;
+    diffCapture?: { statusAfter: string; diff: string; numstat: string };
+  };
 }
 
 export class RunEngine {
@@ -178,8 +183,12 @@ export class RunEngine {
   }
 
   private async captureAndPersistDiff(runId: string, runtime: ToolRuntime, statusBefore: string, changedPathScope?: string[]) {
-    const statusAfter = changedPathScope?.length === 0 ? "" : await runtime.gitStatus(changedPathScope);
-    const gitDiff = changedPathScope?.length === 0 ? { diff: "", numstat: "" } : await runtime.gitDiff(changedPathScope);
+    const capturedTurnDiff = this.options.workspaceBaseline?.diffCapture;
+    const statusAfter = capturedTurnDiff?.statusAfter
+      ?? (changedPathScope?.length === 0 ? "" : await runtime.gitStatus(changedPathScope));
+    const gitDiff = capturedTurnDiff
+      ? { diff: capturedTurnDiff.diff, numstat: capturedTurnDiff.numstat }
+      : changedPathScope?.length === 0 ? { diff: "", numstat: "" } : await runtime.gitDiff(changedPathScope);
     const withoutW2Runtime = (status: string) => status.split(/\r?\n/).filter((line) => !/(?:^|\/)w2-run\.sqlite(?:-(?:wal|shm))?$/i.test(line.slice(3).trim())).join("\n");
     const diff = captureDiff(withoutW2Runtime(statusBefore), withoutW2Runtime(statusAfter), gitDiff.diff, gitDiff.numstat, changedPathScope);
     for (const file of diff.changed_files) this.store.appendEvent(runId, "file_changed", { path: file });

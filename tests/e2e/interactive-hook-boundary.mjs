@@ -127,6 +127,9 @@ async function main() {
     "test('throws when the minimum exceeds the maximum', () => assert.throws(() => clamp(4, 10, 0), RangeError));",
     "",
   ].join("\n"), "utf8");
+  execFileSync("git", ["add", "--all"], { cwd: workspace, stdio: "ignore", windowsHide: true });
+  execFileSync("git", ["-c", "user.name=W2 Hook Test", "-c", "user.email=w2-hook-test@example.invalid", "commit", "--quiet", "-m", "completed turn"], { cwd: workspace, stdio: "ignore", windowsHide: true });
+  assert.equal(execFileSync("git", ["status", "--porcelain=v1"], { cwd: workspace, encoding: "utf8", windowsHide: true }), "", "The real-process commit scenario must leave a clean worktree");
 
   const stopPayload = {
     ...prompt,
@@ -139,6 +142,7 @@ async function main() {
   assert.equal(typeof stopOutput.systemMessage, "string", "Stop did not return a JSON systemMessage");
   assert.match(stopOutput.systemMessage, /^W2 RECEIPT\nUNPROVEN\b/);
   assert.match(stopOutput.systemMessage, /Test: PASS/);
+  assert.match(stopOutput.systemMessage, /Diff: 2 files/);
   assert.equal(existsSync(pendingPath), false, "Stop did not close the matching pending turn");
 
   const receiptFiles = readdirSync(storage.receiptDirectory).filter((name) => name.endsWith(".json"));
@@ -153,8 +157,10 @@ async function main() {
     ["V-W2-TURN-DIFF", "PASSED"],
     ["V-PROJECT-TEST", "PASSED"],
   ]);
-  assert.ok(receipt.changes.changed_files.includes("src/math.js"));
-  assert.ok(receipt.changes.changed_files.includes("test/math.test.js"));
+  assert.deepEqual(receipt.changes.changed_files, ["src/math.js", "test/math.test.js"]);
+  const turnDiff = receipt.evidence.find((item) => item.type === "DIFF_EVIDENCE")?.data?.unified_diff;
+  assert.match(turnDiff, /clamps values below the minimum/);
+  assert.match(turnDiff, /throws when the minimum exceeds the maximum/);
   assert.equal(existsSync(path.join(workspace, ".w2")), false, "W2 runtime files polluted the external project");
   assert.ok(storage.databasePath.startsWith(runtimeRoot));
 

@@ -36,6 +36,15 @@ function gitProject(withTestScript = false, testBody = "import assert from 'node
   return workspace;
 }
 
+function commitAll(workspace: string, message: string): void {
+  execFileSync("git", ["add", "--all"], { cwd: workspace, stdio: "ignore" });
+  execFileSync("git", ["-c", "user.name=W2", "-c", "user.email=w2@example.invalid", "commit", "--quiet", "-m", message], { cwd: workspace, stdio: "ignore" });
+}
+
+function receiptDiff(receipt: RunReceipt): string {
+  return (receipt.evidence.find((item) => item.type === "DIFF_EVIDENCE")?.data as { unified_diff?: string } | undefined)?.unified_diff ?? "";
+}
+
 async function submit(w2Home: string, workspace: string, prompt: string, sessionId: string, turnId: string) {
   return handleInteractiveHook(w2Home, {
     hook_event_name: "UserPromptSubmit",
@@ -113,6 +122,65 @@ describe("interactive Codex hook integration", () => {
     expect(result?.systemMessage).toContain(storage.receiptDirectory);
     const targetGitState = execFileSync("git", ["status", "--porcelain=v1"], { cwd: workspace, encoding: "utf8" });
     expect(targetGitState).not.toContain(".w2");
+  });
+
+  it("captures committed Git changes in the turn diff after the working tree becomes clean", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject(true);
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    let receipt: RunReceipt | undefined;
+
+    await submit(w2Home, workspace, "Please implement the feature flag.", "commit-session", "commit-turn");
+    expect(execFileSync("git", ["status", "--porcelain=v1"], { cwd: workspace, encoding: "utf8" })).toBe("");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    writeFileSync(path.join(workspace, "committed file.txt"), "This committed change belongs to the turn.\n", "utf8");
+    commitAll(workspace, "complete feature flag");
+    expect(execFileSync("git", ["status", "--porcelain=v1"], { cwd: workspace, encoding: "utf8" })).toBe("");
+
+    const result = await stop(w2Home, workspace, "commit-session", "commit-turn", (captured) => { receipt = captured; });
+    expect(result?.systemMessage).toContain("W2 RECEIPT\nUNPROVEN");
+    expect(receipt?.verification.results.find((item) => item.verifier_id === "V-W2-TURN-DIFF")?.status).toBe("PASSED");
+    expect(receipt?.changes.changed_files).toEqual(["committed file.txt", "src/feature.js"]);
+    expect(receiptDiff(receipt!)).toContain("This committed change belongs to the turn.");
+    expect(receiptDiff(receipt!)).toContain("export const feature = true;");
+    expect(receipt?.changes.additions).toBeGreaterThan(0);
+  });
+
+  it("combines committed changes and additional uncommitted work in one turn receipt", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject();
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    let receipt: RunReceipt | undefined;
+
+    await submit(w2Home, workspace, "Please implement the combined change.", "mixed-session", "mixed-turn");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    writeFileSync(path.join(workspace, "committed.txt"), "Committed part.\n", "utf8");
+    commitAll(workspace, "commit part of turn");
+    writeFileSync(path.join(workspace, "README.md"), "baseline plus uncommitted turn work\n", "utf8");
+    writeFileSync(path.join(workspace, "extra.txt"), "Uncommitted part.\n", "utf8");
+
+    await stop(w2Home, workspace, "mixed-session", "mixed-turn", (captured) => { receipt = captured; });
+    expect(receipt?.changes.changed_files).toEqual(["README.md", "committed.txt", "extra.txt", "src/feature.js"]);
+    expect(receiptDiff(receipt!)).toContain("Committed part.");
+    expect(receiptDiff(receipt!)).toContain("Uncommitted part.");
+    expect(receiptDiff(receipt!)).toContain("baseline plus uncommitted turn work");
+  });
+
+  it("includes staged-only Git changes in the uncommitted turn diff", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject();
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    let receipt: RunReceipt | undefined;
+
+    await submit(w2Home, workspace, "Please implement the feature and stage it.", "staged-session", "staged-turn");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    execFileSync("git", ["add", "src/feature.js"], { cwd: workspace, stdio: "ignore" });
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = false;\n", "utf8");
+
+    const result = await stop(w2Home, workspace, "staged-session", "staged-turn", (captured) => { receipt = captured; });
+    expect(result?.systemMessage, result?.systemMessage).toContain("W2 RECEIPT\nUNPROVEN");
+    expect(receipt?.changes.changed_files).toEqual(["src/feature.js"]);
+    expect(receiptDiff(receipt!)).toContain("export const feature = true;");
   });
 
   it("records explicit acceptance items separately and maps only directly named passing commands", async () => {
@@ -227,6 +295,55 @@ describe("interactive Codex hook integration", () => {
     expect(result?.systemMessage).toContain("W2 RECEIPT\nFAIL");
     expect(receipt?.acceptance[0]?.status).toBe("FAIL");
     expect(receipt?.outcome).toBe("FAIL");
+    expect(receipt?.changes.changed_files).toEqual([]);
+    expect(receiptDiff(receipt!)).toBe("");
+  });
+
+  it("excludes unrelated dirty files that predate the turn, including one committed during it", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject();
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    writeFileSync(path.join(workspace, "README.md"), "pre-existing dirty content\n", "utf8");
+    writeFileSync(path.join(workspace, "pre-existing-untracked.txt"), "also predates the prompt\n", "utf8");
+    writeFileSync(path.join(workspace, "pre-existing-staged.txt"), "staged before the prompt\n", "utf8");
+    execFileSync("git", ["add", "pre-existing-staged.txt"], { cwd: workspace, stdio: "ignore" });
+    let receipt: RunReceipt | undefined;
+
+    const statusBeforePrompt = execFileSync("git", ["status", "--porcelain=v1"], { cwd: workspace, encoding: "utf8" });
+    await submit(w2Home, workspace, "Please implement the current turn change.", "dirty-session", "dirty-turn");
+    expect(execFileSync("git", ["status", "--porcelain=v1"], { cwd: workspace, encoding: "utf8" })).toBe(statusBeforePrompt);
+    execFileSync("git", ["add", "README.md"], { cwd: workspace, stdio: "ignore" });
+    execFileSync("git", ["-c", "user.name=W2", "-c", "user.email=w2@example.invalid", "commit", "--only", "--quiet", "-m", "commit pre-existing edit", "--", "README.md"], { cwd: workspace, stdio: "ignore" });
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    writeFileSync(path.join(workspace, "turn.txt"), "Only this new file belongs to the turn.\n", "utf8");
+
+    await stop(w2Home, workspace, "dirty-session", "dirty-turn", (captured) => { receipt = captured; });
+    expect(receipt?.changes.changed_files).toEqual(["src/feature.js", "turn.txt"]);
+    expect(receiptDiff(receipt!)).toContain("Only this new file belongs to the turn.");
+    expect(receiptDiff(receipt!)).not.toContain("pre-existing dirty content");
+    expect(receiptDiff(receipt!)).not.toContain("also predates the prompt");
+    expect(receiptDiff(receipt!)).not.toContain("staged before the prompt");
+  });
+
+  it("uses a fresh baseline for each turn in the same repository", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject();
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    let firstReceipt: RunReceipt | undefined;
+    let secondReceipt: RunReceipt | undefined;
+
+    await submit(w2Home, workspace, "Please implement the first turn.", "multi-session", "first-turn");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    commitAll(workspace, "first turn");
+    await stop(w2Home, workspace, "multi-session", "first-turn", (captured) => { firstReceipt = captured; });
+    expect(firstReceipt?.changes.changed_files).toEqual(["src/feature.js"]);
+
+    await submit(w2Home, workspace, "Please implement the second turn.", "multi-session", "second-turn");
+    writeFileSync(path.join(workspace, "README.md"), "second turn only\n", "utf8");
+    await stop(w2Home, workspace, "multi-session", "second-turn", (captured) => { secondReceipt = captured; });
+    expect(secondReceipt?.changes.changed_files).toEqual(["README.md"]);
+    expect(receiptDiff(secondReceipt!)).toContain("second turn only");
+    expect(receiptDiff(secondReceipt!)).not.toContain("export const feature = true;");
   });
 
   it("keeps Git capture failures as infrastructure ERROR", async () => {

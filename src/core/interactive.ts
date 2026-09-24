@@ -1,7 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { appendFile, lstat, mkdir, readFile, readlink, rename, rm, rmdir, writeFile } from "node:fs/promises";
+import { appendFile, lstat, mkdir, mkdtemp, readFile, readlink, rename, rm, rmdir, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import type { AgentAdapter, AgentStartInput } from "./agent.js";
@@ -33,6 +34,12 @@ export interface ProjectSnapshot {
   entries: ProjectSnapshotEntry[];
 }
 
+interface GitTurnSnapshot {
+  head: string | null;
+  index_tree: string;
+  working_tree: string;
+}
+
 interface InteractiveTurnState {
   version: typeof SNAPSHOT_VERSION;
   session_id: string;
@@ -42,6 +49,7 @@ interface InteractiveTurnState {
   prompt: string;
   model?: string;
   before_snapshot: ProjectSnapshot | null;
+  git_baseline?: GitTurnSnapshot;
   snapshot_error?: string;
   changed_paths?: string[];
   last_assistant_message?: string | null;
@@ -159,6 +167,144 @@ export async function captureProjectSnapshot(workspace: string): Promise<Project
   }
   entries.sort((left, right) => left.path.localeCompare(right.path));
   return { version: SNAPSHOT_VERSION, workspace: absoluteWorkspace, captured_at: new Date().toISOString(), entries };
+}
+
+interface GitCommandResult {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+}
+
+async function runGit(workspace: string, args: string[], env: NodeJS.ProcessEnv = process.env): Promise<GitCommandResult> {
+  try {
+    const result = await execFileAsync("git", args, {
+      cwd: workspace,
+      env,
+      encoding: "utf8",
+      windowsHide: true,
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 30_000,
+    });
+    return { exitCode: 0, stdout: result.stdout, stderr: result.stderr };
+  } catch (error) {
+    const failure = error as { code?: number | string; stdout?: string; stderr?: string; message?: string };
+    return {
+      exitCode: typeof failure.code === "number" ? failure.code : -1,
+      stdout: failure.stdout ?? "",
+      stderr: failure.stderr ?? failure.message ?? String(error),
+    };
+  }
+}
+
+async function requireGit(workspace: string, args: string[], description: string, env?: NodeJS.ProcessEnv): Promise<string> {
+  const result = await runGit(workspace, args, env);
+  if (result.exitCode !== 0) throw new Error(`${description}: ${result.stderr.trim() || `git exited ${result.exitCode}`}`);
+  return result.stdout;
+}
+
+async function captureGitHead(workspace: string): Promise<string | null> {
+  const result = await runGit(workspace, ["rev-parse", "--verify", "--quiet", "HEAD"]);
+  if (result.exitCode === 0) return result.stdout.trim();
+  if (result.exitCode === 1) return null;
+  throw new Error(`Git HEAD capture failed: ${result.stderr.trim() || `git exited ${result.exitCode}`}`);
+}
+
+async function captureWorkingTreeTree(workspace: string, indexTree: string): Promise<string> {
+  const temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), "w2-git-snapshot-"));
+  const temporaryIndex = path.join(temporaryDirectory, "index");
+  const env = { ...process.env, GIT_INDEX_FILE: temporaryIndex };
+  try {
+    await requireGit(workspace, ["read-tree", indexTree], "Git temporary index initialization failed", env);
+    await requireGit(workspace, ["add", "--all", "--", "."], "Git working-tree snapshot failed", env);
+    return (await requireGit(workspace, ["write-tree"], "Git working-tree tree capture failed", env)).trim();
+  } finally {
+    await rm(temporaryDirectory, { recursive: true, force: true });
+  }
+}
+
+async function captureGitTurnSnapshot(workspace: string): Promise<GitTurnSnapshot> {
+  const [head, indexTreeOutput] = await Promise.all([
+    captureGitHead(workspace),
+    requireGit(workspace, ["write-tree"], "Git index tree capture failed"),
+  ]);
+  const indexTree = indexTreeOutput.trim();
+  const workingTree = await captureWorkingTreeTree(workspace, indexTree);
+  return { head, index_tree: indexTree, working_tree: workingTree };
+}
+
+async function gitTreeChangedPaths(workspace: string, fromTree: string, toTree: string): Promise<string[]> {
+  const output = await requireGit(workspace, [
+    "--literal-pathspecs", "diff", "--no-ext-diff", "--no-renames", "--name-only", "-z", "--relative", fromTree, toTree, "--",
+  ], "Git tree comparison failed");
+  return [...new Set(output.split("\0").filter(Boolean))].sort();
+}
+
+async function gitTreeDiff(workspace: string, fromTree: string, toTree: string, paths?: string[]): Promise<{ diff: string; numstat: string }> {
+  if (paths && paths.length === 0) return { diff: "", numstat: "" };
+  const scope = paths ? ["--", ...paths] : ["--"];
+  const [diff, numstat] = await Promise.all([
+    requireGit(workspace, ["--literal-pathspecs", "diff", "--no-ext-diff", "--no-renames", "--binary", "--relative", fromTree, toTree, ...scope], "Git diff capture failed"),
+    requireGit(workspace, ["--literal-pathspecs", "diff", "--no-ext-diff", "--no-renames", "--numstat", "--relative", fromTree, toTree, ...scope], "Git diff statistics capture failed"),
+  ]);
+  return { diff, numstat };
+}
+
+interface InteractiveGitDelta {
+  changedPaths: string[];
+  statusBefore: string;
+  statusAfter: string;
+  diff: string;
+  numstat: string;
+}
+
+async function captureInteractiveGitDelta(
+  workspace: string,
+  beforeSnapshot: ProjectSnapshot,
+  beforeGit: GitTurnSnapshot,
+  afterSnapshot: ProjectSnapshot,
+  afterGit: GitTurnSnapshot,
+): Promise<InteractiveGitDelta> {
+  const emptyTree = beforeGit.head ?? beforeGit.working_tree;
+  const stopCommit = afterGit.head ?? afterGit.index_tree;
+  const [commitRangePaths, indexDeltaPaths, worktreeDeltaPaths, indexFromWorkingTreePaths, headFromIndexPaths, headFromWorkingTreePaths] = await Promise.all([
+    gitTreeChangedPaths(workspace, emptyTree, stopCommit),
+    gitTreeChangedPaths(workspace, beforeGit.index_tree, afterGit.index_tree),
+    gitTreeChangedPaths(workspace, beforeGit.working_tree, afterGit.working_tree),
+    gitTreeChangedPaths(workspace, beforeGit.working_tree, afterGit.index_tree),
+    gitTreeChangedPaths(workspace, beforeGit.index_tree, stopCommit),
+    gitTreeChangedPaths(workspace, beforeGit.working_tree, stopCommit),
+  ]);
+  const preExistingDirty = new Set(beforeSnapshot.entries.map((entry) => entry.path));
+  const indexDelta = new Set(indexDeltaPaths);
+  const workingTreeDelta = new Set(worktreeDeltaPaths);
+  const indexFromWorkingTree = new Set(indexFromWorkingTreePaths);
+  const headFromIndex = new Set(headFromIndexPaths);
+  const headFromWorkingTree = new Set(headFromWorkingTreePaths);
+  const candidates = new Set([
+    ...commitRangePaths,
+    ...afterSnapshot.entries.map((entry) => entry.path),
+    ...indexDeltaPaths,
+    ...worktreeDeltaPaths,
+  ]);
+  const changedPaths = [...candidates].filter((file) => {
+    if (!preExistingDirty.has(file)) return true;
+    if (workingTreeDelta.has(file)) return true;
+    const newIndexContent = indexDelta.has(file) && indexFromWorkingTree.has(file);
+    const newCommittedContent = commitRangePaths.includes(file) && headFromIndex.has(file) && headFromWorkingTree.has(file);
+    return newIndexContent || newCommittedContent;
+  }).sort();
+
+  const fullWorkingTreeDiff = await gitTreeDiff(workspace, beforeGit.working_tree, afterGit.working_tree);
+  const workingTreePaths = new Set(worktreeDeltaPaths);
+  const indexOnlyPaths = changedPaths.filter((file) => !workingTreePaths.has(file) && (indexDelta.has(file) || commitRangePaths.includes(file)));
+  const indexOnlyDiff = await gitTreeDiff(workspace, beforeGit.index_tree, afterGit.index_tree, indexOnlyPaths);
+  return {
+    changedPaths,
+    statusBefore: statusForPaths(beforeSnapshot, changedPaths),
+    statusAfter: statusForPaths(afterSnapshot, changedPaths),
+    diff: [fullWorkingTreeDiff.diff, indexOnlyDiff.diff].filter(Boolean).join("\n"),
+    numstat: [fullWorkingTreeDiff.numstat, indexOnlyDiff.numstat].filter(Boolean).join("\n"),
+  };
 }
 
 async function fingerprintWorkingPath(absolutePath: string): Promise<string> {
@@ -396,6 +542,12 @@ function safeParseState(value: unknown): InteractiveTurnState | undefined {
   const state = value as Partial<InteractiveTurnState>;
   if (state.version !== SNAPSHOT_VERSION || typeof state.session_id !== "string" || typeof state.turn_id !== "string"
     || typeof state.workspace !== "string" || typeof state.prompt !== "string" || !state.prompt.trim()) return undefined;
+  if (state.git_baseline !== undefined) {
+    const baseline = state.git_baseline as Partial<GitTurnSnapshot> | null;
+    const validObjectId = (candidate: unknown) => typeof candidate === "string" && /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i.test(candidate);
+    if (!baseline || (baseline.head !== null && !validObjectId(baseline.head))
+      || !validObjectId(baseline.index_tree) || !validObjectId(baseline.working_tree)) return undefined;
+  }
   return state as InteractiveTurnState;
 }
 
@@ -413,9 +565,11 @@ async function capturePrompt(w2Home: string, event: CodexHookEvent): Promise<Int
   const workspace = path.resolve(event.cwd);
   const statePath = turnStatePath(w2Home, workspace, event.session_id, event.turn_id);
   let beforeSnapshot: ProjectSnapshot | null = null;
+  let gitBaseline: GitTurnSnapshot | undefined;
   let snapshotError: string | undefined;
   try {
     beforeSnapshot = await captureProjectSnapshot(workspace);
+    gitBaseline = await captureGitTurnSnapshot(workspace);
   } catch (error) {
     snapshotError = error instanceof Error ? error.message : String(error);
   }
@@ -428,6 +582,7 @@ async function capturePrompt(w2Home: string, event: CodexHookEvent): Promise<Int
     prompt,
     ...(event.model ? { model: event.model } : {}),
     before_snapshot: beforeSnapshot,
+    ...(gitBaseline ? { git_baseline: gitBaseline } : {}),
     ...(snapshotError ? { snapshot_error: snapshotError } : {}),
   };
   await writeState(statePath, state);
@@ -486,11 +641,19 @@ async function finishTurn(w2Home: string, event: CodexHookEvent, options: Intera
   try {
     let afterSnapshot: ProjectSnapshot | null = null;
     let changedPaths: string[] = [];
+    let gitDelta: InteractiveGitDelta | undefined;
     let snapshotError = state.snapshot_error;
     if (!snapshotError && state.before_snapshot) {
       try {
         afterSnapshot = await captureProjectSnapshot(workspace);
-        changedPaths = getChangedPaths(state.before_snapshot, afterSnapshot);
+        if (state.git_baseline) {
+          const afterGit = await captureGitTurnSnapshot(workspace);
+          gitDelta = await captureInteractiveGitDelta(workspace, state.before_snapshot, state.git_baseline, afterSnapshot, afterGit);
+          changedPaths = gitDelta.changedPaths;
+        } else {
+          // Pending records created by earlier W2 versions keep their original snapshot behavior.
+          changedPaths = getChangedPaths(state.before_snapshot, afterSnapshot);
+        }
       } catch (error) {
         snapshotError = error instanceof Error ? error.message : String(error);
       }
@@ -505,14 +668,19 @@ async function finishTurn(w2Home: string, event: CodexHookEvent, options: Intera
     const projectVerifiers = await discoverProjectVerifiers(workspace);
     const task = buildInteractiveTask(completedState, changedPaths, projectVerifiers);
     const storage = getInteractiveRunStorage(w2Home, workspace);
-    const statusBefore = statusForPaths(state.before_snapshot, changedPaths);
+    const statusBefore = gitDelta?.statusBefore ?? statusForPaths(state.before_snapshot, changedPaths);
     const adapter = options.adapterFactory?.(event) ?? new InteractiveHookAdapter(event);
     const result = await runTaskAndPersistReceipt({
       task,
       databasePath: storage.databasePath,
       receiptDirectory: storage.receiptDirectory,
       adapter,
-      workspaceBaseline: { statusBefore, changedPaths, ...(snapshotError ? { captureError: snapshotError } : {}) },
+      workspaceBaseline: {
+        statusBefore,
+        changedPaths,
+        ...(snapshotError ? { captureError: snapshotError } : {}),
+        ...(gitDelta ? { diffCapture: { statusAfter: gitDelta.statusAfter, diff: gitDelta.diff, numstat: gitDelta.numstat } } : {}),
+      },
     });
     options.onRun?.(result.receipt);
     return { systemMessage: formatReceiptResult(result.receipt, result.markdownPath) };

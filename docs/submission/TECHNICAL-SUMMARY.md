@@ -18,9 +18,9 @@ W2 uses one deterministic receipt pipeline for manual task contracts and capture
 
 The Windows `w2` launcher starts the normal Codex TUI with one-run native hook configuration:
 
-- `UserPromptSubmit` records a likely engineering prompt and Git-visible baseline.
-- `Stop` compares turn state, builds the internal task contract, runs detected project checks, and persists the receipt.
+- `UserPromptSubmit` records a likely engineering prompt, baseline `HEAD`, index tree, working-tree tree, and dirty-path fingerprints.
+- `Stop` combines committed changes with current staged, unstaged, and untracked Git state, filters unchanged pre-existing dirt, runs detected project checks, and persists the receipt diff even after a clean commit.
 - `Interrupt` marks the matching pending turn aborted.
 - `SessionEnd` cleans up pending state for that session.
 
-The launch does not alter Codex settings or project files and preserves Codex's hook review and trust flow. Interactive criteria are extracted only from explicit acceptance headings. A criterion maps to a discovered package check only when it directly states that check passes. Other semantic criteria remain unproven unless a suitable verifier is directly connected.
+The launch does not alter Codex settings or project files and preserves Codex's hook review and trust flow. The Git snapshot uses a temporary index and leaves the user's index, worktree, refs, and history intact. Interactive criteria are extracted only from explicit acceptance headings. A criterion maps to a discovered package check only when it directly states that check passes. Other semantic criteria remain unproven unless a suitable verifier is directly connected.
