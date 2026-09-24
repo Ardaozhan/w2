@@ -16,7 +16,7 @@ Date: 2026-09-24
 | Tracked repository privacy scan | PASS | `npm run audit:public`; zero findings after sanitizing the three sample receipts |
 | Claim audit | PASS | [`CLAIM-AUDIT.md`](CLAIM-AUDIT.md) classifies supported, limited, rewritten, and removed claims |
 
-The current scan covered 97 public evidence files and 223 tracked repository files. Both secret scans and both privacy scans returned zero findings.
+The current scan covered 97 public evidence files and 237 tracked repository files. Both secret scans and both privacy scans returned zero findings.
 
 The scanner checks common API-key and GitHub-token formats, bearer credentials, private-key headers, long credential assignments, account home paths, local username references, user-level Codex/agent memory and prompt paths, local isolation/system paths, and email addresses. The security regression test contains synthetic `test-user` paths as isolation-test inputs; that one test file is excluded from privacy findings, and those values are not machine or account data.
 

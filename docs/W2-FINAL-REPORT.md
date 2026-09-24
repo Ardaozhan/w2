@@ -4,7 +4,7 @@ This is the current source of truth for W2's technical and submission status.
 
 ## Overall Status
 
-`W2 STANDALONE FINAL GATE = NOT YET PROVEN` until the final fresh-copy and Git checks are recorded below.
+`W2 TECHNICAL PACKAGE READY: YES`
 
 ## Product
 
@@ -83,7 +83,7 @@ The recorded GPT-5.6 work was a read-only development-time review of benchmark m
 
 ## Privacy Audit
 
-`npm run audit:public` passed with zero privacy findings in the selected evidence set and tracked project files. See [Public Artifact Audit](PUBLIC-ARTIFACT-AUDIT.md) for the scan scope and current file counts. The ignored local archive is excluded from the judge package and fresh-copy verification.
+`npm run audit:public` passed with zero privacy findings across 97 public evidence files and 237 tracked project files. See [Public Artifact Audit](PUBLIC-ARTIFACT-AUDIT.md) for the scan scope. The ignored local archive is excluded from the judge package and fresh-copy verification.
 
 ## Secret Audit
 
@@ -104,7 +104,7 @@ Playwright Chromium passed the static judge demo at 1440×1000 and 390×844. Bot
 
 ## Fresh Copy Verification
 
-`npm run fresh:check` passed against a clean project copy with 286 candidate paths. It installed dependencies and passed all 57 tests, typecheck, build, standalone checks, fixture and receipt validation, benchmark validation, hero and demo checks, privacy/secret scans, and local UI smoke. The copy excluded `node_modules`, `dist`, runtime databases, and ignored local archives.
+`npm run fresh:check` passed against a clean project copy with 238 candidate paths. It installed dependencies and passed all 57 tests, typecheck, build, standalone checks, fixture and receipt validation, benchmark validation, hero and demo checks, privacy/secret scans, and local UI smoke. The copy excluded `node_modules`, `dist`, runtime databases, and ignored local archives.
 
 ## Legacy System Cleanup
 
@@ -128,10 +128,10 @@ The standalone checker and repository scans found zero active retired-system mat
 
 ## Final Commit
 
-Pending creation of the requested W2 completion commit. Its full hash will be recorded here after commit.
+Requested completion commit: `b5889104675ffd1397838d6925e23e0f9902477a` (`final: make W2 standalone and complete`). Final closeout documentation is committed separately so this report can record that hash without rewriting history.
 
 ## Final Gate
 
-`W2 TECHNICAL PACKAGE READY: NOT YET PROVEN`
+`W2 TECHNICAL PACKAGE READY: YES`
 
 `W2 SUBMISSION READY: PENDING HUMAN ACTIONS`

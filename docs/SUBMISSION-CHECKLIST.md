@@ -16,7 +16,7 @@
 - [x] The public evidence manifest lists current W2-only artifacts; privacy and credential scans return zero findings.
 - [x] Repository-wide standalone scan finds no active old framework, machine-specific import, missing local script, sandbox bypass, or tracked runtime database.
 - [x] Fresh project-copy install, tests, typecheck, build, validators, public scan, and demo smoke pass.
-- [ ] Final diff is reviewed, the requested completion commit exists, and the Git worktree is clean.
+- [x] Final diff is reviewed, the requested completion commit exists, and the Git worktree is clean after closeout documentation.
 
 ## Human actions remaining
 

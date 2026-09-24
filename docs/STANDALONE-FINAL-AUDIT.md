@@ -42,7 +42,7 @@ Checks completed against the current W2 project copy:
 | Public privacy and secret scan | PASS | 97 evidence files and 237 project files; zero findings |
 | Static judge demo | PASS | Stored cases and receipt integrity validated; local UI smoke passes |
 | Browser QA | PASS | Desktop and 390px viewport; seven tabs and both cases; no overflow, console errors, or warnings |
-| Fresh project copy | PASS | 286 candidate paths copied without ignored dependencies/runtime data; install and all critical checks pass |
+| Fresh project copy | PASS | 238 candidate paths copied without ignored dependencies/runtime data; install and all critical checks pass |
 | Requested CLI path | PASS | A real isolated `w2 run` returned PASS with one verifier; stored receipt was read back |
 
-The final report [`W2-FINAL-REPORT.md`](W2-FINAL-REPORT.md) is the current source of truth. The requested completion commit and final clean-worktree check are recorded after Git review.
+The final report [`W2-FINAL-REPORT.md`](W2-FINAL-REPORT.md) is the current source of truth. The requested completion commit is `b5889104675ffd1397838d6925e23e0f9902477a`; final closeout documentation and the clean-worktree result are recorded there.
