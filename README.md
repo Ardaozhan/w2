@@ -110,6 +110,21 @@ npm run w2 -- run task.json
 
 W2 stores its local SQLite run state under `.w2/` and writes JSON/Markdown receipts alongside the selected database. The default database is `.w2/runs.sqlite`; pass `--db <path>` after the task file to choose another location.
 
+## Interactive Codex Mode
+
+From the W2 repository, install or update the PowerShell launcher once with `& .\scripts\install-w2-launcher.ps1`. Then use W2 from any project directory:
+
+```powershell
+cd C:\work\my-project
+w2
+```
+
+Codex remains the normal interactive TUI. W2 uses Codex's native [`UserPromptSubmit`, `Stop`, `Interrupt`, and `SessionEnd` hooks](https://learn.chatgpt.com/docs/hooks) to capture and verify engineering turns; no `task.json` is needed for this mode. Codex requires you to review and trust the W2 hook definition with `/hooks` before it runs. W2 does not bypass that review. The hook preserves the working directory and uses a [one-run CLI configuration override](https://learn.chatgpt.com/docs/developer-settings); it does not edit Codex settings or project files.
+
+W2 compares Git-visible project files at prompt submission and turn stop, then passes the captured task through the existing RunEngine and receipt pipeline. It runs available `test`, `typecheck`, `lint`, and `build` scripts from the project's `package.json`, excluding scripts that appear to invoke browser or visual automation. These checks prove only that the detected commands passed; without direct verifier mappings for the prompt's semantic requirements, the task outcome remains `UNPROVEN`. A changed file or Codex completion message alone cannot prove requested behavior. The hook runs at assistant-turn boundaries, so a multi-turn request can produce one receipt per engineering turn. W2 does not run browser QA.
+
+The canonical interactive runtime root is `<W2 installation>\.w2\interactive\`, independent of the target project cwd. Pending turns, the shared SQLite run store, and JSON/Markdown receipts are stored in a project-hash subdirectory there; hook diagnostics append safe event metadata to `.w2\interactive\hook-diagnostics.jsonl`. The target project receives no W2 runtime files. The install script changes only its marked block in the PowerShell profile and supports `-Uninstall`. Explicit task-file use remains available with `w2 run task.json` and `w2 receipt <run-id>`.
+
 ## Instant Judge Demo
 
 Open [`judge-demo/index.html`](judge-demo/index.html) directly. It is a standalone, no-build replay of stored evidence and needs no API key or network service. The primary cases are the stored REAL_CODEX hero PASS and the stored REAL_CODEX semantic UNPROVEN run. Both are labeled as replays, not live executions.

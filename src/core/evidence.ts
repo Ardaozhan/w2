@@ -228,9 +228,13 @@ export function buildRunReceipt(store: RunStore, runId: string, options: Receipt
   const actionIds = derived.filter((item) => item.type === "TOOL_EVIDENCE" || item.type === "ASSERTION_EVIDENCE").map((item) => item.evidence_id);
   const changeIds = derived.filter((item) => item.type === "DIFF_EVIDENCE").map((item) => item.evidence_id);
   const verificationIds = derived.filter((item) => ["TEST_EVIDENCE", "LINT_EVIDENCE", "TYPECHECK_EVIDENCE", "BUILD_EVIDENCE"].includes(item.type) || (item.type === "ASSERTION_EVIDENCE" && item.raw_reference.includes(":verification:"))).map((item) => item.evidence_id);
+  const executionMode = events.find((event) => event.type === "agent_started")?.payload as { execution_mode?: unknown } | undefined;
+  const receiptExecutionMode = executionMode?.execution_mode === "REAL_CODEX" || executionMode?.execution_mode === "CODEX_TUI_HOOK"
+    ? executionMode.execution_mode
+    : "FAKE_ADAPTER";
   return validateReceipt({
     receipt_version: "1.0", run_id: runId, task,
-    agent: { model: run.model, status: run.status, error: run.error, execution_mode: events.some((event) => (event.payload as { execution_mode?: string })?.execution_mode === "REAL_CODEX") ? "REAL_CODEX" : "FAKE_ADAPTER" },
+    agent: { model: run.model, status: run.status, error: run.error, execution_mode: receiptExecutionMode },
     context: { files_considered: context?.files_considered.length ?? 0, files_supplied: context?.files_included.length ?? 0, approximate_tokens: context?.approximate_tokens ?? 0, selected_paths: context?.files_included.map((item) => item.path) ?? [], accessed_files: context?.access_observation === "COMPLETE" ? context.accessed_files ?? [] : null, access_observation: context?.access_observation ?? "UNAVAILABLE", evidence_ids: contextIds },
     actions: { events: events.length, tool_calls: store.getToolCalls(runId).length, evidence_ids: actionIds },
     changes: { changed_files: run.diff?.changed_files ?? [], additions: run.diff?.additions ?? 0, deletions: run.diff?.deletions ?? 0, evidence_ids: changeIds },

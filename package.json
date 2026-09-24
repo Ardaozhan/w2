@@ -8,7 +8,8 @@
     "node": ">=22.13"
   },
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run && npm run test:interactive-hook-boundary",
+    "test:interactive-hook-boundary": "npm run build && node tests/e2e/interactive-hook-boundary.mjs",
     "pretest": "node scripts/ensure-dependencies.mjs",
     "typecheck": "tsc --noEmit",
     "build": "tsc",

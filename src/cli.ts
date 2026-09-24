@@ -3,15 +3,51 @@ import path from "node:path";
 import { loadTask } from "./core/task.js";
 import { runTaskAndPersistReceipt } from "./core/cli-run.js";
 import { buildRunReceipt, renderReceiptMarkdown } from "./core/evidence.js";
+import { handleInteractiveHook, type CodexHookEvent } from "./core/interactive.js";
 import { RunStore } from "./core/store.js";
 
 function usage(): never {
-  console.error("Usage: w2 run <task.json> [--db <path>] | w2 receipt <run-id> [--db <path>] [--out <dir>]");
+  console.error("Usage: w2 run <task.json> [--db <path>] | w2 receipt <run-id> [--db <path>] [--out <dir>] | w2 hook --home <W2 path>");
   process.exit(2);
+}
+
+async function readStdin(): Promise<string> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  return Buffer.concat(chunks).toString("utf8");
+}
+
+function optionValue(args: string[], option: string): string | undefined {
+  const index = args.indexOf(option);
+  return index >= 0 ? args[index + 1] : undefined;
 }
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+  if (args[0] === "hook") {
+    const w2Home = optionValue(args.slice(1), "--home");
+    if (!w2Home) usage();
+    let input: CodexHookEvent | undefined;
+    try {
+      input = JSON.parse(await readStdin()) as CodexHookEvent;
+      const result = await handleInteractiveHook(path.resolve(w2Home), input);
+      if (result?.systemMessage && input.hook_event_name === "SessionEnd") {
+        console.error(result.systemMessage);
+        process.exitCode = 1;
+      }
+      else if (result?.systemMessage) console.log(JSON.stringify(result));
+      else if (input.hook_event_name === "Stop") console.log("{}");
+    } catch (error) {
+      const errorClass = error instanceof SyntaxError ? "SyntaxError" : error instanceof TypeError ? "TypeError" : "Error";
+      if (input?.hook_event_name === "SessionEnd") {
+        console.error(`W2 SessionEnd hook failed (${errorClass}).`);
+        process.exitCode = 1;
+      } else {
+        console.log(JSON.stringify({ systemMessage: `W2 RECEIPT\nERROR\nW2 could not process this Codex lifecycle event (${errorClass}).` }));
+      }
+    }
+    return;
+  }
   if (!args[0] || !args[1] || !["run", "receipt"].includes(args[0])) usage();
   if (args[0] === "receipt") {
     let databasePath = path.resolve(".w2", "runs.sqlite");

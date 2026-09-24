@@ -11,6 +11,8 @@ export const RUN_STATES = [
 
 export type RunState = (typeof RUN_STATES)[number];
 
+export type AgentExecutionMode = "REAL_CODEX" | "CODEX_TUI_HOOK" | "FAKE_ADAPTER";
+
 export const EVENT_TYPES = [
   "run_created",
   "context_built",
@@ -200,7 +202,7 @@ export interface RunReceipt {
   receipt_version: "1.0";
   run_id: string;
   task: TaskDefinition;
-  agent: { model: string; status: RunState; error: string | null; execution_mode: "REAL_CODEX" | "FAKE_ADAPTER" };
+  agent: { model: string; status: RunState; error: string | null; execution_mode: AgentExecutionMode };
   context: { files_considered: number; files_supplied: number; approximate_tokens: number; selected_paths: string[]; accessed_files: string[] | null; access_observation: "COMPLETE" | "PARTIAL" | "UNAVAILABLE"; evidence_ids: string[] };
   actions: { events: number; tool_calls: number; evidence_ids: string[] };
   changes: { changed_files: string[]; additions: number; deletions: number; evidence_ids: string[] };

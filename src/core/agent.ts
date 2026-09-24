@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import type { AgentOutput, AgentRunResult, TaskDefinition, ToolCallRecord } from "./types.js";
+import type { AgentExecutionMode, AgentOutput, AgentRunResult, TaskDefinition, ToolCallRecord } from "./types.js";
 
 export interface AgentStartInput {
   task: TaskDefinition;
@@ -10,6 +10,7 @@ export interface AgentStartInput {
 
 export interface AgentAdapter {
   readonly provider: "codex";
+  readonly executionMode?: AgentExecutionMode;
   startRun(input: AgentStartInput): Promise<AgentRunResult>;
   sendTask(task: TaskDefinition, context: string): string;
   receiveAction(raw: unknown): { tool_name: string; input: unknown } | undefined;
@@ -42,6 +43,7 @@ function getString(value: unknown): string | undefined {
 
 export class CodexAgentAdapter implements AgentAdapter {
   readonly provider = "codex" as const;
+  readonly executionMode = "REAL_CODEX" as const;
   private process?: ChildProcess;
 
   constructor(private readonly options: CodexAgentAdapterOptions = {}) {}

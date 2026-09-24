@@ -102,7 +102,7 @@ export class ToolRuntime {
     });
   }
 
-  async shell(command: string, args: string[] = [], timeoutMs?: number): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  async shell(command: string, args: string[] = [], timeoutMs?: number, allowedExitCodes: number[] = [0]): Promise<{ stdout: string; stderr: string; exitCode: number }> {
     this.require("shell.execute");
     await this.requireApproval(command, args);
     const limit = this.budget.max_output_bytes ?? 1024 * 1024;
@@ -124,7 +124,7 @@ export class ToolRuntime {
         return { stdout, stderr, exitCode: timedOut ? 124 : outputLimited ? 125 : typeof failure.code === "number" ? failure.code : 1 };
       }
     }).then((result) => {
-      if (result.exitCode !== 0) {
+      if (!allowedExitCodes.includes(result.exitCode)) {
         const latest = this.calls[this.calls.length - 1];
         if (latest) latest.error = result.stderr || `Command exited with code ${result.exitCode}`;
       }
@@ -132,18 +132,59 @@ export class ToolRuntime {
     });
   }
 
-  async gitStatus(): Promise<string> {
+  async gitStatus(paths?: string[]): Promise<string> {
     this.require("git.read");
-    const result = await this.shell("git", ["status", "--porcelain=v1"]);
+    const result = await this.shell("git", [...(paths ? ["--literal-pathspecs"] : []), "status", "--porcelain=v1", ...(paths ? ["--", ...paths] : [])]);
     if (result.exitCode !== 0) throw new Error(`git status failed: ${result.stderr}`);
     return result.stdout;
   }
 
-  async gitDiff(): Promise<{ diff: string; numstat: string }> {
+  async gitDiff(paths?: string[]): Promise<{ diff: string; numstat: string }> {
     this.require("git.read");
-    const [diff, numstat] = await Promise.all([this.shell("git", ["diff", "HEAD", "--"]), this.shell("git", ["diff", "HEAD", "--numstat"])]);
-    if (diff.exitCode !== 0 || numstat.exitCode !== 0) throw new Error(`git diff failed: ${diff.stderr || numstat.stderr}`);
-    return { diff: diff.stdout, numstat: numstat.stdout };
+    const scopedArgs = paths ? ["--", ...paths] : ["--"];
+    let diffText: string;
+    let numstatText: string;
+    const head = await this.shell("git", ["rev-parse", "--verify", "HEAD"]);
+    if (head.exitCode === 0) {
+      const [diff, numstat] = await Promise.all([
+        this.shell("git", ["--literal-pathspecs", "diff", "HEAD", ...scopedArgs]),
+        this.shell("git", ["--literal-pathspecs", "diff", "HEAD", "--numstat", ...scopedArgs]),
+      ]);
+      if (diff.exitCode !== 0 || numstat.exitCode !== 0) throw new Error(`git diff failed: ${diff.stderr || numstat.stderr}`);
+      diffText = diff.stdout;
+      numstatText = numstat.stdout;
+    } else {
+      const [stagedDiff, unstagedDiff, stagedNumstat, unstagedNumstat] = await Promise.all([
+        this.shell("git", ["--literal-pathspecs", "diff", "--cached", ...scopedArgs]),
+        this.shell("git", ["--literal-pathspecs", "diff", ...scopedArgs]),
+        this.shell("git", ["--literal-pathspecs", "diff", "--cached", "--numstat", ...scopedArgs]),
+        this.shell("git", ["--literal-pathspecs", "diff", "--numstat", ...scopedArgs]),
+      ]);
+      const failed = [stagedDiff, unstagedDiff, stagedNumstat, unstagedNumstat].find((result) => result.exitCode !== 0);
+      if (failed) throw new Error(`git diff failed: ${failed.stderr}`);
+      diffText = [stagedDiff.stdout, unstagedDiff.stdout].filter(Boolean).join("\n");
+      numstatText = [stagedNumstat.stdout, unstagedNumstat.stdout].filter(Boolean).join("\n");
+    }
+
+    const untracked = await this.shell("git", [...(paths ? ["--literal-pathspecs"] : []), "ls-files", "--others", "--exclude-standard", "-z", ...(paths ? ["--", ...paths] : [])]);
+    if (untracked.exitCode !== 0) throw new Error(`git untracked-file lookup failed: ${untracked.stderr}`);
+    const untrackedPaths = untracked.stdout.split("\0").filter(Boolean);
+    const untrackedDiffs: string[] = [];
+    const untrackedNumstat: string[] = [];
+    for (const untrackedPath of untrackedPaths) {
+      const [fileDiff, fileNumstat] = await Promise.all([
+        this.shell("git", ["--literal-pathspecs", "diff", "--no-index", "--no-ext-diff", "--binary", "--", "/dev/null", untrackedPath], undefined, [0, 1]),
+        this.shell("git", ["--literal-pathspecs", "diff", "--no-index", "--numstat", "--", "/dev/null", untrackedPath], undefined, [0, 1]),
+      ]);
+      if (fileDiff.exitCode !== 0 && fileDiff.exitCode !== 1) throw new Error(`git untracked diff failed for ${untrackedPath}: ${fileDiff.stderr}`);
+      if (fileNumstat.exitCode !== 0 && fileNumstat.exitCode !== 1) throw new Error(`git untracked numstat failed for ${untrackedPath}: ${fileNumstat.stderr}`);
+      untrackedDiffs.push(fileDiff.stdout);
+      untrackedNumstat.push(fileNumstat.stdout);
+    }
+    return {
+      diff: [diffText, ...untrackedDiffs].filter(Boolean).join("\n"),
+      numstat: [numstatText, ...untrackedNumstat].filter(Boolean).join("\n"),
+    };
   }
 }
 

@@ -35,6 +35,12 @@ Task and acceptance criteria
 
 W2 checks calls made through its own `ToolRuntime` and records recognized execution evidence. The Codex sandbox controls native Codex execution. W2 is not an OS/container security boundary or a universal pre-execution tool broker.
 
+## Interactive Codex Mode
+
+The PowerShell `w2` launcher opens the standard Codex TUI in the current project and passes only per-run native hook configuration. Codex's `UserPromptSubmit`, `Stop`, `Interrupt`, and `SessionEnd` lifecycle events drive interactive capture after the user reviews and trusts the hook with `/hooks`; the launcher does not bypass hook trust. Captured turns use the same `RunEngine`, verification runner, deterministic outcome logic, and Run Receipt writer as task-file mode. The canonical runtime is W2's ignored `.w2/interactive/` directory, with project-hash state subdirectories and a safe `hook-diagnostics.jsonl` log at the root.
+
+The action-word prompt filter is heuristic, and `Stop` marks the end of an assistant turn rather than completion of a multi-turn task. Receipts are therefore per turn. W2 snapshots Git-visible paths and automatically discovers only conventional `test`, `typecheck`, `lint`, and `build` package scripts whose command graph does not appear to run browser or visual automation. Those checks prove only that the commands passed; without direct verifier mappings to the prompt's semantic requirements, the semantic criterion remains `UNPROVEN`. The Stop hook records Codex's latest message only as context, never as evidence. No transcript scraping, terminal polling, browser QA, or project-local W2 files are used.
+
 ## Run Receipt
 
 The receipt outcomes are `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, and `ERROR`. Agent completion text cannot set `PASS`; missing required evidence stays `UNPROVEN`; a verifier failure yields `FAIL`; aborts stay `ABORTED`; and timeout or infrastructure failure yields `ERROR`.

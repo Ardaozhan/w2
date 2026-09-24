@@ -10,11 +10,28 @@ import type { ToolRuntimeOptions } from "./runtime.js";
 import { runVerifications } from "./verification.js";
 import { parseTask } from "./task.js";
 
+const TURN_DIFF_VERIFIER_ID = "V-W2-TURN-DIFF";
+const TURN_DIFF_VERIFIER_COMMAND = "w2:turn-diff";
+
+function baselineVerifications(task: TaskDefinition, baseline: RunEngineOptions["workspaceBaseline"]): VerificationResult[] {
+  if (!baseline) return [];
+  const command = task.verification_commands.find((item) => item.id === TURN_DIFF_VERIFIER_ID);
+  if (!command || command.command !== TURN_DIFF_VERIFIER_COMMAND) return [];
+  if (baseline.captureError) {
+    return [{ verifier_id: command.id, name: command.name, category: command.category, command: command.command, exit_code: 124, stdout: "", stderr: baseline.captureError, duration_ms: 0, status: "ERROR" }];
+  }
+  if (!baseline.changedPaths.length) {
+    return [{ verifier_id: command.id, name: command.name, category: command.category, command: command.command, exit_code: 1, stdout: "", stderr: "No project Git changes were produced during this Codex turn.", duration_ms: 0, status: "FAILED" }];
+  }
+  return [{ verifier_id: command.id, name: command.name, category: command.category, command: command.command, exit_code: 0, stdout: `Detected ${baseline.changedPaths.length} changed project file(s) between the prompt and Stop hook.`, stderr: "", duration_ms: 0, status: "PASSED" }];
+}
+
 export interface RunEngineOptions {
   databasePath: string;
   adapter?: AgentAdapter;
   now?: () => Date;
   runtime?: Omit<ToolRuntimeOptions, "onSafetyEvent" | "runId">;
+  workspaceBaseline?: { statusBefore: string; changedPaths: string[]; captureError?: string };
 }
 
 export class RunEngine {
@@ -39,7 +56,7 @@ export class RunEngine {
     const runId = randomUUID();
     const startedAt = this.now().toISOString();
     const model = task.model ?? this.adapter.provider;
-    const executionMode = this.adapter instanceof CodexAgentAdapter ? "REAL_CODEX" : "FAKE_ADAPTER";
+    const executionMode = this.adapter.executionMode ?? (this.adapter instanceof CodexAgentAdapter ? "REAL_CODEX" : "FAKE_ADAPTER");
     const runtime = new ToolRuntime(workspace, {
       ...this.options.runtime,
       capabilities: task.capabilities ?? this.options.runtime?.capabilities,
@@ -55,7 +72,7 @@ export class RunEngine {
     this.saveCheckpoint(runId, runtime, null, 0);
     try {
       this.store.transition(runId, "PREPARING");
-      const statusBefore = await runtime.gitStatus();
+      const statusBefore = this.options.workspaceBaseline?.statusBefore ?? await runtime.gitStatus();
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
       const context = buildContextManifest(task, workspace);
       this.store.updateSnapshots(runId, { contextManifest: context });
@@ -72,7 +89,7 @@ export class RunEngine {
       if (agentResult.exit_code !== 0) {
         const message = `Agent failure: ${agentResult.error ?? "unknown error"}`;
         if (agentResult.infrastructure_failure) {
-          const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore);
+          const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore, this.options.workspaceBaseline?.changedPaths);
           this.store.updateSnapshots(runId, { toolEvents: agentResult.tool_calls, diff });
           this.store.transition(runId, "ERROR", { finishedAt: this.now().toISOString(), error: message });
           this.store.appendEvent(runId, "run_failed", { error: message, infrastructure: true });
@@ -82,14 +99,14 @@ export class RunEngine {
       }
       this.store.transition(runId, "VERIFYING");
       this.store.appendEvent(runId, "verification_started", { count: task.verification_commands.length });
-      const verificationResults = await runVerifications(task, runtime);
+      const verificationResults = await runVerifications(task, runtime, baselineVerifications(task, this.options.workspaceBaseline));
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
       for (const result of verificationResults) {
         this.store.appendVerification(runId, result);
         this.store.appendEvent(runId, "verification_finished", result);
       }
       this.saveCheckpoint(runId, runtime, context, verificationResults.length);
-      const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore);
+      const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore, this.options.workspaceBaseline?.changedPaths);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
       this.store.updateSnapshots(runId, { toolEvents: runtime.calls, verificationResults, diff });
       if (verificationResults.some((result) => result.status === "ERROR")) {
@@ -160,18 +177,18 @@ export class RunEngine {
     this.store.appendEvent(runId, "tool_finished", { tool_name: call.tool_name, error: call.error, result: call.result });
   }
 
-  private async captureAndPersistDiff(runId: string, runtime: ToolRuntime, statusBefore: string) {
-    const statusAfter = await runtime.gitStatus();
-    const gitDiff = await runtime.gitDiff();
+  private async captureAndPersistDiff(runId: string, runtime: ToolRuntime, statusBefore: string, changedPathScope?: string[]) {
+    const statusAfter = changedPathScope?.length === 0 ? "" : await runtime.gitStatus(changedPathScope);
+    const gitDiff = changedPathScope?.length === 0 ? { diff: "", numstat: "" } : await runtime.gitDiff(changedPathScope);
     const withoutW2Runtime = (status: string) => status.split(/\r?\n/).filter((line) => !/(?:^|\/)w2-run\.sqlite(?:-(?:wal|shm))?$/i.test(line.slice(3).trim())).join("\n");
-    const diff = captureDiff(withoutW2Runtime(statusBefore), withoutW2Runtime(statusAfter), gitDiff.diff, gitDiff.numstat);
+    const diff = captureDiff(withoutW2Runtime(statusBefore), withoutW2Runtime(statusAfter), gitDiff.diff, gitDiff.numstat, changedPathScope);
     for (const file of diff.changed_files) this.store.appendEvent(runId, "file_changed", { path: file });
     return diff;
   }
 
   private async finishFailure(runId: string, message: string, runtime: ToolRuntime, statusBefore: string, verificationResults: VerificationResult[] = [], diff?: ReturnType<typeof captureDiff>): Promise<void> {
     let captured = diff;
-    try { captured ??= await this.captureAndPersistDiff(runId, runtime, statusBefore); } catch { /* preserve the original failure */ }
+    try { captured ??= await this.captureAndPersistDiff(runId, runtime, statusBefore, this.options.workspaceBaseline?.changedPaths); } catch { /* preserve the original failure */ }
     this.store.updateSnapshots(runId, { toolEvents: runtime.calls, verificationResults, diff: captured });
     const current = this.store.getRun(runId);
     if (current && !["FAILED", "ERROR", "ABORTED", "COMPLETED"].includes(current.status)) this.store.transition(runId, "FAILED", { finishedAt: this.now().toISOString(), error: message });

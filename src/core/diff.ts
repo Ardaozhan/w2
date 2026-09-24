@@ -15,7 +15,7 @@ function totals(numstat: string): { additions: number; deletions: number } {
   }, { additions: 0, deletions: 0 });
 }
 
-export function captureDiff(statusBefore: string, statusAfter: string, diff: string, numstat: string): DiffCapture {
+export function captureDiff(statusBefore: string, statusAfter: string, diff: string, numstat: string, changedPathScope?: string[]): DiffCapture {
   const sums = totals(numstat);
-  return { status_before: statusBefore, status_after: statusAfter, changed_files: changedFiles(statusAfter), ...sums, unified_diff: diff };
+  return { status_before: statusBefore, status_after: statusAfter, changed_files: changedPathScope ? [...new Set(changedPathScope)].sort() : changedFiles(statusAfter), ...sums, unified_diff: diff };
 }

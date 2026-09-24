@@ -21,6 +21,8 @@ User task and acceptance criteria
     -> CLI / local UI / static judge demo
 ```
 
+Interactive use enters through a small W2 Node process adapter that starts the ordinary Codex TUI with per-invocation native hooks: `UserPromptSubmit` captures a likely engineering prompt and the Git-visible baseline; `Stop` captures the turn diff, builds an internal task contract, and calls the same RunEngine path above. The adapter inherits the terminal and forwards Codex arguments. W2 does not read the transcript or watch terminal output. Because Codex's Stop event is turn-scoped, receipts are turn-scoped too.
+
 ## Components
 
 | Component | Responsibility | Evidence limit |
@@ -50,3 +52,5 @@ Codex is the real coding agent in live runs. GPT-5.6 was used for documented dev
 ## Security boundary
 
 Codex's sandbox controls native Codex execution. W2 capability and path checks apply only to W2-owned `ToolRuntime` calls. W2 records recognized output, resulting changes, and verifier results; it does not broker every native call and is not an OS/container security boundary. See [Security Model](SECURITY-MODEL.md).
+
+The launcher supplies hook configuration only for that Codex invocation. On Windows it supplies a `command_windows` override that safely starts the built W2 CLI through PowerShell's encoded-command interface. Codex's native hook review and trust flow remains enabled; users review the W2 command through `/hooks`. Interactive state and receipts are stored under W2's ignored `.w2/interactive/` directory, keyed by the normalized target project path and Codex `session_id` plus `turn_id`. The hook diagnostics log is at the runtime root. The hook does not create project files or add dependencies.
