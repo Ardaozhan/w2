@@ -38,6 +38,7 @@ $installer = Join-Path $w2Install 'scripts\install-w2-launcher.ps1'
 & $installer -ProfilePath $whatIfProfile -WhatIf
 if (Test-Path -LiteralPath $whatIfProfile) { throw 'WhatIf created a PowerShell profile.' }
 & $installer -ProfilePath $profilePath
+$w2Install = $global:W2_INSTALL_PATH
 & $installer -ProfilePath $profilePath
 $profileContents = [System.IO.File]::ReadAllText($profilePath)
 if ([regex]::Matches($profileContents, [regex]::Escape('# >>> W2 LAUNCHER >>>')).Count -ne 1) { throw 'W2 profile installation was not idempotent.' }
