@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -227,7 +227,13 @@ async function main() {
   const mappedFolder = path.join(brainw2Vault, "01 Projects", "external-project-with-spaces");
   const projectNote = readFileSync(path.join(mappedFolder, "Project.md"), "utf8");
   const devLog = readFileSync(path.join(mappedFolder, "Dev Log.md"), "utf8");
-  assert.ok(projectNote.includes(`repo: ${JSON.stringify(workspace)}`), "created project note has the wrong repo metadata");
+  const repoMetadata = projectNote.match(/^repo: ("(?:\\.|[^"\\])*")$/m);
+  assert.ok(repoMetadata, "created project note has no repo metadata");
+  const normalizeProjectPath = (value) => {
+    const canonical = realpathSync.native(value);
+    return process.platform === "win32" ? canonical.toLocaleLowerCase("en-US") : canonical;
+  };
+  assert.equal(normalizeProjectPath(JSON.parse(repoMetadata[1])), normalizeProjectPath(workspace), "created project note has the wrong repo metadata");
   assert.match(devLog, new RegExp(`- Receipt: ${receipt.run_id}`));
   assert.match(devLog, /Outcome: UNPROVEN/);
   assert.equal(devLog.includes(prompt.prompt), false, "brainw2 writeback stored the full prompt");
