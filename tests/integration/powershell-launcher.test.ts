@@ -47,7 +47,7 @@ New-Item -ItemType Directory -Path $project -Force | Out-Null
 function global:codex { $global:CODEX_CALLED = $true }
 function global:node { $global:W2_CAPTURE = [PSCustomObject]@{ cwd = (Get-Location).ProviderPath; args = @($args); home = $env:W2_HOME; target = $env:W2_PROJECT; active = $env:W2_ACTIVE } }
 Push-Location $project
-try { w2 --version } finally { Pop-Location }
+try { $project = (Get-Location).ProviderPath; w2 --version } finally { Pop-Location }
 if ($global:W2_CAPTURE.cwd -ne $project) { throw 'Codex was not launched from the target project.' }
 if ($global:W2_CAPTURE.target -ne $project) { throw 'W2 target path did not remain the target project.' }
 if ($global:W2_CAPTURE.home -ne $w2Install) { throw 'W2 install path was mixed with the target project.' }
