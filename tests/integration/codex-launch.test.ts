@@ -5,14 +5,18 @@ describe("Codex TUI launch arguments", () => {
   it("uses native one-run hook overrides and preserves forwarded Codex arguments", () => {
     const plan = buildCodexLaunchPlan("C:\\W2 Install", "C:\\Codex\\codex.exe", ["--model", "gpt-6-sol"]);
     expect(plan.executable).toBe("C:\\Codex\\codex.exe");
-    expect(plan.args.filter((argument) => argument === "--config")).toHaveLength(4);
+    expect(plan.args.filter((argument) => argument === "--config")).toHaveLength(7);
     const configs = plan.args.filter((argument) => argument.startsWith("hooks."));
     expect(configs.map((argument) => argument.split("=", 1)[0])).toEqual([
-      "hooks.UserPromptSubmit", "hooks.Stop", "hooks.Interrupt", "hooks.SessionEnd",
+      "hooks.UserPromptSubmit", "hooks.PreToolUse", "hooks.PostToolUse", "hooks.PermissionRequest", "hooks.Stop", "hooks.Interrupt", "hooks.SessionEnd",
     ]);
     expect(configs[0]).toContain('command = "node \\\"C:\\\\W2 Install\\\\dist\\\\src\\\\cli.js\\\" hook --home \\\"C:\\\\W2 Install\\\""');
-    expect(configs[1]).toContain("timeout = 1500");
-    expect(configs[2]).toContain("timeout = 3");
+    expect(configs[1]).toContain("timeout = 10");
+    expect(configs[2]).toContain("timeout = 10");
+    expect(configs[3]).toContain("timeout = 10");
+    expect(configs[4]).toContain("timeout = 1500");
+    expect(configs[5]).toContain("timeout = 3");
+    expect(configs[6]).toContain("timeout = 3");
     const windowsConfig = configs[0]!.match(/command_windows = ("(?:\\.|[^"\\])*")/)?.[1];
     expect(windowsConfig).toBeDefined();
     const windowsCommand = JSON.parse(windowsConfig!) as string;

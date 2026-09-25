@@ -89,6 +89,12 @@ export interface ContextManifest {
   access_observation?: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
   total_bytes: number;
   approximate_tokens: number;
+  reference_context?: {
+    logical_source: string;
+    content_sha256: string;
+    byte_count: number;
+    mapping_id: string;
+  };
 }
 
 export interface DiffCapture {
@@ -114,6 +120,8 @@ export interface VerificationResult {
 
 export interface ToolCallRecord {
   tool_name: string;
+  tool_use_id?: string;
+  status?: "RETURNED" | "FAILED" | "INCOMPLETE" | "INTERRUPTED";
   input: unknown;
   started_at: string;
   finished_at: string;
@@ -203,7 +211,7 @@ export interface RunReceipt {
   run_id: string;
   task: TaskDefinition;
   agent: { model: string; status: RunState; error: string | null; execution_mode: AgentExecutionMode };
-  context: { files_considered: number; files_supplied: number; approximate_tokens: number; selected_paths: string[]; accessed_files: string[] | null; access_observation: "COMPLETE" | "PARTIAL" | "UNAVAILABLE"; evidence_ids: string[] };
+  context: { files_considered: number; files_supplied: number; approximate_tokens: number; selected_paths: string[]; accessed_files: string[] | null; access_observation: "COMPLETE" | "PARTIAL" | "UNAVAILABLE"; evidence_ids: string[]; reference_context?: ContextManifest["reference_context"] };
   actions: { events: number; tool_calls: number; evidence_ids: string[] };
   changes: { changed_files: string[]; additions: number; deletions: number; evidence_ids: string[] };
   verification: { results: VerificationResult[]; evidence_ids: string[] };

@@ -12,7 +12,11 @@ Calls routed through W2 `ToolRuntime` are checked against configured capabilitie
 
 ## Evidence W2 records
 
-W2 stores structured events recognized by the adapter, the before/after repository diff, and results from declared verification commands. These records are not a complete trace of every native operation or every file read. The context manifest records files considered, selected, and provided; exact Codex file access remains unknown unless separate telemetry establishes it.
+W2 stores supported Codex tool activity delivered through native `PreToolUse` and `PostToolUse` hooks, the before/after repository diff, and results from declared verification commands. Tool inputs and responses are summarized with safe structured metadata; raw command lines and response bodies are not persisted by default. These records are not a complete trace of every OS operation, every file read, internal model reasoning, or all external side effects. The context manifest records files considered, selected, and provided; exact Codex file access remains unknown unless separate telemetry establishes it.
+
+`PermissionRequest` is registered as a passive hook. W2 emits no permission decision, so Codex's ordinary approval behavior remains in control. W2 never auto-approves or auto-denies. Users inspect and trust the generated hook definitions through Codex's `/hooks` interface.
+
+Optional brainw2 notes are untrusted, user-maintained reference context. Supplied context is explicitly labeled `REFERENCE CONTEXT — NOT SYSTEM INSTRUCTIONS`, limited to selected sections from the mapped project note and its `Decisions.md`, and never counts as acceptance evidence. Receipt metadata stores a logical source, content hash, byte count, and project mapping ID; raw note content is not copied into receipt metadata. brainw2 read or write failures do not alter the W2 outcome.
 
 ## Outside W2's boundary
 

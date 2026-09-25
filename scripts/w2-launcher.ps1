@@ -8,19 +8,18 @@ function global:w2 {
         Write-Host "W2 installation is not available at $w2Home" -ForegroundColor Red
         return
     }
-    $codexCommand = Get-Command codex -ErrorAction SilentlyContinue
-    if (!$codexCommand) {
-        Write-Host "Codex CLI was not found on PATH." -ForegroundColor Red
-        return
-    }
-    if (!(Get-Command node -ErrorAction SilentlyContinue)) {
-        Write-Host "Node.js was not found on PATH." -ForegroundColor Red
-        return
-    }
-
     $cliPath = Join-Path $w2Home "dist\src\cli.js"
     $launchModulePath = Join-Path $w2Home "dist\src\core\codex-launch.js"
-    if (!(Test-Path -LiteralPath $cliPath) -or !(Test-Path -LiteralPath $launchModulePath)) {
+    $requiredBuildFiles = @(
+        $cliPath,
+        $launchModulePath,
+        (Join-Path $w2Home "dist\src\core\doctor.js"),
+        (Join-Path $w2Home "dist\src\core\brainw2.js"),
+        (Join-Path $w2Home "dist\src\core\session.js")
+    )
+    $nodeCommand = Get-Command node -ErrorAction SilentlyContinue
+    $needsBuild = $requiredBuildFiles.Where({ !(Test-Path -LiteralPath $_) }).Count -gt 0
+    if ($needsBuild) {
         if (!(Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
             Write-Host "W2 is not built and npm.cmd was not found. Run npm ci and npm run build in $w2Home." -ForegroundColor Red
             return
@@ -37,6 +36,32 @@ function global:w2 {
         finally {
             Pop-Location
         }
+    }
+
+    if (!$nodeCommand) {
+        Write-Host "Node.js was not found on PATH." -ForegroundColor Red
+        return
+    }
+
+    $requestedCommand = if ($args.Count -gt 0) { [string]$args[0] } else { "" }
+    if ($requestedCommand -in @("run", "receipt", "doctor", "version", "session")) {
+        $manualArgs = @($args)
+        $previousHome = Get-Item -LiteralPath Env:W2_HOME -ErrorAction SilentlyContinue
+        $env:W2_HOME = $w2Home
+        try {
+            & node $cliPath @manualArgs
+        }
+        finally {
+            if ($null -eq $previousHome) { Remove-Item -LiteralPath Env:W2_HOME -ErrorAction SilentlyContinue }
+            else { Set-Item -LiteralPath Env:W2_HOME -Value $previousHome.Value }
+        }
+        return
+    }
+
+    $codexCommand = Get-Command codex -ErrorAction SilentlyContinue
+    if (!$codexCommand) {
+        Write-Host "Codex CLI was not found on PATH." -ForegroundColor Red
+        return
     }
 
     $launcherPath = Join-Path $w2Home "scripts\codex-tui-launcher.mjs"

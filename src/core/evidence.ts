@@ -75,7 +75,12 @@ function contextEvidence(run: RunRecord, context: ContextManifest): EvidenceReco
     evidence_id: idFor(run.run_id, "context", reference), run_id: run.run_id, type: "CONTEXT_EVIDENCE",
     source: "sqlite:runs.context_manifest", summary: `${context.files_included.length} files supplied from ${context.files_considered.length} considered`,
     raw_reference: reference, confidence_class: "DETERMINISTIC", created_at: context.generated_at,
-    data: { files_considered: context.files_considered.length, files_included: context.files_included.length, approximate_tokens: context.approximate_tokens },
+    data: {
+      files_considered: context.files_considered.length,
+      files_included: context.files_included.length,
+      approximate_tokens: context.approximate_tokens,
+      ...(context.reference_context ? { reference_context: context.reference_context } : {}),
+    },
   }];
 }
 
@@ -84,7 +89,7 @@ export function deriveEvidence(run: RunRecord, events: number, toolCalls: number
   if (run.context_manifest) items.push(...contextEvidence(run, run.context_manifest));
   for (const [index, call] of run.tool_events.entries()) {
     const reference = `run:${run.run_id}:tool:${index}`;
-    items.push({ evidence_id: idFor(run.run_id, "tool", reference), run_id: run.run_id, type: "TOOL_EVIDENCE", source: "sqlite:tool_calls", summary: `${call.tool_name} executed`, raw_reference: reference, confidence_class: "DETERMINISTIC", created_at: call.finished_at, data: { tool_name: call.tool_name, input: call.input, result: call.result, error: call.error } });
+    items.push({ evidence_id: idFor(run.run_id, "tool", reference), run_id: run.run_id, type: "TOOL_EVIDENCE", source: "sqlite:tool_calls", summary: `${call.tool_name} activity observed${call.status ? ` (${call.status.toLocaleLowerCase("en-US")})` : ""}`, raw_reference: reference, confidence_class: "DETERMINISTIC", created_at: call.finished_at, data: { tool_name: call.tool_name, tool_use_id: call.tool_use_id, status: call.status, input: call.input, result: call.result, error: call.error } });
   }
   if (run.diff) {
     const reference = `run:${run.run_id}:diff`;
@@ -235,7 +240,16 @@ export function buildRunReceipt(store: RunStore, runId: string, options: Receipt
   return validateReceipt({
     receipt_version: "1.0", run_id: runId, task,
     agent: { model: run.model, status: run.status, error: run.error, execution_mode: receiptExecutionMode },
-    context: { files_considered: context?.files_considered.length ?? 0, files_supplied: context?.files_included.length ?? 0, approximate_tokens: context?.approximate_tokens ?? 0, selected_paths: context?.files_included.map((item) => item.path) ?? [], accessed_files: context?.access_observation === "COMPLETE" ? context.accessed_files ?? [] : null, access_observation: context?.access_observation ?? "UNAVAILABLE", evidence_ids: contextIds },
+    context: {
+      files_considered: context?.files_considered.length ?? 0,
+      files_supplied: context?.files_included.length ?? 0,
+      approximate_tokens: context?.approximate_tokens ?? 0,
+      selected_paths: context?.files_included.map((item) => item.path) ?? [],
+      accessed_files: context?.access_observation === "COMPLETE" ? context.accessed_files ?? [] : null,
+      access_observation: context?.access_observation ?? "UNAVAILABLE",
+      evidence_ids: contextIds,
+      ...(context?.reference_context ? { reference_context: context.reference_context } : {}),
+    },
     actions: { events: events.length, tool_calls: store.getToolCalls(runId).length, evidence_ids: actionIds },
     changes: { changed_files: run.diff?.changed_files ?? [], additions: run.diff?.additions ?? 0, deletions: run.diff?.deletions ?? 0, evidence_ids: changeIds },
     verification: { results: run.verification_results, evidence_ids: verificationIds }, evidence: derived, acceptance,

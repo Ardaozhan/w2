@@ -1,0 +1,22 @@
+name: Feature request
+description: Suggest a focused W2 improvement.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence-boundary
+    attributes:
+      label: Verification and evidence boundary
+      description: Explain how this can be verified without letting model claims or generic tests create a PASS.

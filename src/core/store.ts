@@ -179,6 +179,12 @@ export class RunStore {
       this.db.exec("UPDATE verification_results SET verifier_id = name WHERE verifier_id = '';");
       this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)").run(4, new Date().toISOString());
     }
+    if (!applied.some((row) => row.version === 5)) {
+      this.db.exec("ALTER TABLE tool_calls ADD COLUMN tool_use_id TEXT;");
+      this.db.exec("ALTER TABLE tool_calls ADD COLUMN status TEXT;");
+      this.db.exec("CREATE INDEX IF NOT EXISTS tool_calls_use_id ON tool_calls(run_id, tool_use_id);");
+      this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)").run(5, new Date().toISOString());
+    }
   }
 
   saveTask(task: TaskDefinition): void {
@@ -247,9 +253,9 @@ export class RunStore {
 
   appendToolCall(runId: string, call: ToolCallRecord): void {
     this.db.prepare(`
-      INSERT INTO tool_calls(run_id, tool_name, input, started_at, finished_at, result, error)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(runId, call.tool_name, json(call.input), call.started_at, call.finished_at, call.result === undefined ? null : json(call.result), call.error ?? null);
+      INSERT INTO tool_calls(run_id, tool_name, input, started_at, finished_at, result, error, tool_use_id, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(runId, call.tool_name, json(call.input), call.started_at, call.finished_at, call.result === undefined ? null : json(call.result), call.error ?? null, call.tool_use_id ?? null, call.status ?? null);
   }
 
   appendVerification(runId: string, result: VerificationResult): void {
@@ -287,6 +293,8 @@ export class RunStore {
     return rows.map((row) => ({
       tool_name: String(row.tool_name), input: JSON.parse(String(row.input)), started_at: String(row.started_at),
       finished_at: String(row.finished_at), result: row.result ? JSON.parse(String(row.result)) : undefined, error: row.error ? String(row.error) : undefined,
+      ...(typeof row.tool_use_id === "string" ? { tool_use_id: row.tool_use_id } : {}),
+      ...(typeof row.status === "string" ? { status: row.status as ToolCallRecord["status"] } : {}),
     }));
   }
 

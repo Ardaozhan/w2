@@ -1,6 +1,6 @@
 # Submission Preparation Index
 
-The reusable judge materials are in [`docs/submission/`](submission/). No active competition name or official competition URL is identified in this repository, and no Git remote is configured.
+The reusable judge materials are in [`docs/submission/`](submission/). The public repository is https://github.com/Ardaozhan/w2 and the stable release is v0.1.0. No active competition name or official competition URL is identified in this repository.
 
 Use [`COMPETITION-CHECKLIST.md`](submission/COMPETITION-CHECKLIST.md) to verify current rules after choosing a competition. The MIT license is already included. Repository visibility remains a human decision. The video is intentionally not created; the 60–90 second script is [`DEMO-SCRIPT.md`](submission/DEMO-SCRIPT.md).
 

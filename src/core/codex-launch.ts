@@ -1,11 +1,16 @@
 import path from "node:path";
 
-const hookTimeouts = [
+export const configuredHookEvents = ["UserPromptSubmit", "PreToolUse", "PostToolUse", "PermissionRequest", "Stop", "Interrupt", "SessionEnd"] as const;
+
+const hookTimeouts: ReadonlyArray<readonly [typeof configuredHookEvents[number], number]> = [
   ["UserPromptSubmit", 120],
+  ["PreToolUse", 10],
+  ["PostToolUse", 10],
+  ["PermissionRequest", 10],
   ["Stop", 1500],
   ["Interrupt", 3],
   ["SessionEnd", 3],
-] as const;
+];
 
 function tomlString(value: string): string {
   return `"${[...value].map((character) => {
@@ -55,7 +60,7 @@ export function buildCodexLaunchPlan(w2Home: string, executable: string, forward
   const commandWindows = tomlString(buildWindowsHookCommand(w2Home));
   const hookArguments = hookTimeouts.flatMap(([event, timeout]) => [
     "--config",
-    `hooks.${event}=[{ hooks = [{ type = "command", command = ${command}, command_windows = ${commandWindows}, timeout = ${timeout} }] }]`,
+    `hooks.${event}=[{ hooks = [{ type = "command", command = ${command}, command_windows = ${commandWindows}, timeout = ${timeout}${event === "UserPromptSubmit" ? ", additionalContextLimit = 12000" : ""} }] }]`,
   ]);
   return { executable, args: [...hookArguments, ...forwardedArgs] };
 }

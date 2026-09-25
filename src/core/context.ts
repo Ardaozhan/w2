@@ -31,7 +31,7 @@ function entry(workspace: string, relativePath: string, included: boolean, reaso
   };
 }
 
-export function buildContextManifest(task: TaskDefinition, workspace: string): ContextManifest {
+export function buildContextManifest(task: TaskDefinition, workspace: string, referenceContext?: ContextManifest["reference_context"]): ContextManifest {
   const candidates = walk(workspace);
   const allowed = task.allowed_paths.map((value) => value.replaceAll("\\", "/").replace(/^\.\//, ""));
   const files = candidates.map((candidate) => {
@@ -54,5 +54,6 @@ export function buildContextManifest(task: TaskDefinition, workspace: string): C
     access_observation: "UNAVAILABLE",
     total_bytes: totalBytes,
     approximate_tokens: Math.ceil(totalBytes / 4),
+    ...(referenceContext ? { reference_context: referenceContext } : {}),
   };
 }

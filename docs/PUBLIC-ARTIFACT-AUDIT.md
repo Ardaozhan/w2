@@ -24,4 +24,4 @@ The sample receipts in `fixtures/rate-limit-demo/` use `<WORKSPACE>` in place of
 
 ## Publication boundary
 
-No repository publication was performed. The checkout has no Git remote configured, so no remote visibility can be verified. Raw pre-hermetic runs remain in a gitignored local archive and are excluded from the judge evidence manifest. Existing Git history has not been rewritten; any future public release requires a history-aware privacy review, explicit repository-visibility decision, and a license decision if the repository is made public.
+The public repository is https://github.com/Ardaozhan/w2, and v0.1.0 remains the immutable published stable release. This audit checks tracked files and selected public evidence; it does not inspect every reachable Git object. Before a new public release, review reachable commit, tag, author, committer, and tagger metadata as well as file contents. Raw pre-hermetic runs remain excluded from the judge evidence manifest.

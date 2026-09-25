@@ -1,13 +1,15 @@
 import { createHash, randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { appendFile, lstat, mkdir, mkdtemp, readFile, readlink, rename, rm, rmdir, writeFile } from "node:fs/promises";
+import { appendFile, lstat, mkdir, mkdtemp, open, readFile, readlink, readdir, rename, rm, rmdir, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { appendBrainw2DevLog, loadBrainw2ReferenceContext, resolveProjectMapping, type Brainw2ProjectMapping, type Brainw2ReferenceMetadata } from "./brainw2.js";
 import type { AgentAdapter, AgentStartInput } from "./agent.js";
 import { runTaskAndPersistReceipt } from "./cli-run.js";
-import type { AgentOutput, AgentRunResult, RunReceipt, TaskDefinition, VerificationCommand } from "./types.js";
+import { recordSessionReceipt } from "./session.js";
+import type { AgentOutput, AgentRunResult, RunReceipt, TaskDefinition, ToolCallRecord, VerificationCommand } from "./types.js";
 
 const execFileAsync = promisify(execFile);
 const SNAPSHOT_VERSION = 1;
@@ -19,7 +21,6 @@ const verificationCategories = [
   { script: "build", id: "V-PROJECT-BUILD", name: "Project build", category: "build" as const },
 ];
 const browserCommandPattern = /\b(?:playwright|cypress|puppeteer|selenium|webdriver|browser|e2e|ui-smoke|screenshot|visual-regression|storybook)\b/i;
-const actionWords = "implement|fix|refactor|add|create|update|change|modify|remove|delete|migrate|build|write|optimi[sz]e|improve|replace|integrate|introduce|generate|convert|port|upgrade|secure|validate|düzelt\\w*|uygula\\w*|ekle\\w*|oluştur\\w*|değiştir\\w*|güncelle\\w*|kaldır\\w*|taşı\\w*|yeniden yaz|entegre\\w*|geliştir\\w*|iyileştir\\w*|kur\\w*|sil\\w*";
 
 export interface ProjectSnapshotEntry {
   path: string;
@@ -53,6 +54,8 @@ interface InteractiveTurnState {
   snapshot_error?: string;
   changed_paths?: string[];
   last_assistant_message?: string | null;
+  tool_calls?: ToolCallRecord[];
+  brainw2_reference?: Brainw2ReferenceMetadata;
 }
 
 export interface CodexHookEvent {
@@ -62,6 +65,10 @@ export interface CodexHookEvent {
   cwd?: string;
   transcript_path?: string | null;
   prompt?: string;
+  tool_name?: string;
+  tool_use_id?: string;
+  tool_input?: unknown;
+  tool_response?: unknown;
   model?: string;
   permission_mode?: "default" | "acceptEdits" | "plan" | "dontAsk" | "bypassPermissions";
   stop_hook_active?: boolean;
@@ -71,18 +78,21 @@ export interface CodexHookEvent {
 
 export interface InteractiveHookResult {
   systemMessage?: string;
+  additionalContext?: string;
 }
 
 export interface InteractiveHookOptions {
-  adapterFactory?: (event: CodexHookEvent) => AgentAdapter;
+  adapterFactory?: (event: CodexHookEvent, toolCalls?: ToolCallRecord[]) => AgentAdapter;
   onRun?: (receipt: RunReceipt) => void;
+  brainw2Env?: NodeJS.ProcessEnv;
+  brainw2Home?: string;
 }
 
 export class InteractiveHookAdapter implements AgentAdapter {
   readonly provider = "codex" as const;
   readonly executionMode = "CODEX_TUI_HOOK" as const;
 
-  constructor(private readonly event: CodexHookEvent) {}
+  constructor(private readonly event: CodexHookEvent, private readonly toolCalls: ToolCallRecord[] = []) {}
 
   sendTask(task: TaskDefinition): string {
     return task.goal;
@@ -112,29 +122,42 @@ export class InteractiveHookAdapter implements AgentAdapter {
     return {
       exit_code: 0,
       outputs: [this.receiveOutput(raw)],
-      tool_calls: [],
+      tool_calls: this.toolCalls,
     };
   }
 }
 
-export function isMeaningfulEngineeringPrompt(prompt: string): boolean {
-  let normalized = prompt.trim().replace(/\s+/g, " ");
+export function isMeaningfulEngineeringPrompt(prompt: string, env: NodeJS.ProcessEnv = process.env): boolean {
+  const normalized = prompt.trim().replace(/\s+/g, " ");
   if (!normalized || normalized.startsWith("/")) return false;
+  const override = env.W2_CAPTURE?.trim().toLocaleLowerCase("en-US");
+  if (override === "off") return false;
+  if (override === "always") return true;
+  if (override && override !== "auto") return false;
 
-  const courtesyPrefix = /^(?:please|kindly|can you|could you|would you|will you|i need you to|i want you to|need you to|help me to|let us|let's|lütfen|rica etsem)[\s,:-]+/i;
-  while (courtesyPrefix.test(normalized)) normalized = normalized.replace(courtesyPrefix, "");
+  if (/^(?:(?:please|kindly)\s+)?(?:(?:create|write|build|make|draft)\s+)?(?:an?\s+)?(?:implementation plan|plan|approach|proposal|strategy|roadmap|summary|overview|explanation)\b|^(?:plan|planning|brainstorm|discuss|outline|summari[sz]e|explain|describe|review)\b/i.test(normalized)) return false;
+  const turkishCodeNouns = /\b(?:test(?:ler(?:i)?)?|kod(?:u)?|fonksiyon(?:u)?|s\u0131n\u0131f(?:\u0131)?|mod\u00fcl(?:\u00fc)?|betik(?:i)?|script(?:i)?|readme)\b/i;
+  if (/\bwrite\b/i.test(normalized) && !/\bwrite\s+(?:(?:a|the)\s+)?(?:(?:unit|integration|regression|node:test)\s+)?(?:tests?|test cases?|code|source code|function|class|module|script|config(?:uration)? file|documentation|docs|readme)\b/i.test(normalized)) return false;
+  if (/\byaz(?:ar|abilir)?\b/i.test(normalized) && !turkishCodeNouns.test(normalized)) return false;
 
-  const action = new RegExp(`\\b(?:${actionWords})\\b`, "i");
-  if (!action.test(normalized)) return false;
+  const englishVerb = "implement|fix|refactor|add|create|update|change|modify|remove|delete|migrate|build|write|optimi[sz]e|improve|replace|integrate|introduce|generate|convert|port|upgrade|secure|validate|apply";
+  const direct = new RegExp(`^(?:(?:please|kindly)\\s+)?(?:${englishVerb})\\b`, "i");
+  const polite = new RegExp(`^(?:(?:please|kindly)\\s+)?(?:can|could|would|will)\\s+you\\s+(?:(?:please)\\s+)?(?:${englishVerb})\\b`, "i");
+  const personal = new RegExp(`^(?:(?:please|kindly)\\s+)?(?:i need you to|i want you to|help me to|help me|please)\\s+(?:${englishVerb})\\b`, "i");
+  const collaborative = new RegExp(`^(?:let us|let's)\\s+(?:${englishVerb})\\b`, "i");
+  if (direct.test(normalized) || polite.test(normalized) || personal.test(normalized) || collaborative.test(normalized)) return true;
 
-  // A direct command, a polite command, or a later imperative clause counts.
-  const directAction = new RegExp(`^(?:${actionWords})\\b`, "i");
-  const politeAction = new RegExp(`\\b(?:please|can you|could you|would you|lütfen)\\s+(?:${actionWords})\\b`, "i");
-  const laterAction = new RegExp(`(?:[.!?;,:]\\s*|\\b(?:then|and also|also)\\s+)(?:please\\s+)?(?:${actionWords})\\b`, "i");
-  if (directAction.test(normalized) || politeAction.test(normalized) || laterAction.test(normalized)) return true;
-  const turkishAction = /\b(?:düzelt\w*|uygula\w*|ekle\w*|oluştur\w*|değiştir\w*|güncelle\w*|kaldır\w*|taşı\w*|entegre\w*|geliştir\w*|iyileştir\w*|kur\w*|sil\w*)\b/i;
-  const turkishQuestion = /^(?:nasıl|neden|ne|nedir|açıkla|anlat|tartış|oku|incele|özetle|planla)\b/i;
-  return turkishAction.test(normalized) && !turkishQuestion.test(normalized);
+  if (/^(?:security fix|security vulnerability fix|fix the security issue|fix the vulnerability)\b/i.test(normalized)) return true;
+  if (/^(?:how|what|why|explain|describe|summari[sz]e|review|discuss|plan|brainstorm|nasıl|neden|ne|nedir|açıkla|anlat|özetle|incele|tartış|planla)\b/i.test(normalized)) return false;
+  if (/\b(?:how|what|why|nasıl|neden|ne)\b[^.!;]*\?\s*$/i.test(normalized)) return false;
+
+  // Turkish direct imperatives are deliberately enumerated to avoid treating explanatory questions as work.
+  const turkishImperative = /^(?:(?:lütfen|rica etsem)\s+)?(?:(?:şu|bu|bunu|şunu|buradaki|ilgili)\s+)*(?:düzelt|uygula|ekle|oluştur|değiştir|güncelle|kaldır|taşı|yeniden yaz|entegre et|geliştir|iyileştir|kur|sil|yaz|test ekle|test yaz)(?:\b|\s)/i;
+  const turkishPolite = /^(?:(?:şu|bu|bunu|şunu|buradaki|ilgili)\s+)*(?:.+\s)?(?:düzelt|uygula|ekle|oluştur|değiştir|güncelle|kaldır|taşı|yeniden yaz|entegre et|geliştir|iyileştir|kur|sil|yaz)(?:ir misin|ebilir misin|er misin|ar mısın)\s*\??$/i;
+  const turkishObjectImperative = /^(?!.*\b(?:nasıl|neden|ne|nedir|açıkla|anlat|özetle|incele|tartış|planla)\b)[^?]*\b(?:düzelt|uygula|ekle|oluştur|değiştir|güncelle|kaldır|taşı|yeniden yaz|entegre et|geliştir|iyileştir|kur|sil|yaz)\b[.!]?$/i;
+  if (turkishImperative.test(normalized) || turkishPolite.test(normalized) || turkishObjectImperative.test(normalized)) return true;
+
+  return false;
 }
 
 export async function captureProjectSnapshot(workspace: string): Promise<ProjectSnapshot> {
@@ -382,6 +405,9 @@ async function writeHookDiagnostic(input: {
     session_id: typeof input.event.session_id === "string" ? input.event.session_id.slice(0, 256) : null,
     turn_id: typeof input.event.turn_id === "string" ? input.event.turn_id.slice(0, 256) : null,
     project_cwd: typeof input.event.cwd === "string" ? path.resolve(input.event.cwd) : null,
+    ...(input.event.hook_event_name === "PreToolUse" || input.event.hook_event_name === "PostToolUse" || input.event.hook_event_name === "PermissionRequest"
+      ? { tool_name: safeToolName(input.event.tool_name), ...(safeToolUseId(input.event.tool_use_id) ? { tool_use_id: safeToolUseId(input.event.tool_use_id) } : {}) }
+      : {}),
     handler: input.handler,
     ...(input.outcome ? { outcome: input.outcome } : {}),
     ...(errorClass ? { error_class: errorClass } : {}),
@@ -537,6 +563,58 @@ function buildInteractiveTask(state: InteractiveTurnState, changedPaths: string[
   };
 }
 
+function safeToolCall(value: unknown, workspace: string): ToolCallRecord | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const candidate = value as Partial<ToolCallRecord>;
+  const statuses = ["RETURNED", "FAILED", "INCOMPLETE", "INTERRUPTED"] as const;
+  if (typeof candidate.started_at !== "string" || typeof candidate.finished_at !== "string"
+    || !statuses.includes(candidate.status as typeof statuses[number])) return undefined;
+  const inputCandidate = candidate.input && typeof candidate.input === "object" && !Array.isArray(candidate.input)
+    ? candidate.input as Record<string, unknown> : undefined;
+  if (!inputCandidate || !Array.isArray(inputCandidate.field_names) || !Array.isArray(inputCandidate.relative_paths)
+    || !Number.isSafeInteger(inputCandidate.input_bytes) || typeof inputCandidate.input_sha256 !== "string"
+    || !/^[a-f0-9]{64}$/i.test(inputCandidate.input_sha256)) return undefined;
+  const fieldNames = inputCandidate.field_names.filter((item): item is string => typeof item === "string" && /^[A-Za-z0-9_.-]{1,64}$/.test(item)).slice(0, 40);
+  const relativePaths = [...new Set(inputCandidate.relative_paths.filter((item): item is string => typeof item === "string")
+    .map((item) => safeRelativeToolPath(item, workspace)).filter((item): item is string => Boolean(item)))].slice(0, 50);
+  const categories = new Set(["npm test", "npm typecheck", "npm lint", "npm build", "pnpm test", "pnpm typecheck", "pnpm lint", "pnpm build", "yarn test", "yarn typecheck", "yarn lint", "yarn build", "bun test", "bun typecheck", "bun lint", "bun build", "git status", "git diff", "git add", "git commit", "git log", "git show", "powershell", "node", "python", "other-command"]);
+  const input: Record<string, unknown> = {
+    field_names: fieldNames,
+    relative_paths: relativePaths,
+    input_bytes: Math.max(0, Math.min(Number(inputCandidate.input_bytes), 64 * 1024 * 1024)),
+    input_sha256: inputCandidate.input_sha256.toLocaleLowerCase("en-US"),
+    ...(typeof inputCandidate.command_category === "string" && categories.has(inputCandidate.command_category) ? { command_category: inputCandidate.command_category } : {}),
+  };
+  const resultCandidate = candidate.result && typeof candidate.result === "object" && !Array.isArray(candidate.result)
+    ? candidate.result as Record<string, unknown> : undefined;
+  let result: ToolCallRecord["result"];
+  if (resultCandidate) {
+    const phase = resultCandidate.phase;
+    const status = resultCandidate.status;
+    if (!(phase === "pre" || phase === "post" || phase === "incomplete") || !statuses.includes(status as typeof statuses[number])) return undefined;
+    result = {
+      phase,
+      status,
+      ...(Number.isSafeInteger(resultCandidate.response_bytes) && Number(resultCandidate.response_bytes) >= 0 ? { response_bytes: Math.min(Number(resultCandidate.response_bytes), 64 * 1024 * 1024) } : {}),
+      ...(typeof resultCandidate.response_sha256 === "string" && /^[a-f0-9]{64}$/i.test(resultCandidate.response_sha256) ? { response_sha256: resultCandidate.response_sha256.toLocaleLowerCase("en-US") } : {}),
+      ...(Number.isSafeInteger(resultCandidate.exit_code) ? { exit_code: Number(resultCandidate.exit_code) } : {}),
+    };
+  }
+  const error = candidate.status === "FAILED" ? "Structured tool response reported failure."
+    : candidate.status === "INCOMPLETE" ? "No matching PostToolUse event was observed."
+      : candidate.status === "INTERRUPTED" ? "Turn ended before PostToolUse was observed." : undefined;
+  return {
+    tool_name: safeToolName(candidate.tool_name),
+    ...(safeToolUseId(candidate.tool_use_id) ? { tool_use_id: safeToolUseId(candidate.tool_use_id) } : {}),
+    status: candidate.status,
+    input,
+    started_at: candidate.started_at,
+    finished_at: candidate.finished_at,
+    ...(result ? { result } : {}),
+    ...(error ? { error } : {}),
+  };
+}
+
 function safeParseState(value: unknown): InteractiveTurnState | undefined {
   if (!value || typeof value !== "object") return undefined;
   const state = value as Partial<InteractiveTurnState>;
@@ -548,7 +626,16 @@ function safeParseState(value: unknown): InteractiveTurnState | undefined {
     if (!baseline || (baseline.head !== null && !validObjectId(baseline.head))
       || !validObjectId(baseline.index_tree) || !validObjectId(baseline.working_tree)) return undefined;
   }
-  return state as InteractiveTurnState;
+  const toolCalls = Array.isArray(state.tool_calls)
+    ? state.tool_calls.map((call) => safeToolCall(call, state.workspace!)).filter((call): call is ToolCallRecord => Boolean(call))
+    : [];
+  const reference = state.brainw2_reference;
+  const safeReference = reference && typeof reference.logical_source === "string" && reference.logical_source.length <= 512
+    && typeof reference.content_sha256 === "string" && /^[a-f0-9]{64}$/i.test(reference.content_sha256)
+    && Number.isSafeInteger(reference.byte_count) && reference.byte_count >= 0 && reference.byte_count <= 10 * 1024
+    && typeof reference.mapping_id === "string" && /^[a-f0-9]{20}$/i.test(reference.mapping_id)
+    ? reference : undefined;
+  return { ...(state as InteractiveTurnState), tool_calls: toolCalls, ...(safeReference ? { brainw2_reference: safeReference } : { brainw2_reference: undefined }) };
 }
 
 async function writeState(statePath: string, state: InteractiveTurnState): Promise<void> {
@@ -558,10 +645,181 @@ async function writeState(statePath: string, state: InteractiveTurnState): Promi
   await rename(temporaryPath, statePath);
 }
 
-async function capturePrompt(w2Home: string, event: CodexHookEvent): Promise<InteractiveHookResult | undefined> {
+function serialized(value: unknown): string {
+  try { return JSON.stringify(value) ?? "null"; } catch { return "[unserializable]"; }
+}
+
+function safeRelativeToolPath(value: string, workspace: string): string | undefined {
+  if (value.includes("\0")) return undefined;
+  const absolute = path.isAbsolute(value) ? path.resolve(value) : path.resolve(workspace, value);
+  const relative = path.relative(path.resolve(workspace), absolute);
+  if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) return undefined;
+  const normalized = relative.replaceAll("\\", "/");
+  return normalized && normalized !== "." ? normalized.slice(0, 240) : undefined;
+}
+
+function collectToolPaths(value: unknown, workspace: string): string[] {
+  const found = new Set<string>();
+  const visit = (current: unknown, depth: number) => {
+    if (depth > 5 || !current || typeof current !== "object") return;
+    for (const [key, child] of Object.entries(current as Record<string, unknown>).slice(0, 100)) {
+      if (/^(?:path|file|file_path|filename|target_path|relative_path)$/i.test(key) && typeof child === "string") {
+        const relative = safeRelativeToolPath(child, workspace);
+        if (relative) found.add(relative);
+      } else if (child && typeof child === "object") visit(child, depth + 1);
+    }
+  };
+  visit(value, 0);
+  return [...found].sort().slice(0, 50);
+}
+
+function commandCategory(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const command = value.trim().replace(/^['"]|['"]$/g, "");
+  const packageCommand = command.match(/^(npm(?:\.cmd)?|pnpm|yarn|bun)\s+(?:run\s+)?(test|typecheck|lint|build)\b/i);
+  if (packageCommand) return `${packageCommand[1]!.toLocaleLowerCase("en-US")} ${packageCommand[2]!.toLocaleLowerCase("en-US")}`;
+  const gitCommand = command.match(/^git\s+(status|diff|add|commit|log|show)\b/i);
+  if (gitCommand) return `git ${gitCommand[1]!.toLocaleLowerCase("en-US")}`;
+  if (/^\s*(?:pwsh|powershell)(?:\.exe)?\b/i.test(command)) return "powershell";
+  if (/^\s*(?:node|node\.exe)\b/i.test(command)) return "node";
+  if (/^\s*(?:python|python3|py)\b/i.test(command)) return "python";
+  return "other-command";
+}
+
+function safeToolInput(input: unknown, workspace: string): Record<string, unknown> {
+  const text = serialized(input);
+  const record = input && typeof input === "object" && !Array.isArray(input) ? input as Record<string, unknown> : undefined;
+  const fieldNames = record ? Object.keys(record).filter((key) => /^[A-Za-z0-9_.-]{1,64}$/.test(key)).sort().slice(0, 40) : [];
+  const safePaths = collectToolPaths(input, workspace);
+  const command = record?.command;
+  return {
+    field_names: fieldNames,
+    relative_paths: safePaths,
+    input_bytes: Buffer.byteLength(text, "utf8"),
+    input_sha256: createHash("sha256").update(text).digest("hex"),
+    ...(commandCategory(command) ? { command_category: commandCategory(command) } : {}),
+  };
+}
+
+function responseStatus(response: unknown): { status: "RETURNED" | "FAILED"; exitCode?: number; responseBytes: number; responseSha256: string } {
+  const text = serialized(response);
+  let exitCode: number | undefined;
+  let failed = false;
+  const visit = (current: unknown, depth: number) => {
+    if (depth > 4 || !current || typeof current !== "object") return;
+    const record = current as Record<string, unknown>;
+    if (typeof record.exit_code === "number") exitCode = record.exit_code;
+    if (typeof record.exitCode === "number") exitCode = record.exitCode;
+    if (record.success === false || record.is_error === true || record.isError === true) failed = true;
+    for (const child of Object.values(record).slice(0, 50)) if (child && typeof child === "object") visit(child, depth + 1);
+  };
+  visit(response, 0);
+  if (exitCode !== undefined && exitCode !== 0) failed = true;
+  return {
+    status: failed ? "FAILED" : "RETURNED",
+    ...(exitCode !== undefined ? { exitCode } : {}),
+    responseBytes: Buffer.byteLength(text, "utf8"),
+    responseSha256: createHash("sha256").update(text).digest("hex"),
+  };
+}
+
+function safeToolName(value: unknown): string {
+  return typeof value === "string" && /^[A-Za-z0-9_.:-]{1,120}$/.test(value) ? value : "unknown-tool";
+}
+
+function safeToolUseId(value: unknown): string | undefined {
+  return typeof value === "string" && /^[A-Za-z0-9_.:-]{1,256}$/.test(value) ? value : undefined;
+}
+
+async function readTurnState(statePath: string, event: CodexHookEvent): Promise<InteractiveTurnState | undefined> {
+  try {
+    const state = safeParseState(JSON.parse(await readFile(statePath, "utf8")));
+    if (!state || state.session_id !== event.session_id || state.turn_id !== event.turn_id) return undefined;
+    return state;
+  } catch { return undefined; }
+}
+
+async function recordToolEvent(w2Home: string, event: CodexHookEvent, phase: "pre" | "post"): Promise<void> {
+  if (!event.session_id || !event.turn_id || !event.cwd || !event.tool_use_id || !event.tool_name) return;
+  const workspace = path.resolve(event.cwd);
+  const statePath = turnStatePath(w2Home, workspace, event.session_id, event.turn_id);
+  const toolUseId = safeToolUseId(event.tool_use_id);
+  if (!toolUseId) return;
+  await mkdir(path.dirname(statePath), { recursive: true });
+  const lockPath = `${statePath}.lock`;
+  let lock;
+  const deadline = Date.now() + 3000;
+  while (!lock) {
+    try { lock = await open(lockPath, "wx"); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST" || Date.now() >= deadline) return;
+      await new Promise((resolve) => setTimeout(resolve, 15));
+    }
+  }
+  try {
+  const state = await readTurnState(statePath, event);
+  if (!state) return;
+  const calls = [...(state.tool_calls ?? [])];
+  const timestamp = new Date().toISOString();
+  const existingIndex = calls.findIndex((call) => call.tool_use_id === toolUseId);
+  if (phase === "pre") {
+    if (existingIndex >= 0) return;
+    const startedAt = timestamp;
+    calls.push({
+      tool_name: safeToolName(event.tool_name),
+      tool_use_id: toolUseId,
+      status: "INCOMPLETE",
+      input: safeToolInput(event.tool_input, workspace),
+      started_at: startedAt,
+      finished_at: startedAt,
+      result: { phase: "pre", status: "INCOMPLETE" },
+      error: "No matching PostToolUse event was observed.",
+    });
+  } else {
+    const details = responseStatus(event.tool_response);
+    if (existingIndex < 0) {
+      calls.push({
+        tool_name: safeToolName(event.tool_name), tool_use_id: toolUseId, status: details.status,
+        input: safeToolInput(event.tool_input, workspace), started_at: timestamp, finished_at: timestamp,
+        result: { phase: "post", status: details.status, response_bytes: details.responseBytes, response_sha256: details.responseSha256, ...(details.exitCode !== undefined ? { exit_code: details.exitCode } : {}) },
+      });
+    } else {
+      const previous = calls[existingIndex]!;
+      calls[existingIndex] = {
+        ...previous,
+        tool_name: safeToolName(event.tool_name || previous.tool_name),
+        status: details.status,
+        finished_at: timestamp,
+        result: { phase: "post", status: details.status, response_bytes: details.responseBytes, response_sha256: details.responseSha256, ...(details.exitCode !== undefined ? { exit_code: details.exitCode } : {}) },
+        ...(details.status === "FAILED" ? { error: "Structured tool response reported failure." } : { error: undefined }),
+      };
+    }
+  }
+  await writeState(statePath, { ...state, tool_calls: calls });
+  } finally {
+    await lock.close().catch(() => undefined);
+    await rm(lockPath, { force: true }).catch(() => undefined);
+  }
+}
+
+function interruptToolCalls(calls: ToolCallRecord[] | undefined): ToolCallRecord[] {
+  return (calls ?? []).map((call) => call.status === "INCOMPLETE" ? {
+    ...call,
+    status: "INTERRUPTED",
+    result: { phase: "incomplete", status: "INTERRUPTED" },
+    error: "Turn ended before PostToolUse was observed.",
+  } : call);
+}
+
+async function capturePrompt(w2Home: string, event: CodexHookEvent, options: InteractiveHookOptions): Promise<InteractiveHookResult | undefined> {
   const prompt = event.prompt?.trim();
-  if (!prompt || !isMeaningfulEngineeringPrompt(prompt)) return undefined;
   if (!event.session_id || !event.turn_id || !event.cwd) return { systemMessage: "W2 could not capture this engineering turn, so it cannot create a receipt." };
+  let referenceContext;
+  try { referenceContext = await loadBrainw2ReferenceContext(event.cwd, { env: options.brainw2Env, home: options.brainw2Home }); }
+  catch { process.stderr.write("W2 brainw2 sync skipped.\n"); }
+  const capture = typeof prompt === "string" && isMeaningfulEngineeringPrompt(prompt, options.brainw2Env ?? process.env);
+  if (!capture) return referenceContext ? { additionalContext: referenceContext.text } : undefined;
+  if (!prompt) return undefined;
   const workspace = path.resolve(event.cwd);
   const statePath = turnStatePath(w2Home, workspace, event.session_id, event.turn_id);
   let beforeSnapshot: ProjectSnapshot | null = null;
@@ -584,9 +842,11 @@ async function capturePrompt(w2Home: string, event: CodexHookEvent): Promise<Int
     before_snapshot: beforeSnapshot,
     ...(gitBaseline ? { git_baseline: gitBaseline } : {}),
     ...(snapshotError ? { snapshot_error: snapshotError } : {}),
+    tool_calls: [],
+    ...(referenceContext ? { brainw2_reference: referenceContext.metadata } : {}),
   };
   await writeState(statePath, state);
-  return undefined;
+  return referenceContext ? { additionalContext: referenceContext.text } : undefined;
 }
 
 function formatReceiptResult(receipt: RunReceipt, receiptPath: string): string {
@@ -610,8 +870,8 @@ function formatReceiptResult(receipt: RunReceipt, receiptPath: string): string {
   return lines.join("\n");
 }
 
-async function finishTurn(w2Home: string, event: CodexHookEvent, options: InteractiveHookOptions): Promise<InteractiveHookResult | undefined> {
-  if (event.stop_hook_active || !event.session_id || !event.turn_id || !event.cwd) return undefined;
+async function finishTurn(w2Home: string, event: CodexHookEvent, options: InteractiveHookOptions, interrupted = false): Promise<InteractiveHookResult | undefined> {
+  if ((!interrupted && event.stop_hook_active) || !event.session_id || !event.turn_id || !event.cwd) return undefined;
   const workspace = path.resolve(event.cwd);
   const statePath = turnStatePath(w2Home, workspace, event.session_id, event.turn_id);
   let state: InteractiveTurnState | undefined;
@@ -642,8 +902,8 @@ async function finishTurn(w2Home: string, event: CodexHookEvent, options: Intera
     let afterSnapshot: ProjectSnapshot | null = null;
     let changedPaths: string[] = [];
     let gitDelta: InteractiveGitDelta | undefined;
-    let snapshotError = state.snapshot_error;
-    if (!snapshotError && state.before_snapshot) {
+    let snapshotError = interrupted ? undefined : state.snapshot_error;
+    if (!interrupted && !snapshotError && state.before_snapshot) {
       try {
         afterSnapshot = await captureProjectSnapshot(workspace);
         if (state.git_baseline) {
@@ -661,28 +921,38 @@ async function finishTurn(w2Home: string, event: CodexHookEvent, options: Intera
     const completedState = {
       ...state,
       changed_paths: changedPaths,
-      last_assistant_message: event.last_assistant_message ?? null,
+      last_assistant_message: interrupted ? null : event.last_assistant_message ?? null,
+      tool_calls: interrupted ? interruptToolCalls(state.tool_calls) : state.tool_calls ?? [],
       ...(snapshotError ? { snapshot_error: snapshotError } : {}),
     };
     await writeState(statePath, completedState);
-    const projectVerifiers = await discoverProjectVerifiers(workspace);
+    const projectVerifiers = interrupted ? [] : await discoverProjectVerifiers(workspace);
     const task = buildInteractiveTask(completedState, changedPaths, projectVerifiers);
     const storage = getInteractiveRunStorage(w2Home, workspace);
     const statusBefore = gitDelta?.statusBefore ?? statusForPaths(state.before_snapshot, changedPaths);
-    const adapter = options.adapterFactory?.(event) ?? new InteractiveHookAdapter(event);
+    const adapter = options.adapterFactory?.(event, completedState.tool_calls) ?? new InteractiveHookAdapter(event, completedState.tool_calls);
     const result = await runTaskAndPersistReceipt({
       task,
       databasePath: storage.databasePath,
       receiptDirectory: storage.receiptDirectory,
       adapter,
       workspaceBaseline: {
-        statusBefore,
+        statusBefore: interrupted ? "" : statusBefore,
         changedPaths,
         ...(snapshotError ? { captureError: snapshotError } : {}),
-        ...(gitDelta ? { diffCapture: { statusAfter: gitDelta.statusAfter, diff: gitDelta.diff, numstat: gitDelta.numstat } } : {}),
+        ...(interrupted ? { diffCapture: { statusAfter: "", diff: "", numstat: "" } } : {}),
+        ...(!interrupted && gitDelta ? { diffCapture: { statusAfter: gitDelta.statusAfter, diff: gitDelta.diff, numstat: gitDelta.numstat } } : {}),
       },
+      ...(state.brainw2_reference ? { referenceContext: state.brainw2_reference } : {}),
+      ...(interrupted ? { interrupted: true } : {}),
     });
     options.onRun?.(result.receipt);
+    try { await recordSessionReceipt(w2Home, event.session_id, event.turn_id, result.receipt); }
+    catch { process.stderr.write("W2 session index update skipped.\n"); }
+    try {
+      const mapping: Brainw2ProjectMapping | undefined = await resolveProjectMapping(workspace, { env: options.brainw2Env, home: options.brainw2Home, create: false });
+      if (mapping) await appendBrainw2DevLog(mapping, result.receipt);
+    } catch { process.stderr.write("W2 brainw2 sync skipped.\n"); }
     return { systemMessage: formatReceiptResult(result.receipt, result.markdownPath) };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -692,16 +962,7 @@ async function finishTurn(w2Home: string, event: CodexHookEvent, options: Intera
   }
 }
 
-async function abortPendingTurn(w2Home: string, event: CodexHookEvent): Promise<boolean> {
-  if (!event.session_id || !event.turn_id || !event.cwd) throw new TypeError("Interrupt hook payload is missing its session, turn, or cwd field");
-  const statePath = turnStatePath(w2Home, path.resolve(event.cwd), event.session_id, event.turn_id);
-  const existed = existsSync(statePath);
-  await rm(statePath, { force: true });
-  await rmdir(path.dirname(statePath)).catch(() => undefined);
-  return existed;
-}
-
-async function cleanSessionPendingState(w2Home: string, event: CodexHookEvent): Promise<boolean> {
+async function cleanSessionPendingState(w2Home: string, event: CodexHookEvent, options: InteractiveHookOptions): Promise<boolean> {
   if (!event.session_id || !event.cwd) throw new TypeError("SessionEnd hook payload is missing its session or cwd field");
   const pendingRoot = path.join(projectRuntimeDirectory(w2Home, path.resolve(event.cwd)), "pending");
   const sessionDirectory = path.join(pendingRoot, pathHash(event.session_id));
@@ -709,6 +970,16 @@ async function cleanSessionPendingState(w2Home: string, event: CodexHookEvent): 
   const normalizedSession = path.resolve(sessionDirectory);
   if (!normalizedSession.startsWith(`${normalizedRoot}${path.sep}`)) throw new Error("SessionEnd pending state resolved outside the interactive runtime");
   const existed = existsSync(sessionDirectory);
+  let files: string[] = [];
+  try { files = (await readdir(sessionDirectory)).filter((name) => name.endsWith(".json")); } catch { /* no pending state */ }
+  for (const file of files) {
+    const statePath = path.join(sessionDirectory, file);
+    let stored: InteractiveTurnState | undefined;
+    try { stored = safeParseState(JSON.parse(await readFile(statePath, "utf8"))); } catch { stored = undefined; }
+    if (!stored || stored.session_id !== event.session_id || path.resolve(stored.workspace) !== path.resolve(event.cwd)) continue;
+    const interruptedEvent: CodexHookEvent = { ...event, hook_event_name: "Interrupt", turn_id: stored.turn_id };
+    await finishTurn(w2Home, interruptedEvent, options, true);
+  }
   await rm(normalizedSession, { recursive: true, force: true });
   return existed;
 }
@@ -741,8 +1012,23 @@ export async function handleInteractiveHook(w2Home: string, event: CodexHookEven
         if (!event.session_id || !event.turn_id || !event.cwd || typeof event.prompt !== "string" || !validPermissionMode(event.permission_mode)) {
           throw new TypeError("UserPromptSubmit hook payload is missing a required Codex field");
         }
-        result = await capturePrompt(w2Home, event);
-        outcome = result ? "ERROR" : isMeaningfulEngineeringPrompt(event.prompt) ? "PENDING" : "IGNORED";
+        result = await capturePrompt(w2Home, event, options);
+        outcome = result?.systemMessage ? "ERROR" : isMeaningfulEngineeringPrompt(event.prompt, options.brainw2Env ?? process.env) ? "PENDING" : "IGNORED";
+        break;
+      }
+      case "PreToolUse": {
+        await recordToolEvent(w2Home, event, "pre");
+        outcome = "PENDING";
+        break;
+      }
+      case "PostToolUse": {
+        await recordToolEvent(w2Home, event, "post");
+        outcome = "PENDING";
+        break;
+      }
+      case "PermissionRequest": {
+        // Returning no decision preserves Codex's ordinary permission prompt.
+        outcome = "IGNORED";
         break;
       }
       case "Stop": {
@@ -764,12 +1050,21 @@ export async function handleInteractiveHook(w2Home: string, event: CodexHookEven
       }
       case "Interrupt": {
         if (!validPermissionMode(event.permission_mode)) throw new TypeError("Interrupt hook payload is missing permission_mode");
-        outcome = await abortPendingTurn(w2Home, event) ? "ABORTED" : "NO_PENDING";
+        const trackedOptions: InteractiveHookOptions = {
+          ...options,
+          onRun: (receipt) => {
+            receiptId = receipt.run_id;
+            outcome = receipt.outcome;
+            options.onRun?.(receipt);
+          },
+        };
+        result = await finishTurn(w2Home, event, trackedOptions, true);
+        outcome = receiptId ? "ABORTED" : result?.systemMessage ? "ERROR" : "NO_PENDING";
         break;
       }
       case "SessionEnd": {
         if (typeof event.reason !== "string") throw new TypeError("SessionEnd hook payload is missing its reason field");
-        outcome = await cleanSessionPendingState(w2Home, event) ? "CLEANED" : "NO_PENDING";
+        outcome = await cleanSessionPendingState(w2Home, event, options) ? "CLEANED" : "NO_PENDING";
         break;
       }
       default:

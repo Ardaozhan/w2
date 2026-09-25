@@ -5,7 +5,7 @@ import { CodexAgentAdapter, type AgentAdapter } from "./agent.js";
 import { captureDiff } from "./diff.js";
 import { ToolRuntime } from "./runtime.js";
 import { RunStore } from "./store.js";
-import type { ContextManifest, RunRecord, TaskDefinition, VerificationResult } from "./types.js";
+import type { ContextManifest, RunRecord, TaskDefinition, ToolCallRecord, VerificationResult } from "./types.js";
 import type { ToolRuntimeOptions } from "./runtime.js";
 import { runVerifications } from "./verification.js";
 import { parseTask } from "./task.js";
@@ -37,6 +37,8 @@ export interface RunEngineOptions {
     captureError?: string;
     diffCapture?: { statusAfter: string; diff: string; numstat: string };
   };
+  referenceContext?: ContextManifest["reference_context"];
+  interrupted?: boolean;
 }
 
 export class RunEngine {
@@ -75,31 +77,51 @@ export class RunEngine {
     this.store.createRun({ run_id: runId, task_id: task.task_id, started_at: startedAt, model, workspace });
     this.store.appendEvent(runId, "run_created", { task_id: task.task_id });
     this.saveCheckpoint(runId, runtime, null, 0);
+    let observedToolCalls: ToolCallRecord[] = [];
     try {
       this.store.transition(runId, "PREPARING");
       const statusBefore = this.options.workspaceBaseline?.statusBefore ?? await runtime.gitStatus();
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
-      const context = buildContextManifest(task, workspace);
+      const context: ContextManifest = this.options.interrupted
+        ? {
+            workspace, generated_at: this.now().toISOString(), task_id: task.task_id,
+            files_considered: [], files_included: [], excluded_candidates: [], accessed_files: [],
+            access_observation: "UNAVAILABLE", total_bytes: 0, approximate_tokens: 0,
+            ...(this.options.referenceContext ? { reference_context: this.options.referenceContext } : {}),
+          }
+        : buildContextManifest(task, workspace, this.options.referenceContext);
       this.store.updateSnapshots(runId, { contextManifest: context });
       this.store.appendEvent(runId, "context_built", { files_included: context.files_included.length, approximate_tokens: context.approximate_tokens });
       this.saveCheckpoint(runId, runtime, context, 0);
       this.store.transition(runId, "RUNNING");
       this.store.appendEvent(runId, "agent_started", { provider: this.adapter.provider, model, execution_mode: executionMode });
       const agentResult = await this.adapter.startRun({ task, workspace, context: JSON.stringify(context, null, 2), timeoutMs: task.timeout_ms ?? 5 * 60 * 1000 });
+      observedToolCalls = agentResult.tool_calls;
       for (const output of agentResult.outputs) this.store.appendEvent(runId, "agent_output", output);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
       for (const call of agentResult.tool_calls) this.persistAgentToolCall(runId, call);
-      this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...agentResult.tool_calls] });
+      this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...observedToolCalls] });
       this.saveCheckpoint(runId, runtime, context, 0);
+      if (this.options.interrupted) {
+        let diff: RunRecord["diff"] = null;
+        try { diff = await this.captureAndPersistDiff(runId, runtime, statusBefore, this.options.workspaceBaseline?.changedPaths); }
+        catch { /* an interrupted run remains ABORTED even when a final diff is unavailable */ }
+        this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...observedToolCalls], ...(diff ? { diff } : {}) });
+        this.store.transition(runId, "ABORTED", { finishedAt: this.now().toISOString(), error: "Turn interrupted" });
+        this.store.appendEvent(runId, "run_aborted", { reason: "codex_interrupt" });
+        this.store.appendEvent(runId, "run_finished", { status: "ABORTED" });
+        this.activeRunId = undefined;
+        return this.store.getRun(runId)!;
+      }
       if (agentResult.exit_code !== 0) {
         const message = `Agent failure: ${agentResult.error ?? "unknown error"}`;
         if (agentResult.infrastructure_failure) {
           const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore, this.options.workspaceBaseline?.changedPaths);
-          this.store.updateSnapshots(runId, { toolEvents: agentResult.tool_calls, diff });
+          this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...observedToolCalls], diff });
           this.store.transition(runId, "ERROR", { finishedAt: this.now().toISOString(), error: message });
           this.store.appendEvent(runId, "run_failed", { error: message, infrastructure: true });
           this.store.appendEvent(runId, "run_finished", { status: "ERROR" });
-        } else await this.finishFailure(runId, message, runtime, statusBefore);
+        } else await this.finishFailure(runId, message, runtime, statusBefore, [], undefined, observedToolCalls);
         return this.store.getRun(runId)!;
       }
       this.store.transition(runId, "VERIFYING");
@@ -113,13 +135,13 @@ export class RunEngine {
       this.saveCheckpoint(runId, runtime, context, verificationResults.length);
       const diff = await this.captureAndPersistDiff(runId, runtime, statusBefore, this.options.workspaceBaseline?.changedPaths);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
-      this.store.updateSnapshots(runId, { toolEvents: runtime.calls, verificationResults, diff });
+      this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...observedToolCalls], verificationResults, diff });
       if (verificationResults.some((result) => result.status === "ERROR")) {
         this.store.transition(runId, "ERROR", { finishedAt: this.now().toISOString(), error: "Verification infrastructure failed" });
         this.store.appendEvent(runId, "run_failed", { error: "Verification infrastructure failed", infrastructure: true });
         this.store.appendEvent(runId, "run_finished", { status: "ERROR" });
       } else if (verificationResults.some((result) => result.status !== "PASSED")) {
-        await this.finishFailure(runId, "Verification failed", runtime, statusBefore, verificationResults, diff);
+        await this.finishFailure(runId, "Verification failed", runtime, statusBefore, verificationResults, diff, observedToolCalls);
       } else {
         this.store.transition(runId, "COMPLETED", { finishedAt: this.now().toISOString() });
         this.store.appendEvent(runId, "run_finished", { status: "COMPLETED" });
@@ -127,7 +149,7 @@ export class RunEngine {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
-      this.store.updateSnapshots(runId, { toolEvents: runtime.calls });
+      this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...observedToolCalls] });
       const current = this.store.getRun(runId);
       if (current && !["COMPLETED", "FAILED", "ABORTED", "ERROR"].includes(current.status)) {
         this.store.transition(runId, "ERROR", { finishedAt: this.now().toISOString(), error: message });
@@ -177,9 +199,9 @@ export class RunEngine {
 
   private persistAgentToolCall(runId: string, call: import("./types.js").ToolCallRecord): void {
     this.store.appendToolCall(runId, call);
-    this.store.appendEvent(runId, "tool_requested", { tool_name: call.tool_name, input: call.input });
-    this.store.appendEvent(runId, "tool_started", { tool_name: call.tool_name });
-    this.store.appendEvent(runId, "tool_finished", { tool_name: call.tool_name, error: call.error, result: call.result });
+    this.store.appendEvent(runId, "tool_requested", { tool_name: call.tool_name, tool_use_id: call.tool_use_id, input: call.input });
+    this.store.appendEvent(runId, "tool_started", { tool_name: call.tool_name, tool_use_id: call.tool_use_id, status: call.status ?? "RETURNED" });
+    this.store.appendEvent(runId, "tool_finished", { tool_name: call.tool_name, tool_use_id: call.tool_use_id, status: call.status ?? "RETURNED", error: call.error, result: call.result });
   }
 
   private async captureAndPersistDiff(runId: string, runtime: ToolRuntime, statusBefore: string, changedPathScope?: string[]) {
@@ -195,10 +217,10 @@ export class RunEngine {
     return diff;
   }
 
-  private async finishFailure(runId: string, message: string, runtime: ToolRuntime, statusBefore: string, verificationResults: VerificationResult[] = [], diff?: ReturnType<typeof captureDiff>): Promise<void> {
+  private async finishFailure(runId: string, message: string, runtime: ToolRuntime, statusBefore: string, verificationResults: VerificationResult[] = [], diff?: ReturnType<typeof captureDiff>, agentToolCalls: ToolCallRecord[] = []): Promise<void> {
     let captured = diff;
     try { captured ??= await this.captureAndPersistDiff(runId, runtime, statusBefore, this.options.workspaceBaseline?.changedPaths); } catch { /* preserve the original failure */ }
-    this.store.updateSnapshots(runId, { toolEvents: runtime.calls, verificationResults, diff: captured });
+    this.store.updateSnapshots(runId, { toolEvents: [...runtime.calls, ...agentToolCalls], verificationResults, diff: captured });
     const current = this.store.getRun(runId);
     if (current && !["FAILED", "ERROR", "ABORTED", "COMPLETED"].includes(current.status)) this.store.transition(runId, "FAILED", { finishedAt: this.now().toISOString(), error: message });
     this.store.appendEvent(runId, "run_failed", { error: message });

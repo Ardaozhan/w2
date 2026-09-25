@@ -42,4 +42,4 @@ No. A verifier proves only its declared check. Codex's sandbox controls native e
 
 ## Is W2 published on npm?
 
-No. The package is marked private. This checkout has no Git remote or confirmed hosted release target.
+No. The package is marked private. The source is hosted at https://github.com/Ardaozhan/w2, and v0.1.0 is the published stable release. W2 is not published to npm.

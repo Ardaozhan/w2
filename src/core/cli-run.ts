@@ -12,8 +12,10 @@ export async function runTaskAndPersistReceipt(input: {
   adapter?: AgentAdapter;
   runtime?: RunEngineOptions["runtime"];
   workspaceBaseline?: RunEngineOptions["workspaceBaseline"];
+  referenceContext?: RunEngineOptions["referenceContext"];
+  interrupted?: boolean;
 }) {
-  const engine = new RunEngine({ databasePath: input.databasePath, adapter: input.adapter, runtime: input.runtime, workspaceBaseline: input.workspaceBaseline });
+  const engine = new RunEngine({ databasePath: input.databasePath, adapter: input.adapter, runtime: input.runtime, workspaceBaseline: input.workspaceBaseline, referenceContext: input.referenceContext, interrupted: input.interrupted });
   try {
     const run = await engine.run(input.task);
     const receipt = buildRunReceipt(engine.store, run.run_id);
