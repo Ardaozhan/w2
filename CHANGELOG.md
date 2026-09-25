@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 - 2026-09-25
+
+- Make Codex launch, verifier command, profile isolation, and ancestry test fixtures platform-aware without changing product behavior.
+- Add Ubuntu GitHub Actions coverage for the automated suite, fresh-copy checks, and core repository audits while retaining Windows CI.
+- Clarify verified Windows and Linux support boundaries, including the Windows-specific PowerShell launcher and unverified Linux live TUI trust.
+
 ## 0.2.0 - 2026-09-25
 
 - Add `w2 doctor`, direct manual CLI routing, and a minimal session receipt index.

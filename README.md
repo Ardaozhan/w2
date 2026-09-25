@@ -14,10 +14,10 @@ W2 computes one of `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR` from determ
 ## Current release
 
 - Public repository: [Ardaozhan/w2](https://github.com/Ardaozhan/w2)
-- Latest stable release: [v0.1.0](https://github.com/Ardaozhan/w2/releases/tag/v0.1.0)
-- Current main development version: `0.2.0-rc.1`; v0.2.0 final awaits a live Codex TUI trust and end-to-end test after relaunch.
-- Latest local regression run: 102 tests across 19 files on Windows 11 with Node.js 22.13; this does not prove live TUI hook behavior.
-- Windows 11 with Node.js 22.13+ is the only independently verified environment.
+- Latest stable release: [v0.2.1](https://github.com/Ardaozhan/w2/releases/tag/v0.2.1)
+- Windows 11 with Node.js 22.13+: live Codex TUI integration verified.
+- Ubuntu Linux with Node.js 22: core automated suite verified by independent Camber Cloud validation and GitHub Actions CI.
+- The PowerShell launcher and Windows `command_windows` behavior are Windows-specific. Live Codex TUI hook trust on Linux is not independently verified.
 
 ## Install
 
@@ -78,7 +78,7 @@ Receipts are turn-scoped. A small session index relates receipts from one Codex 
 
 W2 reuses its existing AgentAdapter, RunEngine, SQLite RunStore, verifier runner, evidence mapper, and receipt model for both manual and interactive runs. Codex's native sandbox controls Codex operations; W2 is not an OS or container security boundary. See [architecture](docs/ARCHITECTURE.md), [run contract](docs/RUN-CONTRACT.md), and [security model](docs/SECURITY-MODEL.md).
 
-The Windows GitHub Actions workflow runs tests, typecheck, build, standalone and public-artifact checks, and npm audit. CI does not prove live Codex TUI hook trust or end-to-end behavior.
+Windows GitHub Actions verifies the Windows suite and fresh-copy checks. Ubuntu GitHub Actions verifies the core automated suite, typecheck, build, standalone and public-artifact checks, npm audit, and a fresh-copy run. Linux CI does not verify the PowerShell launcher, Windows `command_windows` behavior, or live Codex TUI hook trust.
 
 ## Development
 

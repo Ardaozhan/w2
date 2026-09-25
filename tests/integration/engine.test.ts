@@ -22,7 +22,15 @@ class FakeAdapter implements AgentAdapter {
   }
 }
 
-function task(workspace: string, command = "exit /b 0"): TaskDefinition {
+function successCommand(): string {
+  return process.platform === "win32" ? "exit /b 0" : "exit 0";
+}
+
+function failureCommand(code: number): string {
+  return process.platform === "win32" ? `exit /b ${code}` : `exit ${code}`;
+}
+
+function task(workspace: string, command = successCommand()): TaskDefinition {
   return {
     task_id: `task-${Math.random()}`, title: "test", goal: "change fixture", constraints: [], allowed_paths: ["."], acceptance_criteria: [{ id: "AC-01", statement: "works", required: true, verification_refs: ["V1"] }],
     verification_commands: [{ id: "V1", name: "custom", category: "custom", command }], workspace,
@@ -45,6 +53,7 @@ describe("run engine", () => {
     const engine = new RunEngine({ databasePath: database, adapter: new FakeAdapter() });
     const result = await engine.run(task(workspace));
     expect(result.status).toBe("COMPLETED");
+    expect(result.verification_results[0]?.exit_code).toBe(0);
     expect(result.diff?.changed_files).toContain("changed.txt");
     expect(engine.store.getEvents(result.run_id).map((event) => event.sequence)).toEqual(expect.arrayContaining([1, 2, 3]));
     engine.close();
@@ -58,7 +67,7 @@ describe("run engine", () => {
     expect((await failedAgent.run(task(workspace))).status).toBe("FAILED");
     failedAgent.close();
     const failedVerification = new RunEngine({ databasePath: database, adapter: new FakeAdapter() });
-    const result = await failedVerification.run(task(workspace, "exit /b 4"));
+    const result = await failedVerification.run(task(workspace, failureCommand(4)));
     expect(result.status).toBe("FAILED");
     expect(result.verification_results[0]?.exit_code).toBe(4);
     failedVerification.close();
@@ -118,7 +127,7 @@ describe("run engine", () => {
   it("returns FAIL when a mapped deterministic verifier fails", async () => {
     const workspace = gitWorkspace();
     const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter: new FakeAdapter() });
-    const run = await engine.run(task(workspace, "exit /b 4"));
+    const run = await engine.run(task(workspace, failureCommand(4)));
     const receipt = buildRunReceipt(engine.store, run.run_id);
     expect(receipt.acceptance[0]?.status).toBe("FAIL");
     expect(receipt.outcome).toBe("FAIL");
@@ -131,14 +140,14 @@ describe("run engine", () => {
     const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter: new FakeAdapter() });
     const definition = task(workspace);
     definition.acceptance_criteria[0]!.verification_refs = ["V1", "V2"];
-    definition.verification_commands.push({ id: "V2", name: "second", category: "custom", command: "exit /b 0" });
+    definition.verification_commands.push({ id: "V2", name: "second", category: "custom", command: successCommand() });
     const run = await engine.run(definition);
     expect(buildRunReceipt(engine.store, run.run_id).outcome).toBe("PASS");
     engine.close();
 
     const failing = new RunEngine({ databasePath: path.join(workspace, "failed.sqlite"), adapter: new FakeAdapter() });
     definition.task_id = "multi-fail";
-    definition.verification_commands[1]!.command = "exit /b 4";
+    definition.verification_commands[1]!.command = failureCommand(4);
     const failedRun = await failing.run(definition);
     const failedReceipt = buildRunReceipt(failing.store, failedRun.run_id);
     expect(failedReceipt.acceptance[0]?.status).toBe("FAIL");
