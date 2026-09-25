@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -22,6 +22,25 @@ function gitProject(root: string): void {
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 
 describe("w2 doctor", () => {
+  it.skipIf(process.platform !== "win32")("resolves an installed Windows Codex executable with PowerShell command lookup", async () => {
+    const root = temp("w2-doctor-codex-resolution-");
+    const bin = path.join(root, "bin");
+    mkdirSync(bin, { recursive: true });
+    writeFileSync(path.join(root, "package.json"), '{"version":"test"}\n', "utf8");
+    linkSync(process.execPath, path.join(bin, "codex.exe"));
+    const env = {
+      ...process.env,
+      PATH: [bin, process.env.PATH].filter(Boolean).join(path.delimiter),
+      BRAINW2_VAULT: path.join(root, "missing-vault"),
+      HOME: root,
+      USERPROFILE: root,
+    };
+
+    const output = await renderDoctor(root, { cwd: root, env });
+
+    expect(output).toContain(`Codex CLI: ${process.version}`);
+  });
+
   it("reports a concise read-only diagnostic without exposing receipt prompts or note contents", async () => {
     const root = temp("w2-doctor-");
     const w2Home = path.join(root, "w2-home");

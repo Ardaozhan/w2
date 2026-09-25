@@ -11,17 +11,27 @@ import { getInteractiveRuntimeRoot } from "./interactive.js";
 
 const execFileAsync = promisify(execFile);
 
-async function commandOutput(command: string, args: string[], timeout = 3000): Promise<string | undefined> {
+async function commandOutput(command: string, args: string[], timeout = 3000, env?: NodeJS.ProcessEnv): Promise<string | undefined> {
   try {
-    const result = await execFileAsync(command, args, { encoding: "utf8", windowsHide: true, timeout, maxBuffer: 64 * 1024 });
+    const result = await execFileAsync(command, args, { encoding: "utf8", windowsHide: true, timeout, maxBuffer: 64 * 1024, ...(env ? { env } : {}) });
     const value = result.stdout.trim().split(/\r?\n/, 1)[0]?.trim();
     return value ? value.slice(0, 200) : undefined;
   } catch { return undefined; }
 }
 
-async function shellCommand(command: string): Promise<string | undefined> {
-  if (process.platform !== "win32") return commandOutput(command, ["--version"]);
-  return commandOutput("cmd.exe", ["/d", "/s", "/c", `${command}.cmd --version`]);
+async function shellCommand(command: string, env?: NodeJS.ProcessEnv): Promise<string | undefined> {
+  if (command === "codex" && process.platform === "win32") {
+    const script = [
+      "$command = Get-Command codex -ErrorAction SilentlyContinue",
+      "if (-not $command) { exit 1 }",
+      "if ($command.CommandType -eq 'Application' -and $command.Source) { & $command.Source --version } else { & codex --version }",
+      "exit $LASTEXITCODE",
+    ].join("\n");
+    const encodedScript = Buffer.from(script, "utf16le").toString("base64");
+    return commandOutput("powershell.exe", ["-NoLogo", "-NoProfile", "-NonInteractive", "-EncodedCommand", encodedScript], 3000, env);
+  }
+  if (process.platform !== "win32") return commandOutput(command, ["--version"], 3000, env);
+  return commandOutput("cmd.exe", ["/d", "/s", "/c", `${command}.cmd --version`], 3000, env);
 }
 
 async function w2Version(w2Home: string): Promise<string> {
@@ -31,14 +41,14 @@ async function w2Version(w2Home: string): Promise<string> {
   } catch { return "unknown"; }
 }
 
-async function gitStatus(cwd: string): Promise<{ repository: boolean; head?: string; workingTree?: string }> {
+async function gitStatus(cwd: string, env?: NodeJS.ProcessEnv): Promise<{ repository: boolean; head?: string; workingTree?: string }> {
   try {
-    const top = await commandOutput("git", ["-C", cwd, "rev-parse", "--show-toplevel"]);
+    const top = await commandOutput("git", ["-C", cwd, "rev-parse", "--show-toplevel"], 3000, env);
     if (!top) return { repository: false };
-    const head = await commandOutput("git", ["-C", cwd, "rev-parse", "HEAD"]);
+    const head = await commandOutput("git", ["-C", cwd, "rev-parse", "HEAD"], 3000, env);
     let dirty = "";
     try {
-      const result = await execFileAsync("git", ["-C", cwd, "status", "--porcelain=v1", "--untracked-files=all"], { encoding: "utf8", windowsHide: true, timeout: 3000, maxBuffer: 2 * 1024 * 1024 });
+      const result = await execFileAsync("git", ["-C", cwd, "status", "--porcelain=v1", "--untracked-files=all"], { encoding: "utf8", windowsHide: true, timeout: 3000, maxBuffer: 2 * 1024 * 1024, ...(env ? { env } : {}) });
       dirty = result.stdout.trim();
     } catch { return { repository: true, ...(head ? { head } : {}), workingTree: "unavailable" }; }
     return { repository: true, ...(head ? { head } : {}), workingTree: dirty ? `dirty (${dirty.split(/\r?\n/).length} path(s))` : "clean" };
@@ -98,10 +108,10 @@ export async function renderDoctor(w2HomeValue?: string, options: DoctorOptions 
   const [version, nodeVersion, npmVersion, gitVersion, codexVersion, git, latest] = await Promise.all([
     w2Version(w2Home),
     Promise.resolve(process.version),
-    shellCommand("npm"),
-    commandOutput("git", ["--version"]),
-    shellCommand("codex"),
-    gitStatus(cwd),
+    shellCommand("npm", env),
+    commandOutput("git", ["--version"], 3000, env),
+    shellCommand("codex", env),
+    gitStatus(cwd, env),
     latestReceipt(w2Home, cwd),
   ]);
   const buildFiles = ["dist/src/cli.js", "dist/src/core/interactive.js", "dist/src/core/brainw2.js"];
