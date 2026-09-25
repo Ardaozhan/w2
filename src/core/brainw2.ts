@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { constants, statSync } from "node:fs";
+import { constants, realpathSync, statSync } from "node:fs";
 import { access, mkdir, open, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -55,7 +55,9 @@ interface ProjectNote {
 
 function normalizedPath(value: string): string {
   const resolved = path.resolve(value);
-  return process.platform === "win32" ? resolved.toLocaleLowerCase("en-US") : resolved;
+  let canonical = resolved;
+  try { canonical = realpathSync.native(resolved); } catch { /* retain the normalized lexical path when it is unavailable */ }
+  return process.platform === "win32" ? canonical.toLocaleLowerCase("en-US") : canonical;
 }
 
 export function normalizeGitRemote(value: string | undefined): string | undefined {

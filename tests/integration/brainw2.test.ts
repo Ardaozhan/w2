@@ -40,6 +40,10 @@ function environment(vaultPath: string): NodeJS.ProcessEnv {
 
 function hash(value: string): string { return createHash("sha256").update(value).digest("hex").slice(0, 32); }
 
+function gitRoot(workspace: string): string {
+  return path.resolve(execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: workspace, encoding: "utf8" }).trim());
+}
+
 function writeProjectNote(vaultPath: string, folder: string, filename: string, repoPath: string, options: { remote?: string; context?: boolean; body?: string } = {}): string {
   const directory = path.join(vaultPath, "01 Projects", folder);
   mkdirSync(directory, { recursive: true });
@@ -112,7 +116,7 @@ describe("optional brainw2 integration", () => {
     const mapping = await resolveProjectMapping(workspace, { env: environment(vaultPath), home: root });
     const saved = readFileSync(note, "utf8");
     expect(mapping?.note_path).toBe(note);
-    expect(saved).toContain(`repo: ${JSON.stringify(workspace)}`);
+    expect(saved).toContain(`repo: ${JSON.stringify(gitRoot(workspace))}`);
     expect(saved).toContain("w2_context: true");
     expect(saved).toContain("Keep this reference text.");
   });
@@ -127,7 +131,18 @@ describe("optional brainw2 integration", () => {
     expect(existsSync(mapping!.dev_log_path)).toBe(true);
     const note = readFileSync(mapping!.note_path, "utf8");
     for (const heading of ["Goal / Amaç", "Architecture / Mimari", "Active Constraints / Aktif Kısıtlamalar", "Accepted Decisions / Kabul Edilmiş Kararlar", "Current State / Mevcut Durum", "Next Steps / Sonraki Adımlar"]) expect(note).toContain(heading);
-    expect(note).toContain(`repo: ${JSON.stringify(workspace)}`);
+    expect(note).toContain(`repo: ${JSON.stringify(gitRoot(workspace))}`);
+  });
+
+  it("maps a short Windows repo path to Git's canonical path", async () => {
+    if (process.platform !== "win32") return;
+    const root = temp("w2-brain-short-path-");
+    const workspace = project();
+    const shortPath = execFileSync("cmd.exe", ["/d", "/c", `for %I in (${workspace}) do @echo %~sI`], { encoding: "utf8" }).trim();
+    const vaultPath = vault(root);
+    const note = writeProjectNote(vaultPath, "project", "Project.md", shortPath);
+    const mapping = await resolveProjectMapping(workspace, { env: environment(vaultPath), home: root, create: false });
+    expect(mapping?.note_path).toBe(note);
   });
 
   it("uses a deterministic short suffix when a same-name directory belongs to another repo", async () => {

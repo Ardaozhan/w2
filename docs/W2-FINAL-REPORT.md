@@ -18,7 +18,7 @@ brainw2 is optional. It supplies bounded, labeled reference context from a mappe
 
 Final local verification ran on Windows 11 with Node.js 22.13 and package version `0.2.0-rc.1`:
 
-- `npm test`: PASS, 19 test files and 101 tests; the generated native hook commands passed the child-process boundary for all seven events.
+- `npm test`: PASS, 19 test files and 102 tests; the generated native hook commands passed the child-process boundary for all seven events.
 - `npm run typecheck`, `npm run build`, and `npm run standalone:check`: PASS.
 - `npm run fresh:check`: PASS on a clean project copy; it reran tests, the hook boundary, typecheck/build, standalone, receipt/benchmark/hero/judge validators, privacy audit, and non-browser smoke checks.
 - `npm run fixtures:check`, `npm run benchmark:verify`, `npm run benchmark:hermeticity`, `npm run hero:validate`, `npm run judge-demo:verify`, and `npm run demo:smoke`: PASS.

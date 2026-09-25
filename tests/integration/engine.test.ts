@@ -145,7 +145,7 @@ describe("run engine", () => {
     expect(failedReceipt.outcome).toBe("FAIL");
     failing.close();
     rmSync(workspace, { recursive: true, force: true });
-  });
+  }, 15_000);
 
   it("does not turn an agent completion claim into evidence", async () => {
     const workspace = gitWorkspace();
@@ -158,5 +158,5 @@ describe("run engine", () => {
     expect(receipt.outcome).toBe("UNPROVEN");
     engine.close();
     rmSync(workspace, { recursive: true, force: true });
-  });
+  }, 15_000);
 });

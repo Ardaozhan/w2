@@ -16,7 +16,7 @@ W2 computes one of `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR` from determ
 - Public repository: [Ardaozhan/w2](https://github.com/Ardaozhan/w2)
 - Latest stable release: [v0.1.0](https://github.com/Ardaozhan/w2/releases/tag/v0.1.0)
 - Current main development version: `0.2.0-rc.1`; v0.2.0 final awaits a live Codex TUI trust and end-to-end test after relaunch.
-- Latest local regression run: 101 tests across 19 files on Windows 11 with Node.js 22.13; this does not prove live TUI hook behavior.
+- Latest local regression run: 102 tests across 19 files on Windows 11 with Node.js 22.13; this does not prove live TUI hook behavior.
 - Windows 11 with Node.js 22.13+ is the only independently verified environment.
 
 ## Install
