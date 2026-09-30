@@ -20,7 +20,15 @@ W2 computes one of `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR` from determ
 - Ubuntu Linux with Node.js 22: core automated suite verified by independent Camber Cloud validation and GitHub Actions CI.
 - The PowerShell launcher and Windows `command_windows` behavior are Windows-specific. Live Codex TUI hook trust on Linux is not independently verified.
 
-## Install
+## Install on Windows
+
+The verified interactive setup uses Windows 11 and PowerShell. Install these first:
+
+- Git
+- Node.js 22.13 or newer (npm is included with Node.js)
+- Codex CLI, signed in with your normal account, for interactive use
+
+W2 does not install Git, Node.js, Codex CLI, or their account authentication. `npm ci` installs W2's project dependencies only.
 
 ```powershell
 git clone https://github.com/Ardaozhan/w2.git
@@ -31,6 +39,15 @@ npm run build
 ```
 
 Install or update the PowerShell profile launcher once from the W2 checkout. The `w2` function does not replace the normal `codex` command.
+The installer adds a W2 block to your PowerShell profile; open a new PowerShell session afterward. The launcher is Windows-specific. Ubuntu has core automated-suite coverage, but live Codex TUI hook trust on Linux has not been independently verified.
+
+Obsidian is not installed and is not required. BrainW2 is an optional Markdown vault: W2 uses an existing folder named by `BRAINW2_VAULT`, or an existing `$HOME\brainw2` folder when that variable is unset. If neither folder exists, BrainW2 stays disabled. To use an existing Obsidian vault for the current PowerShell session, set its folder before launching W2:
+
+```powershell
+$env:BRAINW2_VAULT = 'D:\Notes\My Obsidian Vault'
+```
+
+You can open that folder in Obsidian if you want, but W2 works directly with the Markdown files.
 
 ## Interactive Codex use
 
