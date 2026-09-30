@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { constants, realpathSync, statSync } from "node:fs";
-import { access, mkdir, open, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { access, lstat, mkdir, open, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { execFile } from "node:child_process";
@@ -10,6 +10,18 @@ import type { RunReceipt } from "./types.js";
 const execFileAsync = promisify(execFile);
 const PROJECTS_DIR = "01 Projects";
 const MAX_REFERENCE_CONTEXT_BYTES = 10 * 1024;
+const CATEGORY_DIRECTORIES = [
+  "00 Inbox",
+  PROJECTS_DIR,
+  "02 Areas",
+  "03 Research",
+  "04 Dev Library",
+  "05 Daily",
+  "06 Decisions",
+  "90 Templates",
+  "98 Attachments",
+  "99 Archive",
+] as const;
 
 export interface Brainw2Vault {
   enabled: boolean;
@@ -38,6 +50,41 @@ export interface Brainw2ReferenceContext {
   text: string;
   metadata: Brainw2ReferenceMetadata;
   mapping: Brainw2ProjectMapping;
+}
+
+export type Brainw2WritebackStatus = "written" | "already-recorded" | "disabled" | "unmapped" | "failed";
+
+export type Brainw2Category = typeof CATEGORY_DIRECTORIES[number];
+
+export interface Brainw2CategoryRoute {
+  category: Brainw2Category;
+  target: string;
+  status: Brainw2WritebackStatus;
+}
+
+export interface Brainw2CategoryDirectoryStatus {
+  category: Brainw2Category;
+  present: boolean;
+}
+
+export interface Brainw2WritebackResult {
+  status: Brainw2WritebackStatus;
+  target?: string;
+  routes?: Brainw2CategoryRoute[];
+}
+
+export interface Brainw2SyncOptions {
+  env?: NodeJS.ProcessEnv;
+  home?: string;
+  now?: Date;
+  captureActivity?: boolean;
+}
+
+export interface Brainw2ActivityInput {
+  session_id: string;
+  turn_id: string;
+  prompt: string;
+  kind: "conversation" | "engineering";
 }
 
 interface Frontmatter {
@@ -204,6 +251,18 @@ function yamlString(value: string): string {
   return JSON.stringify(value);
 }
 
+function setFrontmatterField(text: string, key: string, value: string): string {
+  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  if (lines[0]?.trim() !== "---") return text;
+  const closing = lines.indexOf("---", 1);
+  if (closing < 0) return text;
+  const field = new RegExp(`^${key}:\\s*.*$`);
+  const index = lines.findIndex((line, lineIndex) => lineIndex > 0 && lineIndex < closing && field.test(line));
+  if (index >= 0) lines[index] = `${key}: ${value}`;
+  else lines.splice(closing, 0, `${key}: ${value}`);
+  return lines.join("\n");
+}
+
 async function updateFallbackMetadata(note: ProjectNote, repoPath: string, remote?: string): Promise<ProjectNote> {
   const original = await readFile(note.file_path, "utf8");
   if (!original.startsWith("---")) return note;
@@ -246,8 +305,18 @@ async function createProjectMapping(vaultPath: string, projectsRoot: string, rep
   if (!directory) throw new Error("A safe brainw2 project directory could not be allocated");
   const title = titleForFolder(path.basename(directory));
   const notePath = path.join(directory, "Project.md");
-  const frontmatter = ["---", "type: project", `repo: ${yamlString(repoPath)}`, ...(remote ? [`remote: ${yamlString(remote)}`] : []), "w2_context: true", "---", ""].join("\n");
-  const noteText = `${frontmatter}# ${title}\n\n## Goal / Amaç\n\n## Architecture / Mimari\n\n## Active Constraints / Aktif Kısıtlamalar\n\n## Accepted Decisions / Kabul Edilmiş Kararlar\n\n## Current State / Mevcut Durum\n\n## Next Steps / Sonraki Adımlar\n`;
+  const date = localDateKey(new Date());
+  const projectTemplate = await readBrainw2Template(vaultPath, "W2 Project.md");
+  let noteText = renderBrainw2Template(projectTemplate, {
+    "{{title}}": title,
+    "{{date:YYYY-MM-DD}}": date,
+  }, `---\ntype: project\nrepo: ${yamlString(repoPath)}\nw2_context: true\n---\n\n# ${title}\n\n## Goal / Amaç\n\n## Architecture / Mimari\n\n## Active Constraints / Aktif Kısıtlamalar\n\n## Accepted Decisions / Kabul Edilmiş Kararlar\n\n## Current State / Mevcut Durum\n\n## Next Steps / Sonraki Adımlar\n`);
+  noteText = setFrontmatterField(noteText, "type", "project");
+  noteText = setFrontmatterField(noteText, "repo", yamlString(repoPath));
+  noteText = setFrontmatterField(noteText, "w2_context", "true");
+  if (remote) noteText = setFrontmatterField(noteText, "remote", yamlString(remote));
+  noteText = setFrontmatterField(noteText, "created", yamlString(date));
+  noteText = setFrontmatterField(noteText, "updated", yamlString(date));
   await writeFile(notePath, noteText, { encoding: "utf8", flag: "wx" });
   await writeFile(path.join(directory, "Dev Log.md"), "", { encoding: "utf8", flag: "wx" });
   return mappingFromNote(vaultPath, { file_path: notePath, directory, frontmatter: parseFrontmatter(noteText) }, repoPath, remote);
@@ -292,13 +361,17 @@ export async function resolveProjectMapping(cwd: string, options: { env?: NodeJS
 }
 
 const contextHeadings = new Map<string, string>([
-  ["goal", "Goal / Amaç"], ["amaç", "Goal / Amaç"],
-  ["architecture", "Architecture / Mimari"], ["mimari", "Architecture / Mimari"],
-  ["active constraints", "Active Constraints / Aktif Kısıtlamalar"], ["aktif kısıtlamalar", "Active Constraints / Aktif Kısıtlamalar"],
-  ["accepted decisions", "Accepted Decisions / Kabul Edilmiş Kararlar"], ["kabul edilmiş kararlar", "Accepted Decisions / Kabul Edilmiş Kararlar"],
+  ["goal", "Goal / Amaç"], ["amac", "Goal / Amaç"],
+  ["architecture", "Architecture / Mimari"], ["mimari", "Architecture / Mimari"], ["mevcut mimari", "Architecture / Mimari"],
+  ["active constraints", "Active Constraints / Aktif Kısıtlamalar"], ["aktif kisitlamalar", "Active Constraints / Aktif Kısıtlamalar"],
+  ["accepted decisions", "Accepted Decisions / Kabul Edilmiş Kararlar"], ["kabul edilmis kararlar", "Accepted Decisions / Kabul Edilmiş Kararlar"],
   ["decisions", "Accepted Decisions / Kabul Edilmiş Kararlar"], ["decision", "Accepted Decisions / Kabul Edilmiş Kararlar"], ["core principle", "Accepted Decisions / Kabul Edilmiş Kararlar"],
   ["current state", "Current State / Mevcut Durum"], ["mevcut durum", "Current State / Mevcut Durum"],
 ]);
+
+function normalizedContextHeading(value: string): string {
+  return value.normalize("NFKD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase("tr-TR").replaceAll("ı", "i").trim();
+}
 
 function selectedSections(text: string): Array<{ title: string; text: string }> {
   const body = parseFrontmatter(text).body.replace(/\r\n/g, "\n");
@@ -308,7 +381,7 @@ function selectedSections(text: string): Array<{ title: string; text: string }> 
   let content: string[] = [];
   const push = () => {
     if (!heading) return;
-    const title = contextHeadings.get(heading.toLocaleLowerCase("en-US").replace(/\s*\/\s*.*$/, "").trim());
+    const title = contextHeadings.get(normalizedContextHeading(heading.replace(/\s*\/\s*.*$/, "")));
     const sectionText = content.join("\n").trim();
     if (title && sectionText) sections.push({ title, text: sectionText });
   };
@@ -374,13 +447,350 @@ export async function loadBrainw2ReferenceContext(cwd: string, options: { env?: 
 function safeLogText(value: string, max = 120): string {
   return value.replace(/\r?\n/g, " ").replace(/\s+/g, " ")
     .replace(/(?:bearer\s+)[A-Za-z0-9._~+/-]+=*/gi, "[redacted]")
-    .replace(/\b(api[_-]?key|token|password|secret|authorization)\s*[:=]\s*[^\s,;]+/gi, "$1=[redacted]")
+    .replace(/(["']?\b(?:api[_-]?key|token|password|secret|authorization)["']?\s*[:=]\s*)(?:"[^"]*"|'[^']*'|[^\s,;]+)/gi, "$1[redacted]")
     .replace(/\b(?:sk-[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9]{20,})\b/g, "[redacted]")
     .slice(0, max);
 }
 
+function localDateKey(now: Date): string {
+  const two = (value: number) => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}`;
+}
+
+function localTimestamp(now: Date): string {
+  const two = (value: number) => String(value).padStart(2, "0");
+  const offsetMinutes = -now.getTimezoneOffset();
+  const offset = `${offsetMinutes >= 0 ? "+" : "-"}${two(Math.floor(Math.abs(offsetMinutes) / 60))}:${two(Math.abs(offsetMinutes) % 60)}`;
+  return `${localDateKey(now)} ${two(now.getHours())}:${two(now.getMinutes())} ${offset}`;
+}
+
+function normalizedRoutingText(value: string): string {
+  return value.normalize("NFKD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase("tr-TR").replaceAll("ı", "i")
+    .replace(/[^\p{L}\p{N}]+/gu, " ").trim().replace(/\s+/g, " ");
+}
+
+async function safeVaultFilePath(vaultPath: string, relativeTarget: string, createParents: boolean): Promise<string> {
+  const root = path.resolve(vaultPath);
+  const target = path.resolve(root, relativeTarget);
+  const relative = path.relative(root, target);
+  if (!relative || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) throw new Error("BrainW2 target must stay inside the vault");
+  const parts = relative.split(path.sep);
+  let current = root;
+  for (const part of parts.slice(0, -1)) {
+    current = path.join(current, part);
+    let info;
+    try { info = await lstat(current); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT" || !createParents) throw error;
+      try { await mkdir(current); }
+      catch (createError) { if ((createError as NodeJS.ErrnoException).code !== "EEXIST") throw createError; }
+      info = await lstat(current);
+    }
+    if (!info.isDirectory() || info.isSymbolicLink()) throw new Error("BrainW2 category paths cannot use symbolic links");
+  }
+  try {
+    const info = await lstat(target);
+    if (!info.isFile() || info.isSymbolicLink()) throw new Error("BrainW2 note target must be a regular file");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+  return target;
+}
+
+function containsRoutingPhrase(text: string, phrase: string): boolean {
+  const normalizedText = ` ${normalizedRoutingText(text)} `;
+  const normalizedPhrase = ` ${normalizedRoutingText(phrase)} `;
+  return normalizedText.includes(normalizedPhrase);
+}
+
+function isTransientConversation(prompt: string): boolean {
+  const text = normalizedRoutingText(prompt);
+  return /^(?:naber|merhaba|selam|nasilsin|iyiyim|iyidir|evet|hayir|tesekkurler|sag ol|tamam|peki|ok|gunaydin|iyi aksamlar|iyi geceler)[.!? ]*$/.test(text);
+}
+
+export interface Brainw2PromptClassification {
+  categories: Brainw2Category[];
+  areas: string[];
+}
+
+const AREA_ALIASES: Record<string, string[]> = {
+  ai: ["yapay zeka"],
+  career: ["kariyer", "meslek"],
+  design: ["tasarim", "arayuz", "ui ux"],
+  development: ["yazilim", "programlama", "gelistirme", "software", "kodlama"],
+};
+
+export function classifyBrainw2Activity(prompt: string, kind: Brainw2ActivityInput["kind"], areaFolders: string[] = []): Brainw2PromptClassification {
+  const text = normalizedRoutingText(prompt);
+  const categories = new Set<Brainw2Category>(["05 Daily"]);
+  const directive = text.match(/^(?:brainw2|w2) (?:route )?(inbox|projects?|areas?|research|dev library|library|daily|decisions?|attachments?|archive)\b/);
+  const forced = directive?.[1];
+  if (kind === "engineering" || forced === "project" || forced === "projects") categories.add("01 Projects");
+
+  const decision = /^\s*(?:karar|decision)\s*[:>]/i.test(prompt)
+    || /(?:\bkarar olarak kaydet\b|\bkarar verdim\b|\bkararimiz\b|\baccepted decision\b)/.test(text);
+  const attachment = /^\s*(?:attachment|ek dosya)\s*[:>]/i.test(prompt)
+    || /(?:\battachment (?:to|in|save|add|copy|index)\b|\bek dosya\b.{0,28}\b(?:kaydet|ekle|kaydi ac|indexle)\b|\bbrainw2 ye dosya ekle\b|\bvaulta (?:ekle|koy|kaydet)\b|\bobsidyene (?:ekle|koy|kaydet)\b)/.test(text);
+  const archive = /^\s*(?:archive|arsiv|arşiv)\s*[:>]/i.test(prompt)
+    || /(?:\barsivle\b|\barsive tasi\b|\barchive (?:this|it|note|request)\b)/.test(text);
+  const research = /^\s*research\b/i.test(text)
+    || /(?:\barastir\w*\b|\bresearch (?:this|how|whether|which|the)\b|\bdo research\b|\bkaynaklari? (?:bul|tara|incele)\b|\bmakale(?:leri)?\b|\bpaper(?:s)?\b|\bliterature review\b|\bkarsilastir(?:ma|mali)?\b)/.test(text);
+  const library = /^\s*dev library\s*[:>]/i.test(prompt)
+    || /(?:\bkod kutuphanesi\b|\btekrar kullan(?:mak|acagimiz) uzere\b|\breusable\b|\bsnippet(?:i|ini)? kaydet\b|\bkutuphaneye kaydet\b)/.test(text);
+  const explicitInbox = /^\s*inbox\s*:/i.test(prompt) || /^(?:brainw2|w2) (?:route )?inbox\b/.test(text) || /\binboxa kaydet\b/.test(text);
+
+  if (forced === "decision" || forced === "decisions" || decision) categories.add("06 Decisions");
+  else if (forced === "attachment" || forced === "attachments" || attachment) categories.add("98 Attachments");
+  else if (forced === "archive" || archive) categories.add("99 Archive");
+  else if (forced === "research" || research) categories.add("03 Research");
+  else if (forced === "library" || forced === "dev library" || library) categories.add("04 Dev Library");
+  else if (forced === "inbox" || explicitInbox || (!forced && kind === "conversation" && !isTransientConversation(prompt))) categories.add("00 Inbox");
+
+  const areaTerms = new Set<string>();
+  for (const folder of areaFolders) {
+    const normalizedFolder = normalizedRoutingText(folder);
+    const aliases = AREA_ALIASES[normalizedFolder] ?? [];
+    if (containsRoutingPhrase(prompt, folder) || aliases.some((alias) => containsRoutingPhrase(prompt, alias))) areaTerms.add(folder);
+  }
+  if (areaTerms.size) categories.add("02 Areas");
+  else if (forced === "area" || forced === "areas") categories.add("00 Inbox");
+
+  const ordered = [...categories].filter((category) => category !== "05 Daily")
+    .sort((left, right) => CATEGORY_DIRECTORIES.indexOf(left) - CATEGORY_DIRECTORIES.indexOf(right));
+  return { categories: ["05 Daily", ...ordered], areas: [...areaTerms] };
+}
+
+async function readBrainw2Template(vaultPath: string, filename: string): Promise<string | undefined> {
+  try {
+    const filePath = await safeVaultFilePath(vaultPath, path.join("90 Templates", filename), false);
+    const template = await readFile(filePath, "utf8");
+    return Buffer.byteLength(template, "utf8") <= 64 * 1024 ? template : undefined;
+  } catch { return undefined; }
+}
+
+function renderBrainw2Template(template: string | undefined, replacements: Record<string, string>, fallback: string): string {
+  let output = template ?? fallback;
+  for (const [token, value] of Object.entries(replacements)) output = output.replaceAll(token, value);
+  return output.replace(/\{\{date:YYYY-MM-DD\}\}/g, replacements["{{date:YYYY-MM-DD}}"] ?? "");
+}
+
+function activityMarker(id: string, category: Brainw2Category): string {
+  const categoryId = category.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").toLocaleLowerCase("en-US");
+  return `<!-- w2-activity:${id}:${categoryId} -->`;
+}
+
+function activityLine(activity: Brainw2ActivityInput, category: Brainw2Category, id: string, now: Date): string {
+  const excerpt = safeLogText(activity.prompt.slice(0, 2048), 160).replaceAll("`", "'") || "(empty prompt)";
+  const label = activity.kind === "engineering" ? "Engineering request" : "Conversation";
+  const marker = activityMarker(id, category);
+  return `- ${localTimestamp(now)} · ${label} · \`${JSON.stringify(excerpt)}\` ${marker}`;
+}
+
+async function appendMarkdownSection(filePath: string, initialText: string, heading: string, line: string, marker: string): Promise<Brainw2WritebackStatus> {
+  const lockPath = `${filePath}.w2-lock`;
+  try { await mkdir(path.dirname(filePath), { recursive: true }); }
+  catch { return "failed"; }
+  let lock;
+  const deadline = Date.now() + 1500;
+  while (!lock) {
+    try { lock = await open(lockPath, "wx"); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST" || Date.now() >= deadline) return "failed";
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+  }
+  try {
+    let existing = "";
+    try { existing = await readFile(filePath, "utf8"); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") return "failed"; }
+    if (existing.includes(marker)) return "already-recorded";
+
+    const base = (existing.trimEnd() || initialText.trimEnd()).replace(/\r\n/g, "\n");
+    const lines = base.split("\n");
+    const targetHeading = `## ${heading}`;
+    let headingIndex = -1;
+    for (let index = 0; index < lines.length; index += 1) if (lines[index]?.trim() === targetHeading) headingIndex = index;
+    if (headingIndex < 0) lines.push("", targetHeading, "", line);
+    else {
+      let insertion = headingIndex + 1;
+      while (insertion < lines.length && !/^#{1,2}\s/.test(lines[insertion] ?? "")) insertion += 1;
+      while (insertion > headingIndex + 1 && !lines[insertion - 1]?.trim()) insertion -= 1;
+      lines.splice(insertion, 0, "", line);
+    }
+    const temporary = `${filePath}.${randomUUID()}.tmp`;
+    try {
+      await mkdir(path.dirname(filePath), { recursive: true });
+      await writeFile(temporary, `${lines.join("\n").trimEnd()}\n`, "utf8");
+      await rename(temporary, filePath);
+    } catch (error) {
+      await rm(temporary, { force: true }).catch(() => undefined);
+      throw error;
+    }
+    return "written";
+  } catch { return "failed"; }
+  finally {
+    await lock.close().catch(() => undefined);
+    await rm(lockPath, { force: true }).catch(() => undefined);
+  }
+}
+
+async function appendCategoryCapture(vaultPath: string, category: Brainw2Category, relativeTarget: string, activity: Brainw2ActivityInput, id: string, now: Date, heading: string, initialText: string, detail?: string): Promise<Brainw2CategoryRoute> {
+  let target: string;
+  try { target = await safeVaultFilePath(vaultPath, relativeTarget, true); }
+  catch { return { category, target: relativeTarget.replaceAll("\\", "/"), status: "failed" }; }
+  const line = activityLine(activity, category, id, now);
+  const status = await appendMarkdownSection(target, initialText, heading, detail ? `${line} · ${detail}` : line, activityMarker(id, category));
+  return { category, target: relativeTarget.replaceAll("\\", "/"), status };
+}
+
+async function findAreaFolders(vaultPath: string): Promise<string[]> {
+  try {
+    const entries = await readdir(path.join(vaultPath, "02 Areas"), { withFileTypes: true });
+    return entries.filter((entry) => entry.isDirectory() && !entry.isSymbolicLink()).map((entry) => entry.name);
+  } catch { return []; }
+}
+
+async function writeDecisionCapture(vaultPath: string, relativeProject: string | undefined, activity: Brainw2ActivityInput, id: string, now: Date): Promise<Brainw2CategoryRoute> {
+  const category: Brainw2Category = "06 Decisions";
+  const date = localDateKey(now);
+  const title = safeLogText(activity.prompt.replace(/^(?:brainw2|w2)\s+(?:route\s+)?decision\s*:\s*/i, "").replace(/^decision\s*:\s*|^karar\s*:\s*/i, ""), 80) || "User decision";
+  const slug = normalizedRoutingText(title).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "decision";
+  const relativeTarget = path.join("06 Decisions", `${date}-${slug}-${id.slice(0, 8)}.md`);
+  const template = await readBrainw2Template(vaultPath, "Decision.md");
+  let text = renderBrainw2Template(template, { "{{date:YYYY-MM-DD}}": date, "{{title}}": title }, `---\ntype: decision\ndate: "${date}"\nstatus: accepted\nproject:\n---\n\n# ${title}\n\n## Baglam\n\n## Karar\n\n## Neden\n\n## Alternatifler\n\n## Sonuclar\n`);
+  if (relativeProject) text = text.replace(/^project:\s*$/m, `project: ${JSON.stringify(`[[${relativeProject.replaceAll("\\", "/").replace(/\.md$/i, "")}]]`)}`);
+  const marker = activityMarker(id, category);
+  const decisionText = safeLogText(activity.prompt.slice(0, 2048), 160).replaceAll("`", "'");
+  text = text.replace(/(## (?:Karar|Decision)\s*\n)(\s*)/i, (_match, heading: string) => `${heading}\n${decisionText}\n\n`);
+  text = `${text.trimEnd()}\n\n${marker}\n`;
+  let target: string | undefined;
+  try {
+    target = await safeVaultFilePath(vaultPath, relativeTarget, true);
+    await mkdir(path.dirname(target), { recursive: true });
+    await writeFile(target, text, { encoding: "utf8", flag: "wx" });
+    return { category, target: relativeTarget.replaceAll("\\", "/"), status: "written" };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "EEXIST" && target) {
+      try { if ((await readFile(target, "utf8")).includes(marker)) return { category, target: relativeTarget.replaceAll("\\", "/"), status: "already-recorded" }; }
+      catch { /* report the original collision as a failed write */ }
+    }
+    return { category, target: relativeTarget.replaceAll("\\", "/"), status: "failed" };
+  }
+}
+
+export async function appendBrainw2Activity(mapping: Brainw2ProjectMapping | undefined, activity: Brainw2ActivityInput, now = new Date()): Promise<Brainw2WritebackStatus> {
+  if (!mapping) return "unmapped";
+  let logPath: string;
+  try { logPath = await safeVaultFilePath(mapping.vault_path, path.relative(mapping.vault_path, path.join(mapping.project_directory, "Activity Log.md")), true); }
+  catch { return "failed"; }
+  const lockPath = path.join(mapping.project_directory, ".w2-activity-log.lock");
+  const activityId = createHash("sha256")
+    .update(`${mapping.mapping_id}\0${activity.session_id}\0${activity.turn_id}`)
+    .digest("hex").slice(0, 24);
+  const marker = `<!-- w2-activity:${activityId} -->`;
+  let lock;
+  const deadline = Date.now() + 1500;
+  while (!lock) {
+    try { lock = await open(lockPath, "wx"); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST" || Date.now() >= deadline) return "failed";
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+  }
+  try {
+    let existing = "";
+    try { existing = await readFile(logPath, "utf8"); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") return "failed"; }
+    if (existing.includes(marker)) return "already-recorded";
+
+    const stamp = localTimestamp(now);
+    const prompt = safeLogText(activity.prompt.slice(0, 2048), 160).replaceAll("`", "'") || "(empty prompt)";
+    const kind = activity.kind === "engineering" ? "Engineering request" : "Conversation";
+    const verification = activity.kind === "engineering" ? "W2 receipt handled separately" : "W2 verification not run";
+    const line = `- ${stamp} · ${kind} · \`${JSON.stringify(prompt)}\` · ${verification} ${marker}`;
+    const base = existing.trimEnd() || "# Activity Log";
+    const updated = `${base}\n\n${line}\n`;
+    const temporary = `${logPath}.${randomUUID()}.tmp`;
+    try {
+      await writeFile(temporary, updated, "utf8");
+      await rename(temporary, logPath);
+    } catch (error) {
+      await rm(temporary, { force: true }).catch(() => undefined);
+      throw error;
+    }
+    return "written";
+  } catch {
+    return "failed";
+  } finally {
+    await lock.close().catch(() => undefined);
+    await rm(lockPath, { force: true }).catch(() => undefined);
+  }
+}
+
+export async function syncBrainw2Activity(workspace: string, activity: Brainw2ActivityInput, options: Brainw2SyncOptions = {}): Promise<Brainw2WritebackResult> {
+  const vault = resolveBrainw2Vault(options.env, options.home);
+  if (!vault.enabled || !vault.path) return { status: "disabled" };
+  const now = options.now ?? new Date();
+  const id = createHash("sha256").update(`${activity.session_id}\0${activity.turn_id}`).digest("hex").slice(0, 24);
+  const areaFolders = await findAreaFolders(vault.path);
+  const classification = classifyBrainw2Activity(activity.prompt, activity.kind, areaFolders);
+  const routes: Brainw2CategoryRoute[] = [];
+  const date = localDateKey(now);
+  const dailyRelative = path.join("05 Daily", `${date}.md`);
+  const dailyTemplate = await readBrainw2Template(vault.path, "Daily.md");
+  const dailyInitial = renderBrainw2Template(dailyTemplate, { "{{date:YYYY-MM-DD}}": date }, `---\ntype: daily\ndate: "${date}"\n---\n\n# ${date}\n`);
+  routes.push(await appendCategoryCapture(vault.path, "05 Daily", dailyRelative, activity, id, now, "W2 Activity", dailyInitial));
+
+  let mapping: Brainw2ProjectMapping | undefined;
+  if (classification.categories.includes("01 Projects") || classification.categories.includes("06 Decisions")) {
+    try { mapping = await resolveProjectMapping(workspace, options); }
+    catch { /* independent category captures continue even when project mapping fails */ }
+  }
+  if (classification.categories.includes("01 Projects")) {
+    if (mapping) {
+      const status = await appendBrainw2Activity(mapping, activity, now);
+      routes.push({ category: "01 Projects", target: path.relative(vault.path, path.join(mapping.project_directory, "Activity Log.md")).replaceAll("\\", "/"), status });
+    } else routes.push({ category: "01 Projects", target: "01 Projects/<unmapped>/Activity Log.md", status: "unmapped" });
+  }
+  if (classification.categories.includes("00 Inbox")) {
+    routes.push(await appendCategoryCapture(vault.path, "00 Inbox", path.join("00 Inbox", "Inbox.md"), activity, id, now, "W2 Captures", "# Inbox\n\nUnsorted captures from Codex. Review and promote items into their permanent category."));
+  }
+  for (const area of classification.areas) {
+    const relativeTarget = path.join("02 Areas", area, "W2 Activity.md");
+    routes.push(await appendCategoryCapture(vault.path, "02 Areas", relativeTarget, activity, id, now, "W2 Captures", `# ${area} · W2 Activity`));
+  }
+  if (classification.categories.includes("03 Research")) {
+    routes.push(await appendCategoryCapture(vault.path, "03 Research", path.join("03 Research", "Research.md"), activity, id, now, "W2 Captures", "# Research\n\nNew technology, SDK, framework, paper and technical research."));
+  }
+  if (classification.categories.includes("04 Dev Library")) {
+    routes.push(await appendCategoryCapture(vault.path, "04 Dev Library", path.join("04 Dev Library", "Dev Library.md"), activity, id, now, "W2 Captures", "# Dev Library\n\nReusable technical knowledge."));
+  }
+  if (classification.categories.includes("06 Decisions")) {
+    const relativeProject = mapping ? path.relative(vault.path, mapping.note_path) : undefined;
+    routes.push(await writeDecisionCapture(vault.path, relativeProject, activity, id, now));
+  }
+  if (classification.categories.includes("98 Attachments")) {
+    routes.push(await appendCategoryCapture(vault.path, "98 Attachments", path.join("98 Attachments", "Attachment Index.md"), activity, id, now, "W2 Reference Requests", "# Attachment Index\n\nW2 can record references; attachment bytes are not copied from Codex hook events.", "reference request only; no file bytes copied"));
+  }
+  if (classification.categories.includes("99 Archive")) {
+    routes.push(await appendCategoryCapture(vault.path, "99 Archive", path.join("99 Archive", "Archive Index.md"), activity, id, now, "W2 Archive Requests", "# Archive Index\n\nExplicit archive requests are recorded here; source notes are not moved automatically.", "request captured; no source note moved"));
+  }
+
+  const status: Brainw2WritebackStatus = routes.some((route) => route.status === "failed")
+    ? "failed"
+    : routes.some((route) => route.status === "written")
+      ? "written"
+      : routes.some((route) => route.status === "already-recorded")
+        ? "already-recorded"
+        : routes.some((route) => route.status === "unmapped") ? "unmapped" : "disabled";
+  const dailyRoute = routes.find((route) => route.category === "05 Daily");
+  const otherRoutes = routes.filter((route) => route.category !== "05 Daily")
+    .sort((left, right) => CATEGORY_DIRECTORIES.indexOf(left.category) - CATEGORY_DIRECTORIES.indexOf(right.category));
+  return { status, target: dailyRelative.replaceAll("\\", "/"), routes: [...(dailyRoute ? [dailyRoute] : []), ...otherRoutes] };
+}
+
 function devLogEntry(receipt: RunReceipt, now: Date): string {
-  const stamp = `${now.toISOString().slice(0, 16).replace("T", " ")}Z`;
+  const stamp = localTimestamp(now);
   const changed = receipt.outcome === "ABORTED"
     ? "not finalized (turn interrupted)"
     : `${receipt.changes.changed_files.length} file${receipt.changes.changed_files.length === 1 ? "" : "s"}`;
@@ -406,24 +816,26 @@ function devLogEntry(receipt: RunReceipt, now: Date): string {
   return lines.join("\n");
 }
 
-export async function appendBrainw2DevLog(mapping: Brainw2ProjectMapping | undefined, receipt: RunReceipt, now = new Date()): Promise<boolean> {
-  if (!mapping) return false;
-  const logPath = mapping.dev_log_path;
+export async function appendBrainw2DevLogDetailed(mapping: Brainw2ProjectMapping | undefined, receipt: RunReceipt, now = new Date()): Promise<Brainw2WritebackStatus> {
+  if (!mapping) return "unmapped";
+  let logPath: string;
+  try { logPath = await safeVaultFilePath(mapping.vault_path, path.relative(mapping.vault_path, mapping.dev_log_path), true); }
+  catch { return "failed"; }
   const lockPath = path.join(mapping.project_directory, ".w2-dev-log.lock");
   let lock;
   const deadline = Date.now() + 1500;
   while (!lock) {
     try { lock = await open(lockPath, "wx"); }
     catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "EEXIST" || Date.now() >= deadline) return false;
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST" || Date.now() >= deadline) return "failed";
       await new Promise((resolve) => setTimeout(resolve, 25));
     }
   }
   try {
     let existing = "";
     try { existing = await readFile(logPath, "utf8"); }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") return false; }
-    if (existing.includes(`- Receipt: ${receipt.run_id}`)) return false;
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") return "failed"; }
+    if (existing.includes(`- Receipt: ${receipt.run_id}`)) return "already-recorded";
     const updated = `${existing.replace(/\s*$/, "")}\n\n${devLogEntry(receipt, now)}`.replace(/^\n\n/, "");
     const temporary = `${logPath}.${randomUUID()}.tmp`;
     try {
@@ -433,17 +845,59 @@ export async function appendBrainw2DevLog(mapping: Brainw2ProjectMapping | undef
       await rm(temporary, { force: true }).catch(() => undefined);
       throw error;
     }
-    return true;
+    return "written";
   } catch {
-    return false;
+    return "failed";
   } finally {
     await lock.close().catch(() => undefined);
     await rm(lockPath, { force: true }).catch(() => undefined);
   }
 }
 
+export async function appendBrainw2DevLog(mapping: Brainw2ProjectMapping | undefined, receipt: RunReceipt, now = new Date()): Promise<boolean> {
+  return (await appendBrainw2DevLogDetailed(mapping, receipt, now)) === "written";
+}
+
+export async function syncBrainw2Receipt(workspace: string, receipt: RunReceipt, options: Brainw2SyncOptions = {}): Promise<Brainw2WritebackResult> {
+  const vault = resolveBrainw2Vault(options.env, options.home);
+  if (!vault.enabled || !vault.path) return { status: "disabled" };
+
+  let activity: Brainw2WritebackResult | undefined;
+  if (options.captureActivity !== false) {
+    try {
+      activity = await syncBrainw2Activity(workspace, {
+        session_id: `manual-receipt:${receipt.run_id}`,
+        turn_id: receipt.run_id,
+        prompt: receipt.task.goal,
+        kind: "engineering",
+      }, options);
+    } catch { activity = { status: "failed" }; }
+  }
+
+  let mapping: Brainw2ProjectMapping | undefined;
+  try { mapping = await resolveProjectMapping(workspace, options); }
+  catch { return { status: "failed", ...(activity?.routes ? { routes: activity.routes } : {}) }; }
+  if (!mapping) return { status: "unmapped", ...(activity?.routes ? { routes: activity.routes } : {}) };
+
+  const devLogStatus = await appendBrainw2DevLogDetailed(mapping, receipt);
+  const status = activity?.status === "failed" || devLogStatus === "failed" ? "failed" : devLogStatus;
+  return {
+    status,
+    target: path.relative(vault.path, mapping.dev_log_path).replaceAll("\\", "/"),
+    ...(activity?.routes ? { routes: activity.routes } : {}),
+  };
+}
+
 export async function brainw2Writable(vaultPath: string): Promise<boolean> {
   try { await access(vaultPath, constants.W_OK); return true; } catch { return false; }
+}
+
+export async function inspectBrainw2Categories(vaultPath: string): Promise<Brainw2CategoryDirectoryStatus[]> {
+  let entries;
+  try { entries = await readdir(vaultPath, { withFileTypes: true }); }
+  catch { return CATEGORY_DIRECTORIES.map((category) => ({ category, present: false })); }
+  const directories = new Set(entries.filter((entry) => entry.isDirectory() && !entry.isSymbolicLink()).map((entry) => entry.name));
+  return CATEGORY_DIRECTORIES.map((category) => ({ category, present: directories.has(category) }));
 }
 
 export async function listBrainw2ProjectNotes(vaultPath: string): Promise<ProjectNote[]> {

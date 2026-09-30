@@ -1,6 +1,6 @@
 # Public Claim Audit
 
-Audit scope: README, judge demo, benchmark report and results, architecture/security/context docs, hero case study, application summaries, and the public evidence manifest. [W2 Final Report](W2-FINAL-REPORT.md) is the current status source.
+Audit scope: README, judge demo, benchmark report and results, architecture/security/context docs, BrainW2 prompt capture and category routing, hero case study, application summaries, and the public evidence manifest. [W2 Final Report](W2-FINAL-REPORT.md) is the current status source.
 
 | Claim | Disposition | Evidence or wording limit |
 |---|---|---|
@@ -20,5 +20,8 @@ Audit scope: README, judge demo, benchmark report and results, architecture/secu
 | GPT-5.6 maps evidence or selects runtime outcomes | REMOVE | GPT-5.6 is documented as a development-time reviewer; runtime mapping and outcomes are deterministic. |
 | W2 is production-ready | REMOVE | The local fixture and evidence do not establish deployment or operational readiness. |
 | The static judge demo runs Codex live | REMOVE | It replays stored artifacts. `demo:live` and `hero:run` start separate live runs. |
+| BrainW2 captures every prompt verbatim | REMOVE | When enabled, it stores a bounded excerpt after common credential-pattern redaction; full prompts are not copied and redaction does not cover every secret format. |
+| BrainW2 category notes prove a W2 task passed | REMOVE | Daily and category notes are activity records, not Run Receipts or acceptance evidence. |
+| BrainW2 routing uses a language model | REMOVE | Routing uses fixed phrase rules and existing area folders; it does not infer categories with a model. |
 
 Terms reviewed include claims about safety, speed, reliability, proof, prevention, visibility, control, and production readiness. Keep evidence scoped to the named task, verifier, and recorded run.

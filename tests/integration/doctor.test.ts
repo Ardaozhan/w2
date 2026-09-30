@@ -1,9 +1,10 @@
 import { execFileSync } from "node:child_process";
-import { linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { renderDoctor } from "../../src/core/doctor.js";
+import { getInteractiveRunStorage } from "../../src/core/interactive.js";
 
 const roots: string[] = [];
 function temp(prefix: string): string {
@@ -53,9 +54,18 @@ describe("w2 doctor", () => {
     for (const file of ["dist/src/cli.js", "dist/src/core/interactive.js", "dist/src/core/brainw2.js"]) writeFileSync(path.join(w2Home, file), "// built\n", "utf8");
     gitProject(workspace);
     writeFileSync(path.join(vault, "01 Projects", "doctor-project", "W2.md"), `---\ntype: project\nrepo: ${JSON.stringify(workspace)}\nw2_context: true\n---\n# doctor-project\n\n## Goal\nPRIVATE_NOTE_BODY\n`, "utf8");
-    const receiptDirectory = path.join(w2Home, ".w2", "interactive", "project-hash", "receipts");
+    const receiptDirectory = getInteractiveRunStorage(w2Home, workspace).receiptDirectory;
     mkdirSync(receiptDirectory, { recursive: true });
     writeFileSync(path.join(receiptDirectory, "receipt-doctor.json"), JSON.stringify({ run_id: "receipt-doctor", outcome: "UNPROVEN", task: { goal: "PRIVATE_RECEIPT_PROMPT" } }), "utf8");
+    const otherWorkspace = path.join(root, "other-project");
+    mkdirSync(otherWorkspace, { recursive: true });
+    gitProject(otherWorkspace);
+    const otherReceiptDirectory = getInteractiveRunStorage(w2Home, otherWorkspace).receiptDirectory;
+    mkdirSync(otherReceiptDirectory, { recursive: true });
+    const otherReceipt = path.join(otherReceiptDirectory, "foreign-receipt.json");
+    writeFileSync(otherReceipt, JSON.stringify({ run_id: "foreign-receipt", outcome: "PASS" }), "utf8");
+    const future = new Date(Date.now() + 60_000);
+    utimesSync(otherReceipt, future, future);
     const beforeVault = readFileSync(path.join(vault, "01 Projects", "doctor-project", "W2.md"), "utf8");
     const output = await renderDoctor(w2Home, { cwd: workspace, env: { BRAINW2_VAULT: vault, HOME: root, USERPROFILE: root } });
     expect(output).toContain("W2 version: 0.2.0-rc.1");
@@ -63,9 +73,17 @@ describe("w2 doctor", () => {
     expect(output).toContain("Git repository: yes");
     expect(output).toContain("Working tree: clean");
     expect(output).toContain("W2 build: available");
-    expect(output).toContain("Latest receipt: receipt-doctor (UNPROVEN)");
+    expect(output).toContain("Latest current-project receipt: receipt-doctor (UNPROVEN)");
+    expect(output).not.toContain("foreign-receipt");
     expect(output).toContain("brainw2: enabled");
     expect(output).toContain("brainw2 project mapping: found");
+    expect(output).toContain("brainw2 category routing: active");
+    expect(output).toContain("brainw2 category folders: 1/10 present (missing destinations are created on use)");
+    expect(output).toContain("brainw2 daily target: 05 Daily/");
+    expect(output).toContain("brainw2 controlled folders: 90 Templates (source), 98 Attachments (reference index), 99 Archive (explicit requests only)");
+    expect(output).toContain("brainw2 project note: 01 Projects/doctor-project/W2.md");
+    expect(output).toContain("brainw2 Dev Log target: 01 Projects/doctor-project/Dev Log.md");
+    expect(output).toContain("brainw2 Activity Log target: 01 Projects/doctor-project/Activity Log.md");
     expect(output).toContain("brainw2 writable: yes");
     expect(output).toContain("PreToolUse");
     expect(output).toContain("PostToolUse");
@@ -97,7 +115,7 @@ describe("w2 doctor", () => {
     mkdirSync(receiptDirectory, { recursive: true });
     writeFileSync(path.join(receiptDirectory, "manual-receipt.json"), JSON.stringify({ run_id: "manual-receipt", outcome: "PASS", task: { goal: "DO_NOT_DISPLAY_PROMPT" } }), "utf8");
     const output = await renderDoctor(root, { cwd: workspace, env: { BRAINW2_VAULT: path.join(root, "missing"), HOME: root, USERPROFILE: root } });
-    expect(output).toContain("Latest receipt: manual-receipt (PASS)");
+    expect(output).toContain("Latest current-project receipt: manual-receipt (PASS)");
     expect(output).not.toContain("DO_NOT_DISPLAY_PROMPT");
   });
 });

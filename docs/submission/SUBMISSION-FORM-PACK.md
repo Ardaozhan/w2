@@ -28,7 +28,7 @@ W2 captures the task, W2-supplied context, supported native Codex tool activity,
 
 ## Technical implementation
 
-W2 validates a task contract, builds a Context Manifest, invokes the Codex adapter, persists recognized events and verifier results in SQLite, captures Git-visible changes, maps deterministic evidence to referenced criteria, and computes a Run Receipt outcome. Windows interactive mode uses native Codex `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, passive `PermissionRequest`, `Stop`, `Interrupt`, and `SessionEnd` hooks and reuses the same verification and receipt pipeline. Optional brainw2 support reads selected project Markdown context and appends a short receipt summary after persistence.
+W2 validates a task contract, builds a Context Manifest, invokes the Codex adapter, persists recognized events and verifier results in SQLite, captures Git-visible changes, maps deterministic evidence to referenced criteria, and computes a Run Receipt outcome. Windows interactive mode uses native Codex `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, passive `PermissionRequest`, `Stop`, `Interrupt`, and `SessionEnd` hooks and reuses the same verification and receipt pipeline. When enabled, BrainW2 supplies selected project Markdown context, stores bounded user-prompt or manual task-goal excerpts in Daily and deterministic category notes, and appends a short receipt summary after persistence. Activity notes are separate from receipt evidence.
 
 ## How Codex / GPT-5.6 is used
 
@@ -52,7 +52,7 @@ The Run Receipt is the primary review surface. It groups the task, W2-supplied c
 
 ## Current limitations
 
-Windows 11 with Node.js 22.13+ is the only independently verified environment. Interactive receipts are per assistant turn; prompt capture is a conservative deterministic filter; W2 observes only supported native hook activity and does not claim all OS operations, file reads, internal reasoning, or external side effects; semantic criteria need suitable deterministic evidence; W2 is not a security boundary or correctness guarantee; and the benchmark is descriptive with one attempt per fixture and condition.
+Windows 11 live Codex TUI integration is verified, and Ubuntu CI covers the core automated suite. Linux live TUI hook trust and macOS remain unverified. Interactive receipts are per assistant turn; only likely engineering prompts start W2 verification, while optional BrainW2 activity capture stores bounded excerpts separately. W2 observes only supported native hook activity and does not claim all OS operations, file reads, internal reasoning, or external side effects; semantic criteria need suitable deterministic evidence; W2 is not a security boundary or correctness guarantee; and the benchmark is descriptive with one attempt per fixture and condition.
 
 ## Future work
 
@@ -64,7 +64,7 @@ https://github.com/Ardaozhan/w2
 
 ## Demo URL
 
-https://github.com/Ardaozhan/w2/releases/tag/v0.1.0 (stable release; no demo video is published). The local static judge demo is at `judge-demo/index.html`.
+https://github.com/Ardaozhan/w2/releases/tag/v0.2.1 (latest stable release; no demo video is published). The local static judge demo is at `judge-demo/index.html`. The `main` branch has unreleased follow-up changes listed in the changelog.
 
 ## Team / creator
 

@@ -18,6 +18,6 @@ No active competition name or official competition URL is identified in the repo
 | Submission URL | Not identified |  |
 | Team rules | Verify creator/team limits and attribution |  |
 | `/feedback` or other proof of use | Verify whether required; no feedback receipt is claimed |  |
-| Repository visibility | Public GitHub repository; preserve existing v0.1.0 release and tag | https://github.com/Ardaozhan/w2 |
+| Repository visibility | Public GitHub repository; latest stable release is v0.2.1 | https://github.com/Ardaozhan/w2 |
 
-The stable release is [v0.1.0](https://github.com/Ardaozhan/w2/releases/tag/v0.1.0). The v0.2.0 release remains pending a live trusted Codex TUI end-to-end test after relaunch. Competition eligibility, deadline, demo rules, and submission URLs still require verification against a selected competition's current official rules.
+The latest published stable release is [v0.2.1](https://github.com/Ardaozhan/w2/releases/tag/v0.2.1). The `main` branch contains later, unreleased work listed in the changelog; do not describe it as part of the v0.2.1 release. Windows 11 live Codex TUI integration and Ubuntu core automated checks are documented; Linux live TUI trust remains unverified. Competition eligibility, deadline, demo rules, and submission URLs still require verification against a selected competition's current official rules.

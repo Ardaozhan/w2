@@ -88,6 +88,8 @@ describe("interactive Codex hook integration", () => {
       "Apply a security fix for the token handling.", "Şu giriş hatasını düzelt.", "Yeni endpoint ekle.",
       "Lütfen bu ayarı güncelle.", "Testler için yeni durumları yaz.", "Bu modülü yeniden yaz.",
       "Güvenlik açığını düzelt.",
+      "Bunu halletsene.", "Komple W2 sistemini incele, her şeyiyle buna göre konuşalım.",
+      "BrainW2'ye otomatik veri girmiyor.", "W2 kaydını kontrol eder misin?",
     ];
     const negatives = [
       "Explain this helper.", "What does this function do?", "Review this conceptually.",
@@ -96,6 +98,7 @@ describe("interactive Codex hook integration", () => {
       "Write a summary of this concept.", "Write a poem about compilers.",
       "Build a plan for the migration.", "Create an implementation plan.",
       "Nasıl çalışıyor?", "Bu kodu nasıl düzeltirim?", "/review this change",
+      "W2 ne durumda?", "BrainW2 hakkında ne düşünüyorsun?",
     ];
     for (const prompt of positives) expect(isMeaningfulEngineeringPrompt(prompt), prompt).toBe(true);
     for (const prompt of negatives) expect(isMeaningfulEngineeringPrompt(prompt), prompt).toBe(false);
@@ -136,7 +139,10 @@ describe("interactive Codex hook integration", () => {
     const w2Home = temporaryHome();
     const workspace = gitProject();
     const storage = getInteractiveRunStorage(w2Home, workspace);
-    expect(await submit(w2Home, workspace, "What does the search helper do?", "casual-session", "casual-turn")).toBeUndefined();
+    const result = await submit(w2Home, workspace, "What does the search helper do?", "casual-session", "casual-turn");
+    expect(result?.brainw2ActivityWriteback).toEqual({ status: "disabled" });
+    expect(result?.systemMessage).toBeUndefined();
+    expect(result?.additionalContext).toBeUndefined();
     expect(await stop(w2Home, workspace, "casual-session", "casual-turn")).toBeUndefined();
     expect(() => readFileSync(storage.databasePath)).toThrow();
   });

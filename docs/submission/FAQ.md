@@ -30,7 +30,11 @@ No. The PowerShell `w2` launcher starts Codex with one-run hook configuration. R
 
 ## Which platforms are verified?
 
-Windows 11 with Node.js 22.13+ is verified. Other operating systems have not been independently verified.
+Windows 11 live Codex TUI integration is verified. Ubuntu Linux core automated checks are covered by independent validation and GitHub Actions CI. Linux live TUI hook trust and macOS remain unverified.
+
+## Does W2 store user prompts?
+
+Only when the optional BrainW2 vault is enabled. W2 stores a normalized excerpt of up to 160 characters after common credential-pattern redaction in Daily and eligible category notes. These notes are not Run Receipts or acceptance evidence. Assistant responses, tool traces, full prompts, and attachment bytes are not copied; the redaction is not a complete secret detector.
 
 ## Is a hosted W2 service required?
 
@@ -42,4 +46,4 @@ No. A verifier proves only its declared check. Codex's sandbox controls native e
 
 ## Is W2 published on npm?
 
-No. The package is marked private. The source is hosted at https://github.com/Ardaozhan/w2, and v0.1.0 is the published stable release. W2 is not published to npm.
+No. The package is marked private. The source is hosted at https://github.com/Ardaozhan/w2, and v0.2.1 is the latest published stable release. W2 is not published to npm. The `main` branch contains later, unversioned changes documented under `Unreleased` in the changelog.

@@ -1,32 +1,36 @@
-# W2 v0.2 Completion Status (2026-09-25)
+# W2 Current Status (2026-09-30)
 
-## Release status
+This report describes the current `main` branch. Historical release notes remain scoped to the tagged version they document.
 
-W2 is published at [github.com/Ardaozhan/w2](https://github.com/Ardaozhan/w2). `v0.1.0` remains the immutable stable release. This forward-only engineering pass prepares the `0.2.0-rc.1` development package; it does not create a `v0.2.0` tag or GitHub release. A live Codex TUI trust and end-to-end run with the new hook definitions is still required before the final release.
+## Release and branch
 
-The pre-change `main` commit was `7d5333d61db1b9261c64eb3e7da60aac36b88b4e`.
+The public repository is [Ardaozhan/w2](https://github.com/Ardaozhan/w2). The latest published stable release is [v0.2.1](https://github.com/Ardaozhan/w2/releases/tag/v0.2.1). The current `main` branch includes later BrainW2 activity-capture and launcher changes listed under `Unreleased` in `CHANGELOG.md`; no new package version or release tag has been created. `package.json` therefore still reports `0.2.1`.
 
-## Current architecture
+W2 remains a standalone local verification tool. BrainW2 is an optional local Markdown integration, not a runtime dependency.
 
-W2 preserves its deterministic turn receipt pipeline: task, selected context, supported Codex activity, Git-visible diff, declared verification, criterion evidence, outcome, and receipt. Tool activity proves activity only. Generic passing checks and assistant completion text do not prove semantic acceptance criteria; unsupported criteria remain `UNPROVEN`.
+## Current behavior
 
-The v0.2 work adds direct CLI routing and `w2 doctor`, optional Markdown-only brainw2 project mapping/context/writeback, privacy-safe `PreToolUse` and `PostToolUse` activity in existing receipts, interruption handling, a minimal session index, conservative English and Turkish engineering prompt capture, Windows CI, and maintainer guidance. `PermissionRequest` is passive and makes no approval decision. W2 observes only structured activity delivered through supported Codex hooks, Git-visible changes, and verifier results; it does not claim to observe every OS operation, file read, internal model reasoning, or external side effect.
+Manual task contracts and interactive Codex turns share the same deterministic Run Engine, verifier, evidence mapper, and Run Receipt pipeline. Outcomes are `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR`; model confidence, completion text, BrainW2 notes, and generic passing checks cannot select `PASS` without criterion-linked evidence.
 
-brainw2 is optional. It supplies bounded, labeled reference context from a mapped project note and local `Decisions.md`, never acceptance evidence. Receipt writeback occurs only after persistence, is idempotent, and cannot change the W2 outcome.
+When BrainW2 is enabled, interactive `UserPromptSubmit` hooks store a normalized prompt excerpt of up to 160 characters after common credential-pattern redaction. Fixed rules can route the excerpt to Daily, Inbox, mapped Project, existing Area, Research, Dev Library, Decisions, Attachment Index, or Archive request notes. Manual `w2 run` captures its bounded task goal through the same activity path. These captures are documentation, not runtime context or acceptance evidence. Full prompts, assistant responses, tool traces, and attachment bytes are not copied to these notes. Redaction covers common patterns only and is not a secrets-management guarantee. Vault write errors are non-fatal to verification.
 
-## Verification
+Interactive turns with likely engineering requests still use the normal W2 verification pipeline. Receipt summaries go to the mapped project's `Dev Log.md`; prompt activity goes to `Activity Log.md` and category notes. `w2 doctor` reports the current project targets and category readiness. The Windows launcher initializes Git in the current folder if no containing repository exists; it does not create a commit.
 
-Final local verification ran on Windows 11 with Node.js 22.13 and package version `0.2.0-rc.1`:
+## Verification performed
 
-- `npm test`: PASS, 19 test files and 102 tests; the generated native hook commands passed the child-process boundary for all seven events.
-- `npm run typecheck`, `npm run build`, and `npm run standalone:check`: PASS.
-- `npm run fresh:check`: PASS on a clean project copy; it reran tests, the hook boundary, typecheck/build, standalone, receipt/benchmark/hero/judge validators, privacy audit, and non-browser smoke checks.
-- `npm run fixtures:check`, `npm run benchmark:verify`, `npm run benchmark:hermeticity`, `npm run hero:validate`, `npm run judge-demo:verify`, and `npm run demo:smoke`: PASS.
-- `npm run audit:public`: PASS with zero secret, privacy, or tracked runtime-artifact findings. `npm audit --audit-level=high`: PASS with zero vulnerabilities.
-- Relative Markdown link validation: PASS across 76 Markdown files; 55 relative links resolved. The public v0.1.0 release URL was verified.
+The current working tree was checked on Windows with Node.js `v22.13.1` and npm `10.9.2`:
 
-The hook boundary used an external temporary Git project and temporary brainw2 vault. These child-process checks do not prove the new hooks are trusted or working in a newly launched live Codex TUI. No browser QA, Playwright, or screenshot testing was run. Node emitted its documented experimental SQLite warning during tests.
+- `npm test`: PASS — 19 test files, 109 tests; the generated command boundary passed for all seven Codex hook events.
+- `npm run typecheck` and `npm run build`: PASS.
+- `npm run standalone:check`: PASS — 28 package scripts, 251 active text files, no legacy matches, absolute local imports, or tracked runtime databases.
+- `npm run audit:public`: PASS — 127 public evidence files and 274 tracked repository files scanned; no secret, privacy, or runtime-artifact findings.
+- `npm run fresh:check`: PASS — a clean temporary project copy installed dependencies and passed tests, typecheck, build, standalone, fixture, benchmark, hero, judge-demo, public-artifact, and non-browser smoke checks. It covered 275 candidate paths.
+- Markdown link check: PASS — 56/56 relative links resolved across 77 tracked Markdown files. `git diff --check` also passed.
 
-## Historical stable release
+The stored benchmark validator passed 16 REAL_CODEX run records; this is repository fixture validation, not a new benchmark execution or comparative performance claim. The static judge demo validation and non-browser smoke passed. No live Codex TUI session or visual browser inspection was performed for this update.
 
-The v0.1.0 release facts and feature notes are preserved in [v0.1.0 release notes](submission/RELEASE-NOTES-v0.1.0.md). This current-status report supersedes preparation-era statements that the repository, remote, or hosted release did not exist.
+## Support and limitations
+
+The v0.2.1 release notes record Windows 11 live Codex TUI integration and Ubuntu core CI verification. Linux live TUI hook trust and macOS remain unverified. The PowerShell launcher and Windows `command_windows` behavior are Windows-specific. W2 records supported hook events and Git-visible changes; it does not observe every OS operation, file read, internal model action, or external side effect. W2 is not an OS/container security boundary or a correctness guarantee. Node's built-in SQLite API remains experimental in Node 22.
+
+Release-specific facts and results are preserved in the [versioned release notes](submission/RELEASE-NOTES-v0.2.1.md). This report is the current status source for the main branch.

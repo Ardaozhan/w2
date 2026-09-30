@@ -5,7 +5,7 @@ import { appendFile, lstat, mkdir, mkdtemp, open, readFile, readlink, readdir, r
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { appendBrainw2DevLog, loadBrainw2ReferenceContext, resolveProjectMapping, type Brainw2ProjectMapping, type Brainw2ReferenceMetadata } from "./brainw2.js";
+import { loadBrainw2ReferenceContext, syncBrainw2Activity, type Brainw2ReferenceMetadata, type Brainw2WritebackResult } from "./brainw2.js";
 import type { AgentAdapter, AgentStartInput } from "./agent.js";
 import { runTaskAndPersistReceipt } from "./cli-run.js";
 import { recordSessionReceipt } from "./session.js";
@@ -79,6 +79,7 @@ export interface CodexHookEvent {
 export interface InteractiveHookResult {
   systemMessage?: string;
   additionalContext?: string;
+  brainw2ActivityWriteback?: Brainw2WritebackResult;
 }
 
 export interface InteractiveHookOptions {
@@ -134,6 +135,12 @@ export function isMeaningfulEngineeringPrompt(prompt: string, env: NodeJS.Proces
   if (override === "off") return false;
   if (override === "always") return true;
   if (override && override !== "auto") return false;
+
+  const projectSubject = /\b(?:w2|brainw2|obsidyen|obsidian|repo(?:sitory)?|workspace|proje(?:yi|nin|de|ye)?|uygulama|sistem|kod(?:u|da|un)?|dosya|klasör|modül|paket|api|servis|script)\b/i;
+  const projectReviewOrDiagnosis = /\b(?:incele\w*|gözden\s+geçir\w*|kontrol\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|değerlendir\w*|analiz\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|araştır\w*|test\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|doğrula\w*|denetle\w*|çalışmıyor|girmiyor|yazmıyor|eklenmiyor|kaydetmiyor|oluşmuyor|hata\s+veriyor)\b/i;
+  if (projectSubject.test(normalized) && projectReviewOrDiagnosis.test(normalized)) return true;
+
+  if (/(?:hallet|çöz|tamamla|bitir|düzelt|uygula|ekle|oluştur|değiştir|güncelle|kaldır|taşı|entegre\s+et|geliştir|iyileştir|kur|sil|yaz|yap)(?:sene|sana)(?:\s*[.!?]|$)/i.test(normalized)) return true;
 
   if (/^(?:(?:please|kindly)\s+)?(?:(?:create|write|build|make|draft)\s+)?(?:an?\s+)?(?:implementation plan|plan|approach|proposal|strategy|roadmap|summary|overview|explanation)\b|^(?:plan|planning|brainstorm|discuss|outline|summari[sz]e|explain|describe|review)\b/i.test(normalized)) return false;
   const turkishCodeNouns = /\b(?:test(?:ler(?:i)?)?|kod(?:u)?|fonksiyon(?:u)?|s\u0131n\u0131f(?:\u0131)?|mod\u00fcl(?:\u00fc)?|betik(?:i)?|script(?:i)?|readme)\b/i;
@@ -396,6 +403,7 @@ async function writeHookDiagnostic(input: {
   outcome?: HookOutcomeClass;
   errorClass?: string;
   receiptId?: string;
+  brainw2ActivityWriteback?: Brainw2WritebackResult;
 }): Promise<void> {
   const filePath = path.join(getInteractiveRuntimeRoot(input.w2Home), "hook-diagnostics.jsonl");
   const errorClass = ["SyntaxError", "TypeError", "RangeError", "Error"].includes(input.errorClass ?? "") ? input.errorClass : undefined;
@@ -412,6 +420,19 @@ async function writeHookDiagnostic(input: {
     ...(input.outcome ? { outcome: input.outcome } : {}),
     ...(errorClass ? { error_class: errorClass } : {}),
     ...(input.receiptId ? { receipt_id: input.receiptId } : {}),
+    ...(input.brainw2ActivityWriteback ? {
+      brainw2_activity_writeback: {
+        status: input.brainw2ActivityWriteback.status,
+        ...(input.brainw2ActivityWriteback.target ? { target: input.brainw2ActivityWriteback.target } : {}),
+        ...(input.brainw2ActivityWriteback.routes ? {
+          routes: input.brainw2ActivityWriteback.routes.map((route) => ({
+            category: route.category,
+            status: route.status,
+            target: route.target,
+          })),
+        } : {}),
+      },
+    } : {}),
   };
   try {
     await mkdir(path.dirname(filePath), { recursive: true });
@@ -818,7 +839,22 @@ async function capturePrompt(w2Home: string, event: CodexHookEvent, options: Int
   try { referenceContext = await loadBrainw2ReferenceContext(event.cwd, { env: options.brainw2Env, home: options.brainw2Home }); }
   catch { process.stderr.write("W2 brainw2 sync skipped.\n"); }
   const capture = typeof prompt === "string" && isMeaningfulEngineeringPrompt(prompt, options.brainw2Env ?? process.env);
-  if (!capture) return referenceContext ? { additionalContext: referenceContext.text } : undefined;
+  let activityWriteback: Brainw2WritebackResult | undefined;
+  try {
+    activityWriteback = await syncBrainw2Activity(event.cwd, {
+      session_id: event.session_id,
+      turn_id: event.turn_id,
+      prompt: prompt ?? "",
+      kind: capture ? "engineering" : "conversation",
+    }, {
+      env: options.brainw2Env,
+      home: options.brainw2Home,
+    });
+    if (activityWriteback.status === "failed") process.stderr.write("W2 brainw2 activity writeback failed.\n");
+  } catch { process.stderr.write("W2 brainw2 activity sync skipped.\n"); }
+  if (!capture) return referenceContext || activityWriteback
+    ? { ...(referenceContext ? { additionalContext: referenceContext.text } : {}), ...(activityWriteback ? { brainw2ActivityWriteback: activityWriteback } : {}) }
+    : undefined;
   if (!prompt) return undefined;
   const workspace = path.resolve(event.cwd);
   const statePath = turnStatePath(w2Home, workspace, event.session_id, event.turn_id);
@@ -846,10 +882,12 @@ async function capturePrompt(w2Home: string, event: CodexHookEvent, options: Int
     ...(referenceContext ? { brainw2_reference: referenceContext.metadata } : {}),
   };
   await writeState(statePath, state);
-  return referenceContext ? { additionalContext: referenceContext.text } : undefined;
+  return referenceContext || activityWriteback
+    ? { ...(referenceContext ? { additionalContext: referenceContext.text } : {}), ...(activityWriteback ? { brainw2ActivityWriteback: activityWriteback } : {}) }
+    : undefined;
 }
 
-function formatReceiptResult(receipt: RunReceipt, receiptPath: string): string {
+function formatReceiptResult(receipt: RunReceipt, receiptPath: string, brainw2Writeback?: Brainw2WritebackResult): string {
   const required = receipt.acceptance.filter((criterion) => criterion.required);
   const proven = required.filter((criterion) => criterion.status === "PASS").length;
   const lines = ["W2 RECEIPT", receipt.outcome, `Criteria: ${proven}/${required.length} proven`];
@@ -866,6 +904,17 @@ function formatReceiptResult(receipt: RunReceipt, receiptPath: string): string {
   if (missing.length) lines.push("Missing evidence:\n" + missing.map((item) => `- ${item.description}`).join("\n"));
   if (erroredVerifiers.length) lines.push("Verification infrastructure failed:\n" + erroredVerifiers.map((item) => `- ${item.name}`).join("\n"));
   if (receipt.agent.error && receipt.outcome === "ERROR") lines.push(`Error: ${receipt.agent.error}`);
+  if (brainw2Writeback) {
+    const descriptions: Record<Brainw2WritebackResult["status"], string> = {
+      written: "Dev Log updated",
+      "already-recorded": "receipt already recorded",
+      disabled: "vault is disabled",
+      unmapped: "project could not be mapped",
+      failed: "writeback failed; receipt is saved",
+    };
+    const target = brainw2Writeback.target ? ` (${brainw2Writeback.target})` : "";
+    lines.push(`BrainW2: ${descriptions[brainw2Writeback.status]}${target}`);
+  }
   lines.push("", "Receipt:", receiptPath);
   return lines.join("\n");
 }
@@ -945,15 +994,12 @@ async function finishTurn(w2Home: string, event: CodexHookEvent, options: Intera
       },
       ...(state.brainw2_reference ? { referenceContext: state.brainw2_reference } : {}),
       ...(interrupted ? { interrupted: true } : {}),
+      brainw2: { env: options.brainw2Env, home: options.brainw2Home, captureActivity: false },
     });
     options.onRun?.(result.receipt);
     try { await recordSessionReceipt(w2Home, event.session_id, event.turn_id, result.receipt); }
     catch { process.stderr.write("W2 session index update skipped.\n"); }
-    try {
-      const mapping: Brainw2ProjectMapping | undefined = await resolveProjectMapping(workspace, { env: options.brainw2Env, home: options.brainw2Home, create: false });
-      if (mapping) await appendBrainw2DevLog(mapping, result.receipt);
-    } catch { process.stderr.write("W2 brainw2 sync skipped.\n"); }
-    return { systemMessage: formatReceiptResult(result.receipt, result.markdownPath) };
+    return { systemMessage: formatReceiptResult(result.receipt, result.markdownPath, result.brainw2Writeback) };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { systemMessage: `W2 RECEIPT\nERROR\nVerification infrastructure failed before a receipt could be completed.\n${message}` };
@@ -1004,6 +1050,7 @@ export async function handleInteractiveHook(w2Home: string, event: CodexHookEven
   let outcome: HookOutcomeClass = "IGNORED";
   let errorClass: string | undefined;
   let receiptId: string | undefined;
+  let brainw2ActivityWriteback: Brainw2WritebackResult | undefined;
   let result: InteractiveHookResult | undefined;
   await writeHookDiagnostic({ w2Home, event, handler: "started" });
   try {
@@ -1013,6 +1060,7 @@ export async function handleInteractiveHook(w2Home: string, event: CodexHookEven
           throw new TypeError("UserPromptSubmit hook payload is missing a required Codex field");
         }
         result = await capturePrompt(w2Home, event, options);
+        brainw2ActivityWriteback = result?.brainw2ActivityWriteback;
         outcome = result?.systemMessage ? "ERROR" : isMeaningfulEngineeringPrompt(event.prompt, options.brainw2Env ?? process.env) ? "PENDING" : "IGNORED";
         break;
       }
@@ -1079,7 +1127,7 @@ export async function handleInteractiveHook(w2Home: string, event: CodexHookEven
       result = { systemMessage: `W2 RECEIPT\nERROR\nW2 could not process this Codex lifecycle event (${errorClass}).` };
     }
   } finally {
-    await writeHookDiagnostic({ w2Home, event, handler: "completed", outcome, ...(errorClass ? { errorClass } : {}), ...(receiptId ? { receiptId } : {}) });
+    await writeHookDiagnostic({ w2Home, event, handler: "completed", outcome, ...(errorClass ? { errorClass } : {}), ...(receiptId ? { receiptId } : {}), ...(brainw2ActivityWriteback ? { brainw2ActivityWriteback } : {}) });
   }
   return result;
 }

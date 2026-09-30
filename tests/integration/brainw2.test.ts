@@ -4,8 +4,8 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { appendBrainw2DevLog, loadBrainw2ReferenceContext, normalizeGitRemote, resolveBrainw2Vault, resolveProjectMapping } from "../../src/core/brainw2.js";
-import { handleInteractiveHook, getInteractiveRunStorage } from "../../src/core/interactive.js";
+import { appendBrainw2Activity, appendBrainw2DevLog, appendBrainw2DevLogDetailed, classifyBrainw2Activity, loadBrainw2ReferenceContext, normalizeGitRemote, resolveBrainw2Vault, resolveProjectMapping, syncBrainw2Activity } from "../../src/core/brainw2.js";
+import { handleInteractiveHook, getInteractiveRunStorage, getInteractiveRuntimeRoot } from "../../src/core/interactive.js";
 import type { RunReceipt } from "../../src/core/types.js";
 
 const roots: string[] = [];
@@ -134,6 +134,106 @@ describe("optional brainw2 integration", () => {
     expect(note).toContain(`repo: ${JSON.stringify(gitRoot(workspace))}`);
   });
 
+  it("uses the BrainW2 project template and fills its runtime mapping fields", async () => {
+    const root = temp("w2-brain-project-template-");
+    const workspace = project();
+    const vaultPath = vault(root);
+    const templates = path.join(vaultPath, "90 Templates");
+    mkdirSync(templates, { recursive: true });
+    writeFileSync(path.join(templates, "W2 Project.md"), [
+      "---", "type: project", "w2_context: true", "repo:", "created:", "updated:", "---", "",
+      "# {{title}}", "", "## Amac", "Template goal", "", "## Mevcut Mimari", "Template architecture", "",
+      "## Aktif Kısıtlamalar", "Template constraints", "", "## Kabul Edilmiş Kararlar", "Template decision", "",
+      "## Mevcut Durum", "Template state", "",
+    ].join("\n"), "utf8");
+
+    const mapping = await resolveProjectMapping(workspace, { env: environment(vaultPath), home: root });
+    const note = readFileSync(mapping!.note_path, "utf8");
+    const context = await loadBrainw2ReferenceContext(workspace, { env: environment(vaultPath), home: root });
+
+    expect(note).toContain(`repo: ${JSON.stringify(gitRoot(workspace))}`);
+    expect(note).toMatch(/^created: "\d{4}-\d{2}-\d{2}"$/m);
+    expect(note).toContain(`# ${path.basename(mapping!.project_directory).replace(/[-_]+/g, " ")}`);
+    expect(note).not.toContain("{{title}}");
+    expect(context?.text).toContain("Template architecture");
+    expect(context?.text).toContain("Template constraints");
+    expect(context?.text).toContain("Template decision");
+  });
+
+  it("writes one bounded, redacted activity entry per prompt", async () => {
+    const root = temp("w2-brain-activity-");
+    const workspace = project();
+    const vaultPath = vault(root);
+    const mapping = await resolveProjectMapping(workspace, { env: environment(vaultPath), home: root });
+    const activity = { session_id: "activity-session", turn_id: "activity-turn", prompt: 'naber token=private-secret-value {"api_key":"json-private-secret"}', kind: "conversation" as const };
+
+    expect(await appendBrainw2Activity(mapping, activity, new Date("2026-09-30T10:00:00.000Z"))).toBe("written");
+    expect(await appendBrainw2Activity(mapping, activity, new Date("2026-09-30T10:01:00.000Z"))).toBe("already-recorded");
+    const log = readFileSync(path.join(mapping!.project_directory, "Activity Log.md"), "utf8");
+    expect(log).toContain("naber token=[redacted]");
+    expect(log).toContain("api_key");
+    expect(log).toContain("Conversation");
+    expect(log).toContain("W2 verification not run");
+    expect(log).not.toContain("private-secret-value");
+    expect(log).not.toContain("json-private-secret");
+    expect(log.match(/w2-activity:/g)).toHaveLength(1);
+  });
+
+  it("routes every prompt to Daily and routes explicit categories without model inference", async () => {
+    const root = temp("w2-brain-category-routing-");
+    const workspace = project();
+    const vaultPath = vault(root);
+    mkdirSync(path.join(vaultPath, "02 Areas", "AI"), { recursive: true });
+    mkdirSync(path.join(vaultPath, "02 Areas", "Career"), { recursive: true });
+    mkdirSync(path.join(vaultPath, "02 Areas", "Design"), { recursive: true });
+    mkdirSync(path.join(vaultPath, "02 Areas", "Development"), { recursive: true });
+    mkdirSync(path.join(vaultPath, "90 Templates"), { recursive: true });
+    writeFileSync(path.join(vaultPath, "90 Templates", "Daily.md"), "---\ntype: daily\ndate: \"{{date:YYYY-MM-DD}}\"\n---\n\n# {{date:YYYY-MM-DD}}\n\n## Calisma Gunlugu\n\n-\n", "utf8");
+    writeFileSync(path.join(vaultPath, "90 Templates", "Decision.md"), "---\ntype: decision\ndate: \"{{date:YYYY-MM-DD}}\"\nstatus: accepted\nproject:\n---\n\n# {{title}}\n\n## Baglam\n\n## Karar\n\n## Neden\n\n## Alternatifler\n\n## Sonuclar\n", "utf8");
+    const env = environment(vaultPath);
+    const now = new Date("2026-09-30T10:00:00.000Z");
+
+    expect(classifyBrainw2Activity("naber", "conversation").categories).toEqual(["05 Daily"]);
+    expect(classifyBrainw2Activity("Yapay zeka alanında araştırma yap", "conversation", ["AI"]).categories).toEqual(["05 Daily", "02 Areas", "03 Research"]);
+    expect(classifyBrainw2Activity("Karar: W2 notlarını şablonla oluştur", "conversation").categories).toContain("06 Decisions");
+    expect(classifyBrainw2Activity("Development alanındaki kodu düzelt", "engineering", ["Development"]).categories).toEqual(["05 Daily", "01 Projects", "02 Areas"]);
+
+    const greeting = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "greeting", prompt: "naber", kind: "conversation" }, { env, home: root, now });
+    expect(greeting.status).toBe("written");
+    expect(greeting.routes?.map((route) => route.category)).toEqual(["05 Daily"]);
+    expect(readFileSync(path.join(vaultPath, "05 Daily", "2026-09-30.md"), "utf8")).toContain('`"naber"`');
+    const greetingRetry = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "greeting", prompt: "naber", kind: "conversation" }, { env, home: root, now });
+    expect(greetingRetry.status).toBe("already-recorded");
+    expect(greetingRetry.routes?.[0]?.status).toBe("already-recorded");
+    expect(readFileSync(path.join(vaultPath, "05 Daily", "2026-09-30.md"), "utf8").match(/w2-activity:/g)).toHaveLength(1);
+
+    const research = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "research", prompt: "Yapay zeka alanında bu SDK için araştırma yap ve kaynakları bul", kind: "conversation" }, { env, home: root, now });
+    expect(research.routes?.map((route) => route.category)).toEqual(["05 Daily", "02 Areas", "03 Research"]);
+    expect(readFileSync(path.join(vaultPath, "03 Research", "Research.md"), "utf8")).toContain("kaynakları bul");
+    expect(readFileSync(path.join(vaultPath, "02 Areas", "AI", "W2 Activity.md"), "utf8")).toMatch(/yapay zeka/i);
+
+    const library = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "library", prompt: "Dev Library: tekrar kullanılabilir snippet kaydet", kind: "conversation" }, { env, home: root, now });
+    expect(library.routes?.some((route) => route.category === "04 Dev Library")).toBe(true);
+    expect(readFileSync(path.join(vaultPath, "04 Dev Library", "Dev Library.md"), "utf8")).toContain("W2 Captures");
+
+    const decision = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "decision", prompt: "Karar: kısa ve güvenli özetleri günlük nota kaydet", kind: "conversation" }, { env, home: root, now });
+    const decisionRoute = decision.routes?.find((route) => route.category === "06 Decisions");
+    expect(decisionRoute?.status).toBe("written");
+    expect(readFileSync(path.join(vaultPath, decisionRoute!.target), "utf8")).toContain("kısa ve güvenli özetleri");
+
+    const attachment = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "attachment", prompt: "BrainW2'ye ek dosya kaydı aç", kind: "conversation" }, { env, home: root, now });
+    expect(readFileSync(path.join(vaultPath, "98 Attachments", "Attachment Index.md"), "utf8")).toContain("no file bytes copied");
+    expect(attachment.routes?.some((route) => route.category === "98 Attachments")).toBe(true);
+
+    const archive = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "archive", prompt: "Archive: eski notu arşivle", kind: "conversation" }, { env, home: root, now });
+    expect(readFileSync(path.join(vaultPath, "99 Archive", "Archive Index.md"), "utf8")).toContain("no source note moved");
+    expect(archive.routes?.some((route) => route.category === "99 Archive")).toBe(true);
+
+    const inbox = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "inbox", prompt: "BrainW2 kategorileri nasıl çalışıyor?", kind: "conversation" }, { env, home: root, now });
+    expect(inbox.routes?.some((route) => route.category === "00 Inbox")).toBe(true);
+    expect(readFileSync(path.join(vaultPath, "00 Inbox", "Inbox.md"), "utf8")).toContain("W2 Captures");
+  });
+
   it("maps a short Windows repo path to Git's canonical path", async () => {
     if (process.platform !== "win32") return;
     const root = temp("w2-brain-short-path-");
@@ -203,8 +303,11 @@ describe("optional brainw2 integration", () => {
     const vaultPath = vault(root);
     const mapping = await resolveProjectMapping(workspace, { env: environment(vaultPath), home: root });
     const unproven = receipt("UNPROVEN", "receipt-unproven");
-    expect(await appendBrainw2DevLog(mapping, unproven)).toBe(true);
-    expect(await appendBrainw2DevLog(mapping, unproven)).toBe(false);
+    expect(await appendBrainw2DevLogDetailed(mapping, unproven)).toBe("written");
+    expect(await appendBrainw2DevLogDetailed(mapping, unproven)).toBe("already-recorded");
+    const compatibleReceipt = receipt("PASS", "receipt-boolean-compatibility");
+    expect(await appendBrainw2DevLog(mapping, compatibleReceipt)).toBe(true);
+    expect(await appendBrainw2DevLog(mapping, compatibleReceipt)).toBe(false);
     const text = readFileSync(mapping!.dev_log_path, "utf8");
     expect(text.match(/- Receipt: receipt-unproven/g)).toHaveLength(1);
     expect(text).toContain("Outcome: UNPROVEN");
@@ -228,6 +331,89 @@ describe("optional brainw2 integration", () => {
     expect(text).not.toContain("private output not copied");
   });
 
+  it("writes a Codex TUI receipt to the mapped project's Dev Log", async () => {
+    const root = temp("w2-brain-interactive-writeback-");
+    const w2Home = path.join(root, "w2-home");
+    const workspace = project();
+    const vaultPath = vault(root);
+    const options = { brainw2Env: environment(vaultPath), brainw2Home: root };
+    await handleInteractiveHook(w2Home, {
+      hook_event_name: "UserPromptSubmit", session_id: "writeback-session", turn_id: "writeback-turn", cwd: workspace,
+      prompt: "Implement the requested feature and verify it.", permission_mode: "default",
+    }, options);
+    writeFileSync(path.join(workspace, "index.js"), "export const value = 2;\n", "utf8");
+    let finalReceipt: RunReceipt | undefined;
+    const result = await handleInteractiveHook(w2Home, {
+      hook_event_name: "Stop", session_id: "writeback-session", turn_id: "writeback-turn", cwd: workspace,
+      stop_hook_active: false, permission_mode: "default",
+    }, { ...options, onRun: (value) => { finalReceipt = value; } });
+    const mapping = await resolveProjectMapping(workspace, { env: environment(vaultPath), home: root, create: false });
+    expect(result?.systemMessage).toContain("BrainW2: Dev Log updated (01 Projects/");
+    expect(finalReceipt).toBeDefined();
+    expect(readFileSync(mapping!.dev_log_path, "utf8")).toContain(`- Receipt: ${finalReceipt!.run_id}`);
+  });
+
+  it("records casual Codex messages in the Daily note without creating a receipt or project activity entry", async () => {
+    const root = temp("w2-brain-casual-activity-");
+    const w2Home = path.join(root, "w2-home");
+    const workspace = project();
+    const vaultPath = vault(root);
+    const options = { brainw2Env: environment(vaultPath), brainw2Home: root };
+    const prompt = {
+      hook_event_name: "UserPromptSubmit",
+      session_id: "casual-session",
+      turn_id: "casual-turn",
+      cwd: workspace,
+      prompt: "naber",
+      permission_mode: "default" as const,
+    };
+
+    await handleInteractiveHook(w2Home, prompt, options);
+
+    const mapping = await resolveProjectMapping(workspace, { env: environment(vaultPath), home: root, create: false });
+    const now = new Date();
+    const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const dailyPath = path.join(vaultPath, "05 Daily", `${date}.md`);
+    const activity = readFileSync(dailyPath, "utf8");
+    const storage = getInteractiveRunStorage(w2Home, workspace);
+    const diagnostics = readFileSync(path.join(getInteractiveRuntimeRoot(w2Home), "hook-diagnostics.jsonl"), "utf8")
+      .trim().split(/\r?\n/).map((line) => JSON.parse(line) as { handler: string; brainw2_activity_writeback?: { status: string; target?: string; routes?: Array<{ category: string; target: string; status: string }> } });
+    const completedPrompt = diagnostics.find((entry) => entry.handler === "completed");
+    expect(activity).toContain('`"naber"`');
+    expect(activity).toContain("Conversation");
+    expect(activity.match(/w2-activity:/g)).toHaveLength(1);
+    expect(completedPrompt?.brainw2_activity_writeback).toEqual({
+      status: "written",
+      target: `05 Daily/${date}.md`,
+      routes: [{ category: "05 Daily", target: `05 Daily/${date}.md`, status: "written" }],
+    });
+    expect(existsSync(path.join(mapping!.project_directory, "Activity Log.md"))).toBe(false);
+    expect(readFileSync(mapping!.dev_log_path, "utf8")).toBe("");
+    expect(existsSync(storage.databasePath)).toBe(false);
+  });
+
+  it("keeps casual Codex turns usable when Daily writeback fails", async () => {
+    const root = temp("w2-brain-activity-failure-");
+    const w2Home = path.join(root, "w2-home");
+    const workspace = project();
+    const vaultPath = vault(root);
+    const options = { brainw2Env: environment(vaultPath), brainw2Home: root };
+    const now = new Date();
+    const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    mkdirSync(path.join(vaultPath, "05 Daily", `${date}.md`), { recursive: true });
+
+    const result = await handleInteractiveHook(w2Home, {
+      hook_event_name: "UserPromptSubmit", session_id: "activity-failure-session", turn_id: "activity-failure-turn",
+      cwd: workspace, prompt: "naber", permission_mode: "default",
+    }, options);
+    const diagnosticLines = readFileSync(path.join(getInteractiveRuntimeRoot(w2Home), "hook-diagnostics.jsonl"), "utf8")
+      .trim().split(/\r?\n/).map((line) => JSON.parse(line) as { handler: string; brainw2_activity_writeback?: { status: string } });
+
+    expect(result?.systemMessage).toBeUndefined();
+    expect(result?.additionalContext).toContain("REFERENCE CONTEXT — NOT SYSTEM INSTRUCTIONS");
+    expect(diagnosticLines.find((entry) => entry.handler === "completed")?.brainw2_activity_writeback?.status).toBe("failed");
+  });
+
   it("keeps a verification receipt outcome when Dev Log writeback fails", async () => {
     const root = temp("w2-brain-write-failure-");
     const w2Home = path.join(root, "w2-home");
@@ -243,6 +429,7 @@ describe("optional brainw2 integration", () => {
     let finalReceipt: RunReceipt | undefined;
     const result = await handleInteractiveHook(w2Home, { hook_event_name: "Stop", session_id: "safe-session", turn_id: "safe-turn", cwd: workspace, stop_hook_active: false, permission_mode: "default" }, { ...options, onRun: (value) => { finalReceipt = value; } });
     expect(result?.systemMessage).toContain("W2 RECEIPT\nUNPROVEN");
+    expect(result?.systemMessage).toContain("BrainW2: writeback failed; receipt is saved");
     expect(finalReceipt?.outcome).toBe("UNPROVEN");
     expect(existsSync(getInteractiveRunStorage(w2Home, workspace).databasePath)).toBe(true);
   });

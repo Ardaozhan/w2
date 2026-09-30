@@ -137,8 +137,8 @@ async function main(): Promise<void> {
     return;
   }
   const outputDir = path.resolve(path.dirname(databasePath), "receipts");
-  const result = await runTaskAndPersistReceipt({ task, databasePath, receiptDirectory: outputDir });
-  console.log(JSON.stringify({ run_id: result.run.run_id, status: result.run.status, outcome: result.receipt.outcome, receipt_json: result.jsonPath, receipt_markdown: result.markdownPath, database: databasePath }, null, 2));
+  const result = await runTaskAndPersistReceipt({ task, databasePath, receiptDirectory: outputDir, brainw2: {} });
+  console.log(JSON.stringify({ run_id: result.run.run_id, status: result.run.status, outcome: result.receipt.outcome, receipt_json: result.jsonPath, receipt_markdown: result.markdownPath, database: databasePath, brainw2_writeback: result.brainw2Writeback }, null, 2));
   if (result.receipt.outcome !== "PASS") process.exitCode = 1;
 }
 

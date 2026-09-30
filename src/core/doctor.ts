@@ -5,9 +5,9 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { brainw2Writable, resolveBrainw2Vault, resolveProjectMapping } from "./brainw2.js";
+import { brainw2Writable, inspectBrainw2Categories, resolveBrainw2Vault, resolveProjectMapping } from "./brainw2.js";
 import { configuredHookEvents } from "./codex-launch.js";
-import { getInteractiveRuntimeRoot } from "./interactive.js";
+import { getInteractiveRunStorage, getInteractiveRuntimeRoot } from "./interactive.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -56,7 +56,6 @@ async function gitStatus(cwd: string, env?: NodeJS.ProcessEnv): Promise<{ reposi
 }
 
 async function latestReceipt(w2Home: string, cwd: string): Promise<{ id: string; outcome: string } | undefined> {
-  const root = getInteractiveRuntimeRoot(w2Home);
   const files: Array<{ file: string; modified: number }> = [];
   const collectReceipts = async (directory: string): Promise<void> => {
     for (const receipt of await readdir(directory, { withFileTypes: true }).catch(() => [])) {
@@ -66,20 +65,7 @@ async function latestReceipt(w2Home: string, cwd: string): Promise<{ id: string;
       if (info) files.push({ file: receiptPath, modified: info.mtimeMs });
     }
   };
-  const walk = async (directory: string): Promise<void> => {
-    let entries;
-    try { entries = await readdir(directory, { withFileTypes: true }); } catch { return; }
-    for (const entry of entries) {
-      if (entry.isSymbolicLink()) continue;
-      const file = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        if (entry.name === "receipts") {
-          await collectReceipts(file);
-        } else await walk(file);
-      }
-    }
-  };
-  await walk(root);
+  await collectReceipts(getInteractiveRunStorage(w2Home, cwd).receiptDirectory);
   await collectReceipts(path.join(cwd, ".w2", "receipts"));
   const latest = files.sort((left, right) => right.modified - left.modified)[0];
   if (!latest) return undefined;
@@ -119,12 +105,17 @@ export async function renderDoctor(w2HomeValue?: string, options: DoctorOptions 
     try { await access(path.join(w2Home, file), constants.R_OK); return true; } catch { return false; }
   }))).every(Boolean);
   const vault = resolveBrainw2Vault(env, env.HOME ?? env.USERPROFILE ?? os.homedir());
-  let mapping = false;
+  let mapping: Awaited<ReturnType<typeof resolveProjectMapping>> = undefined;
   let writable = false;
+  let categoryFolders = 0;
   if (vault.enabled && vault.path) {
-    try { mapping = Boolean(await resolveProjectMapping(cwd, { env, home: env.HOME ?? env.USERPROFILE ?? os.homedir(), create: false })); } catch { mapping = false; }
-    writable = await brainw2Writable(vault.path);
+    try { mapping = await resolveProjectMapping(cwd, { env, home: env.HOME ?? env.USERPROFILE ?? os.homedir(), create: false }); } catch { mapping = undefined; }
+    writable = await brainw2Writable(mapping?.project_directory ?? vault.path);
+    const categories = await inspectBrainw2Categories(vault.path);
+    categoryFolders = categories.filter((category) => category.present).length;
   }
+  const today = new Date();
+  const dailyDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   const lines = [
     `W2 version: ${version}`,
     `W2 home: ${w2Home}`,
@@ -138,10 +129,22 @@ export async function renderDoctor(w2HomeValue?: string, options: DoctorOptions 
     `Working tree: ${git.workingTree ?? "not applicable"}`,
     `W2 build: ${buildAvailable ? "available" : "unavailable"}`,
     `Interactive runtime: ${getInteractiveRuntimeRoot(w2Home)}`,
-    `Latest receipt: ${latest ? `${latest.id} (${latest.outcome})` : "none"}`,
+    `Latest current-project receipt: ${latest ? `${latest.id} (${latest.outcome})` : "none"}`,
     `brainw2: ${vault.enabled ? "enabled" : "disabled"}`,
     `brainw2 vault: ${vault.path ?? "unavailable"}`,
     `brainw2 project mapping: ${vault.enabled ? mapping ? "found" : "not found" : "not applicable"}`,
+    ...(vault.enabled && vault.path ? [
+      "brainw2 category routing: active",
+      `brainw2 category folders: ${categoryFolders}/10 present (missing destinations are created on use)`,
+      `brainw2 daily target: 05 Daily/${dailyDate}.md`,
+      "brainw2 categorized captures: 00 Inbox, 01 Projects, 02 Areas, 03 Research, 04 Dev Library, 06 Decisions",
+      "brainw2 controlled folders: 90 Templates (source), 98 Attachments (reference index), 99 Archive (explicit requests only)",
+    ] : []),
+    ...(vault.path && mapping ? [
+      `brainw2 project note: ${path.relative(vault.path, mapping.note_path).replaceAll("\\", "/")}`,
+      `brainw2 Dev Log target: ${path.relative(vault.path, mapping.dev_log_path).replaceAll("\\", "/")}`,
+      `brainw2 Activity Log target: ${path.relative(vault.path, path.join(mapping.project_directory, "Activity Log.md")).replaceAll("\\", "/")}`,
+    ] : []),
     `brainw2 writable: ${vault.enabled ? writable ? "yes" : "unavailable" : "not applicable"}`,
     `Native hook events: ${configuredHookEvents.join(", ")}`,
     "TRUST STATUS: CHECK WITH /hooks",

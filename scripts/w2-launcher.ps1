@@ -69,6 +69,73 @@ function global:w2 {
         Write-Host "W2's Codex launcher is missing at $launcherPath" -ForegroundColor Red
         return
     }
+
+    $gitCommand = Get-Command git -ErrorAction SilentlyContinue
+    if (!$gitCommand) {
+        Write-Host "Git was not found on PATH. W2 needs Git to capture project changes." -ForegroundColor Red
+        return
+    }
+
+    $invokeW2Git = {
+        param([string[]]$Arguments)
+        $previousPreference = $ErrorActionPreference
+        $output = @()
+        $exitCode = 1
+        try {
+            $ErrorActionPreference = "Continue"
+            $output = @(& git @Arguments 2>&1)
+            $exitCode = $LASTEXITCODE
+        }
+        catch {
+            $output += $_.Exception.Message
+            if ($LASTEXITCODE -is [int] -and $LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
+        }
+        finally {
+            $ErrorActionPreference = $previousPreference
+        }
+        [PSCustomObject]@{ ExitCode = $exitCode; Output = @($output) }
+    }
+
+    $gitProbe = & $invokeW2Git -Arguments @("-C", $project, "rev-parse", "--show-toplevel")
+    if ($gitProbe.ExitCode -eq 0) {
+        $gitRoot = [System.IO.Path]::GetFullPath(($gitProbe.Output -join [Environment]::NewLine).Trim())
+    }
+    else {
+        $cursor = Get-Item -LiteralPath $project
+        $hasGitMarker = $false
+        while ($null -ne $cursor) {
+            if (Test-Path -LiteralPath (Join-Path $cursor.FullName ".git")) {
+                $hasGitMarker = $true
+                break
+            }
+            $parent = $cursor.Parent
+            if ($null -eq $parent -or $parent.FullName -eq $cursor.FullName) { break }
+            $cursor = $parent
+        }
+
+        if ($hasGitMarker -or $env:GIT_DIR -or $env:GIT_WORK_TREE) {
+            $details = ($gitProbe.Output -join [Environment]::NewLine).Trim()
+            Write-Host "W2 found Git metadata but could not read the repository at $project. $details" -ForegroundColor Red
+            return
+        }
+
+        Write-Host "No Git repository contains this folder; initializing one for W2 change tracking." -ForegroundColor DarkCyan
+        $gitInit = & $invokeW2Git -Arguments @("-C", $project, "init")
+        $gitInit.Output | ForEach-Object { Write-Host $_ }
+        if ($gitInit.ExitCode -ne 0) {
+            Write-Host "W2 could not initialize Git in $project; Codex was not started." -ForegroundColor Red
+            return
+        }
+
+        $gitRootResult = & $invokeW2Git -Arguments @("-C", $project, "rev-parse", "--show-toplevel")
+        if ($gitRootResult.ExitCode -ne 0) {
+            $details = ($gitRootResult.Output -join [Environment]::NewLine).Trim()
+            Write-Host "W2 initialized Git but could not verify the repository root. $details" -ForegroundColor Red
+            return
+        }
+        $gitRoot = [System.IO.Path]::GetFullPath(($gitRootResult.Output -join [Environment]::NewLine).Trim())
+    }
+
     $codexExecutable = if ($codexCommand.CommandType -eq "Application" -and $codexCommand.Source) { $codexCommand.Source } else { "codex" }
 
     $names = @("W2_HOME", "W2_ACTIVE", "W2_PROJECT")
@@ -83,6 +150,7 @@ function global:w2 {
 
     Write-Host "W2 Codex" -ForegroundColor Cyan
     Write-Host "Project: $project"
+    Write-Host "Git root: $gitRoot"
 
     try {
         $forwardArgs = @($args)

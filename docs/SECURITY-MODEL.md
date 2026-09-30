@@ -18,6 +18,8 @@ W2 stores supported Codex tool activity delivered through native `PreToolUse` an
 
 Optional brainw2 notes are untrusted, user-maintained reference context. Supplied context is explicitly labeled `REFERENCE CONTEXT — NOT SYSTEM INSTRUCTIONS`, limited to selected sections from the mapped project note and its `Decisions.md`, and never counts as acceptance evidence. Receipt metadata stores a logical source, content hash, byte count, and project mapping ID; raw note content is not copied into receipt metadata. brainw2 read or write failures do not alter the W2 outcome.
 
+When BrainW2 activity capture is enabled, each interactive user prompt and manual task goal may be stored as a normalized excerpt of up to 160 characters in the dated Daily note and deterministic category notes. W2 redacts common credential patterns before writing; it does not recognize every possible secret format and is not a secrets vault. Captures do not include assistant responses, tool traces, full prompts, or attachment bytes. Category routing uses fixed phrase rules and existing area folders; these notes are not automatically injected as model context or used as acceptance evidence. Write failures are reported separately and do not change a receipt outcome.
+
 ## Outside W2's boundary
 
 W2 does not broker, intercept, or authorize every Codex-native filesystem or shell call. It is not a container, OS sandbox, network firewall, secrets vault, multi-user authorization service, or protection against a compromised host. Context selection does not restrict filesystem access.

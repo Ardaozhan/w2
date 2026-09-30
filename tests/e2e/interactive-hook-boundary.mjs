@@ -227,6 +227,10 @@ async function main() {
   const mappedFolder = path.join(brainw2Vault, "01 Projects", "external-project-with-spaces");
   const projectNote = readFileSync(path.join(mappedFolder, "Project.md"), "utf8");
   const devLog = readFileSync(path.join(mappedFolder, "Dev Log.md"), "utf8");
+  const activityLog = readFileSync(path.join(mappedFolder, "Activity Log.md"), "utf8");
+  const now = new Date();
+  const dailyDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const dailyLog = readFileSync(path.join(brainw2Vault, "05 Daily", `${dailyDate}.md`), "utf8");
   const repoMetadata = projectNote.match(/^repo: ("(?:\\.|[^"\\])*")$/m);
   assert.ok(repoMetadata, "created project note has no repo metadata");
   const normalizeProjectPath = (value) => {
@@ -237,6 +241,12 @@ async function main() {
   assert.match(devLog, new RegExp(`- Receipt: ${receipt.run_id}`));
   assert.match(devLog, /Outcome: UNPROVEN/);
   assert.equal(devLog.includes(prompt.prompt), false, "brainw2 writeback stored the full prompt");
+  assert.match(activityLog, /Engineering request/);
+  assert.equal(activityLog.includes(privatePrompt), false, "activity log stored tool descriptions or responses");
+  assert.equal(activityLog.includes(sampleToken), false, "activity log stored a secret from tool input");
+  assert.match(dailyLog, /Engineering request/);
+  assert.equal(dailyLog.includes(privatePrompt), false, "daily log stored tool descriptions or responses");
+  assert.equal(dailyLog.includes(sampleToken), false, "daily log stored a secret from tool input");
   assert.equal(readFileSync(unrelatedNotePath, "utf8"), unrelatedNoteBefore, "An unrelated project note changed");
 
   const interruptSession = `w2-real-interrupt-${testRunId}-session`;

@@ -30,6 +30,7 @@ describe.runIf(process.platform === "win32")("PowerShell W2 launcher", () => {
       const powershell = String.raw`
 $ErrorActionPreference = 'Stop'
 $w2Install = $env:W2_TEST_HOME
+$testRoot = Split-Path -Parent $w2Install
 $profilePath = Join-Path $env:TEMP 'w2-launcher-profile-test.ps1'
 $capturePath = Join-Path $env:TEMP 'w2-launcher-capture-test.json'
 $whatIfProfile = Join-Path $env:TEMP 'w2-launcher-whatif\profile.ps1'
@@ -43,12 +44,17 @@ $w2Install = $global:W2_INSTALL_PATH
 $profileContents = [System.IO.File]::ReadAllText($profilePath)
 if ([regex]::Matches($profileContents, [regex]::Escape('# >>> W2 LAUNCHER >>>')).Count -ne 1) { throw 'W2 profile installation was not idempotent.' }
 if (!$profileContents.Contains('function unrelated')) { throw 'Unrelated profile content was changed.' }
-$project = Join-Path $env:TEMP 'w2 target project with spaces'
+$project = Join-Path $testRoot ("w2 target project with spaces " + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $project -Force | Out-Null
 function global:codex { $global:CODEX_CALLED = $true }
 function global:node { $global:W2_CAPTURE = [PSCustomObject]@{ cwd = (Get-Location).ProviderPath; args = @($args); home = $env:W2_HOME; target = $env:W2_PROJECT; active = $env:W2_ACTIVE } }
 Push-Location $project
 try { $project = (Get-Location).ProviderPath; w2 --version } finally { Pop-Location }
+if (!(Test-Path -LiteralPath (Join-Path $project '.git'))) { throw 'W2 did not initialize Git for a new project folder.' }
+$newProjectGitRoot = (& git -C $project rev-parse --show-toplevel).Trim()
+if ($LASTEXITCODE -ne 0 -or [System.IO.Path]::GetFullPath($newProjectGitRoot) -ne [System.IO.Path]::GetFullPath($project)) { throw "W2 initialized the wrong Git root: [$newProjectGitRoot]" }
+& git -C $project rev-parse --verify --quiet HEAD 2>$null
+if ($LASTEXITCODE -eq 0) { throw 'W2 should initialize Git without creating a commit.' }
 if ($global:W2_CAPTURE.cwd -ne $project) { throw 'Codex was not launched from the target project.' }
 if ($global:W2_CAPTURE.target -ne $project) { throw 'W2 target path did not remain the target project.' }
 if ($global:W2_CAPTURE.home -ne $w2Install) { throw 'W2 install path was mixed with the target project.' }
@@ -59,6 +65,16 @@ if ($homeIndex -lt 0 -or $global:W2_CAPTURE.args[$homeIndex + 1] -ne $w2Install)
 $forwardIndex = [Array]::IndexOf($global:W2_CAPTURE.args, '--forward-count')
 if ($forwardIndex -lt 0 -or $global:W2_CAPTURE.args[$forwardIndex + 1] -ne '1' -or $global:W2_CAPTURE.args[$forwardIndex + 2] -ne '--version') { throw "Normal Codex arguments were not forwarded: $($global:W2_CAPTURE.args -join '|')" }
 if (Test-Path -LiteralPath (Join-Path $project '.w2')) { throw 'The launcher wrote W2 runtime state into the target project.' }
+$existingParent = Join-Path $testRoot ("w2 existing repository parent " + [guid]::NewGuid().ToString('N'))
+$nestedProject = Join-Path $existingParent 'nested project'
+New-Item -ItemType Directory -Path $nestedProject -Force | Out-Null
+& git -C $existingParent init | Out-Null
+if ($LASTEXITCODE -ne 0) { throw 'The test could not initialize its existing parent repository.' }
+Push-Location $nestedProject
+try { $nestedProject = (Get-Location).ProviderPath; w2 --version } finally { Pop-Location }
+if (Test-Path -LiteralPath (Join-Path $nestedProject '.git')) { throw 'W2 created a nested Git repository inside an existing project.' }
+$parentGitRoot = (& git -C $nestedProject rev-parse --show-toplevel).Trim()
+if ($LASTEXITCODE -ne 0 -or [System.IO.Path]::GetFullPath($parentGitRoot) -ne [System.IO.Path]::GetFullPath($existingParent)) { throw "W2 changed the existing Git root: [$parentGitRoot]" }
 function Test-W2ManualRoute([string[]]$manual) {
     Push-Location $project
     try { w2 @manual } finally { Pop-Location }

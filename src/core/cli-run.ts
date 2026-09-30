@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { AgentAdapter } from "./agent.js";
+import { syncBrainw2Receipt, type Brainw2SyncOptions } from "./brainw2.js";
 import { buildRunReceipt, renderReceiptMarkdown } from "./evidence.js";
 import { RunEngine, type RunEngineOptions } from "./engine.js";
 import type { TaskDefinition } from "./types.js";
@@ -14,6 +15,7 @@ export async function runTaskAndPersistReceipt(input: {
   workspaceBaseline?: RunEngineOptions["workspaceBaseline"];
   referenceContext?: RunEngineOptions["referenceContext"];
   interrupted?: boolean;
+  brainw2?: Brainw2SyncOptions;
 }) {
   const engine = new RunEngine({ databasePath: input.databasePath, adapter: input.adapter, runtime: input.runtime, workspaceBaseline: input.workspaceBaseline, referenceContext: input.referenceContext, interrupted: input.interrupted });
   try {
@@ -26,7 +28,10 @@ export async function runTaskAndPersistReceipt(input: {
     await fs.mkdir(receiptDirectory, { recursive: true });
     await fs.writeFile(jsonPath, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
     await fs.writeFile(markdownPath, markdown, "utf8");
-    return { run, receipt, events: engine.store.getEvents(run.run_id), receiptDirectory, jsonPath, markdownPath };
+    const brainw2Writeback = input.brainw2
+      ? await syncBrainw2Receipt(path.resolve(input.task.workspace ?? process.cwd()), receipt, input.brainw2)
+      : undefined;
+    return { run, receipt, events: engine.store.getEvents(run.run_id), receiptDirectory, jsonPath, markdownPath, brainw2Writeback };
   } finally {
     engine.close();
   }
