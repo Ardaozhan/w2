@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { AgentAdapter } from "./agent.js";
-import { syncBrainw2Receipt, type Brainw2SyncOptions } from "./brainw2.js";
+import { loadBrainw2ReferenceContext, syncBrainw2Receipt, type Brainw2SyncOptions } from "./brainw2.js";
 import { buildRunReceipt, renderReceiptMarkdown } from "./evidence.js";
 import { RunEngine, type RunEngineOptions } from "./engine.js";
 import type { TaskDefinition } from "./types.js";
@@ -14,10 +14,22 @@ export async function runTaskAndPersistReceipt(input: {
   runtime?: RunEngineOptions["runtime"];
   workspaceBaseline?: RunEngineOptions["workspaceBaseline"];
   referenceContext?: RunEngineOptions["referenceContext"];
+  referenceContextText?: string;
   interrupted?: boolean;
   brainw2?: Brainw2SyncOptions;
 }) {
-  const engine = new RunEngine({ databasePath: input.databasePath, adapter: input.adapter, runtime: input.runtime, workspaceBaseline: input.workspaceBaseline, referenceContext: input.referenceContext, interrupted: input.interrupted });
+  let referenceContext = input.referenceContext;
+  let referenceContextText = input.referenceContextText;
+  if (!referenceContext && input.brainw2) {
+    try {
+      const context = await loadBrainw2ReferenceContext(path.resolve(input.task.workspace ?? process.cwd()), input.brainw2);
+      if (context) {
+        referenceContext = context.metadata;
+        referenceContextText = context.text;
+      }
+    } catch { /* optional BrainW2 context must not change the W2 run */ }
+  }
+  const engine = new RunEngine({ databasePath: input.databasePath, adapter: input.adapter, runtime: input.runtime, workspaceBaseline: input.workspaceBaseline, referenceContext, referenceContextText, interrupted: input.interrupted });
   try {
     const run = await engine.run(input.task);
     const receipt = buildRunReceipt(engine.store, run.run_id);

@@ -1,6 +1,6 @@
 # Public Claim Audit
 
-Audit scope: README, judge demo, benchmark report and results, architecture/security/context docs, BrainW2 prompt capture and category routing, hero case study, application summaries, and the public evidence manifest. [W2 Final Report](W2-FINAL-REPORT.md) is the current status source.
+Audit scope: README, judge demo, benchmark report and results, architecture/security/context docs, BrainW2 curated reference context, prompt capture and category routing, hero case study, application summaries, and the public evidence manifest. [W2 Final Report](W2-FINAL-REPORT.md) is the current status source.
 
 | Claim | Disposition | Evidence or wording limit |
 |---|---|---|
@@ -22,6 +22,8 @@ Audit scope: README, judge demo, benchmark report and results, architecture/secu
 | The static judge demo runs Codex live | REMOVE | It replays stored artifacts. `demo:live` and `hero:run` start separate live runs. |
 | BrainW2 captures every prompt verbatim | REMOVE | When enabled, it stores a bounded excerpt after common credential-pattern redaction; full prompts are not copied and redaction does not cover every secret format. |
 | BrainW2 category notes prove a W2 task passed | REMOVE | Daily and category notes are activity records, not Run Receipts or acceptance evidence. |
+| W2 scans or injects the entire BrainW2 vault | REMOVE | It reads one curated preferences note and selected sections from the mapped project note and its `Decisions.md`, within a 10 KiB bound. |
+| Curated BrainW2 notes determine a W2 outcome | REMOVE | They are untrusted reference context; only criterion-linked verifier evidence supports `PASS`. |
 | BrainW2 routing uses a language model | REMOVE | Routing uses fixed phrase rules and existing area folders; it does not infer categories with a model. |
 
 Terms reviewed include claims about safety, speed, reliability, proof, prevention, visibility, control, and production readiness. Keep evidence scoped to the named task, verifier, and recorded run.

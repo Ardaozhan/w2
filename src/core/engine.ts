@@ -38,6 +38,7 @@ export interface RunEngineOptions {
     diffCapture?: { statusAfter: string; diff: string; numstat: string };
   };
   referenceContext?: ContextManifest["reference_context"];
+  referenceContextText?: string;
   interrupted?: boolean;
 }
 
@@ -95,7 +96,10 @@ export class RunEngine {
       this.saveCheckpoint(runId, runtime, context, 0);
       this.store.transition(runId, "RUNNING");
       this.store.appendEvent(runId, "agent_started", { provider: this.adapter.provider, model, execution_mode: executionMode });
-      const agentResult = await this.adapter.startRun({ task, workspace, context: JSON.stringify(context, null, 2), timeoutMs: task.timeout_ms ?? 5 * 60 * 1000 });
+      const agentContext = this.options.referenceContextText
+        ? { ...context, brainw2_reference_context: this.options.referenceContextText }
+        : context;
+      const agentResult = await this.adapter.startRun({ task, workspace, context: JSON.stringify(agentContext, null, 2), timeoutMs: task.timeout_ms ?? 5 * 60 * 1000 });
       observedToolCalls = agentResult.tool_calls;
       for (const output of agentResult.outputs) this.store.appendEvent(runId, "agent_output", output);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);

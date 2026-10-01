@@ -11,11 +11,13 @@ import { validateReceipt } from "../../src/core/evidence.js";
 
 class ReceiptAdapter implements AgentAdapter {
   readonly provider = "codex" as const;
+  receivedContext = "";
   sendTask(task: TaskDefinition): string { return task.goal; }
   receiveAction(): undefined { return undefined; }
   receiveOutput(raw: unknown): AgentOutput { return { kind: "test", raw }; }
   cancel(): void {}
   async startRun(input: AgentStartInput): Promise<AgentRunResult> {
+    this.receivedContext = input.context;
     writeFileSync(path.join(input.workspace, "generated.txt"), "recorded", "utf8");
     return { exit_code: 0, outputs: [{ kind: "message", text: "finished", raw: { type: "agent_message", text: "finished" } }], tool_calls: [] };
   }
@@ -28,6 +30,8 @@ describe("CLI run receipt persistence", () => {
     const vaultPath = path.join(root, "brainw2");
     mkdirSync(workspace, { recursive: true });
     mkdirSync(path.join(vaultPath, "01 Projects"), { recursive: true });
+    mkdirSync(path.join(vaultPath, "02 Areas", "Development"), { recursive: true });
+    writeFileSync(path.join(vaultPath, "02 Areas", "Development", "AI Work Preferences.md"), "# AI Work Preferences\n\n## Cross-Project Defaults\nNew websites default to React with Next.js.\n", "utf8");
     execFileSync("git", ["init"], { cwd: workspace, stdio: "ignore" });
     writeFileSync(path.join(workspace, "baseline.txt"), "baseline", "utf8");
     execFileSync("git", ["add", "."], { cwd: workspace, stdio: "ignore" });
@@ -40,16 +44,20 @@ describe("CLI run receipt persistence", () => {
     };
     const databasePath = path.join(workspace, "run.sqlite");
     const receiptDirectory = path.join(workspace, "receipts");
+    const adapter = new ReceiptAdapter();
     try {
       const result = await runTaskAndPersistReceipt({
         task,
         databasePath,
         receiptDirectory,
-        adapter: new ReceiptAdapter(),
+        adapter,
         brainw2: { env: { BRAINW2_VAULT: vaultPath, HOME: root, USERPROFILE: root }, home: root },
       });
       expect(result.receipt.outcome).toBe("PASS");
       expect(result.receipt.acceptance[0]?.status).toBe("PASS");
+      expect(adapter.receivedContext).toContain("New websites default to React with Next.js.");
+      expect(result.receipt.context.reference_context?.logical_source).toContain("AI Work Preferences.md");
+      expect(JSON.stringify(result.receipt)).not.toContain("New websites default to React with Next.js.");
       expect(existsSync(result.jsonPath)).toBe(true);
       expect(existsSync(result.markdownPath)).toBe(true);
       const now = new Date();

@@ -28,9 +28,10 @@ describe("W2 run persistence and checkpoint durability", () => {
     const engine = new RunEngine({ databasePath: path.join(workspace, "run.sqlite"), adapter });
     const result = await engine.run(task(workspace));
     expect(engine.store.getCheckpoint(result.run_id)?.completed_tool_calls).toBeTypeOf("number");
+    const startCountBeforeResume = adapter.startCount;
     const recovered = engine.resume(result.run_id);
     expect(recovered.status).toBe(result.status);
-    expect(adapter.startCount).toBe(0); // inspection does not restart completed work
+    expect(adapter.startCount).toBe(startCountBeforeResume); // inspection does not restart completed work
     expect(engine.store.getEvents(result.run_id).some((event) => event.type === "run_resumed")).toBe(true);
     const receipt = buildRunReceipt(engine.store, result.run_id);
     expect(receipt.evidence.some((item) => item.summary.includes("safety and durability"))).toBe(true);

@@ -29,9 +29,10 @@ try {
   }
 
   const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const verificationEnv = { ...process.env, GIT_CEILING_DIRECTORIES: tempRoot };
   const runNpm = (args) => process.platform === 'win32'
-    ? execFileSync('cmd.exe', ['/d', '/s', '/c', `${npm} ${args.join(' ')}`], { cwd: clone, stdio: 'inherit', windowsHide: true })
-    : execFileSync(npm, args, { cwd: clone, stdio: 'inherit', windowsHide: true });
+    ? execFileSync('cmd.exe', ['/d', '/s', '/c', `${npm} ${args.join(' ')}`], { cwd: clone, env: verificationEnv, stdio: 'inherit', windowsHide: true })
+    : execFileSync(npm, args, { cwd: clone, env: verificationEnv, stdio: 'inherit', windowsHide: true });
 
   runNpm(['ci', '--no-audit', '--no-fund']);
   for (const command of [

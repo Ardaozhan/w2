@@ -28,7 +28,7 @@ W2 captures the task, W2-supplied context, supported native Codex tool activity,
 
 ## Technical implementation
 
-W2 validates a task contract, builds a Context Manifest, invokes the Codex adapter, persists recognized events and verifier results in SQLite, captures Git-visible changes, maps deterministic evidence to referenced criteria, and computes a Run Receipt outcome. Windows interactive mode uses native Codex `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, passive `PermissionRequest`, `Stop`, `Interrupt`, and `SessionEnd` hooks and reuses the same verification and receipt pipeline. When enabled, BrainW2 supplies selected project Markdown context, stores bounded user-prompt or manual task-goal excerpts in Daily and deterministic category notes, and appends a short receipt summary after persistence. Activity notes are separate from receipt evidence.
+W2 validates a task contract, builds a Context Manifest, invokes the Codex adapter, persists recognized events and verifier results in SQLite, captures Git-visible changes, maps deterministic evidence to referenced criteria, and computes a Run Receipt outcome. Windows interactive mode uses native Codex `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, passive `PermissionRequest`, `Stop`, `Interrupt`, and `SessionEnd` hooks and reuses the same verification and receipt pipeline. When enabled, BrainW2 supplies bounded curated preferences and selected mapped-project Markdown context to interactive and manual runs, stores bounded user-prompt or task-goal excerpts in Daily and deterministic category notes, and appends a short receipt summary after persistence. Reference context and activity notes are separate from receipt evidence.
 
 ## How Codex / GPT-5.6 is used
 

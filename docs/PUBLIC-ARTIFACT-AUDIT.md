@@ -1,6 +1,6 @@
 # Public artifact audit
 
-Date: 2026-09-30
+Date: 2026-10-01
 
 ## Scope
 
@@ -14,7 +14,7 @@ Date: 2026-09-30
 | Public evidence privacy scan | PASS | `npm run audit:public`; zero findings |
 | Tracked repository secret scan | PASS | `npm run audit:public`; zero findings |
 | Tracked repository privacy scan | PASS | `npm run audit:public`; zero findings after sanitizing the three sample receipts |
-| Claim audit | REVIEWED | [`CLAIM-AUDIT.md`](CLAIM-AUDIT.md) includes the new BrainW2 prompt-capture and category-routing boundaries |
+| Claim audit | REVIEWED | [`CLAIM-AUDIT.md`](CLAIM-AUDIT.md) includes curated reference-context, prompt-capture, and category-routing boundaries |
 
 The current scan covered 127 public evidence files and 274 tracked repository files. Secret, privacy, and tracked-runtime-artifact scans returned zero findings.
 

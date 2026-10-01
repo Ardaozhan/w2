@@ -36,7 +36,7 @@ Interactive use enters through a small W2 Node process adapter that starts the o
 | Evidence Engine | Creates verifier evidence, validates references, and maps evidence to each criterion | Does not use a model to determine criterion status |
 | Outcome Engine | Computes `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR` | Agent completion text cannot select the result |
 | Run Receipt | Presents the task, context, recognized events, diff, verification, criterion evidence, and outcome | Records observed artifacts; it is not a general security guarantee |
-| brainw2 adapter | Supplies selected project reference sections; captures bounded user prompt activity in Daily/category notes; writes receipt summaries after persistence | Activity captures and reference context are not acceptance evidence; write failures do not affect the outcome |
+| BrainW2 adapter | Supplies curated global preferences and selected mapped-project reference sections; captures bounded user prompt activity in Daily/category notes; writes receipt summaries after persistence | Activity captures and reference context are not acceptance evidence; write failures do not affect the outcome |
 | Session index | Relates turn receipts by Codex `session_id` | Reports receipts and outcomes only; it does not calculate a session outcome |
 
 ## Automatic criterion evidence mapping

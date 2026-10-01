@@ -103,7 +103,16 @@ function global:w2 {
     else {
         $cursor = Get-Item -LiteralPath $project
         $hasGitMarker = $false
+        $gitCeilingDirectories = @()
+        if ($env:GIT_CEILING_DIRECTORIES) {
+            foreach ($candidate in $env:GIT_CEILING_DIRECTORIES.Split([System.IO.Path]::PathSeparator)) {
+                if ([string]::IsNullOrWhiteSpace($candidate)) { continue }
+                try { $gitCeilingDirectories += [System.IO.Path]::GetFullPath($candidate.Trim()).TrimEnd('\', '/') } catch { }
+            }
+        }
         while ($null -ne $cursor) {
+            $cursorPath = [System.IO.Path]::GetFullPath($cursor.FullName).TrimEnd('\', '/')
+            if ($gitCeilingDirectories -contains $cursorPath) { break }
             if (Test-Path -LiteralPath (Join-Path $cursor.FullName ".git")) {
                 $hasGitMarker = $true
                 break

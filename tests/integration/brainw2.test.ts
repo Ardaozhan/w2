@@ -29,7 +29,7 @@ function project(directory?: string, remote?: string): string {
 }
 
 function vault(root: string): string {
-  const value = path.join(root, "vault");
+  const value = path.join(root, "brainw2");
   mkdirSync(path.join(value, "01 Projects"), { recursive: true });
   return value;
 }
@@ -263,6 +263,36 @@ describe("optional brainw2 integration", () => {
     const vaultPath = vault(root);
     writeProjectNote(vaultPath, "project", "Project.md", workspace, { context: false, body: "# project\n\n## Goal\nPrivate reference text.\n" });
     expect(await loadBrainw2ReferenceContext(workspace, { env: environment(vaultPath), home: root })).toBeUndefined();
+  });
+
+  it("supplies only the curated cross-project preferences in an unmapped empty workspace", async () => {
+    const root = temp("w2-brain-global-preferences-");
+    const workspace = path.join(root, "empty-workspace");
+    const vaultPath = vault(root);
+    mkdirSync(workspace, { recursive: true });
+    mkdirSync(path.join(vaultPath, "02 Areas", "Development"), { recursive: true });
+    writeFileSync(path.join(vaultPath, "02 Areas", "Development", "AI Work Preferences.md"), [
+      "# AI Work Preferences", "", "## Cross-Project Defaults", "New websites default to React with Next.js.", "",
+      "## Visual Production Routing", "Route visual asset work to Özge when available.", "",
+      "## Private Scratchpad", "Do not inject this section.",
+    ].join("\n"), "utf8");
+    writeFileSync(path.join(vaultPath, "Unrelated.md"), "## Cross-Project Defaults\nUnrelated secret note.\n", "utf8");
+
+    const previousGitCeiling = process.env.GIT_CEILING_DIRECTORIES;
+    process.env.GIT_CEILING_DIRECTORIES = os.homedir();
+    try {
+      const context = await loadBrainw2ReferenceContext(workspace, { env: environment(vaultPath), home: root });
+
+      expect(context?.mapping).toBeUndefined();
+      expect(context?.text).toContain("New websites default to React with Next.js.");
+      expect(context?.text).toContain("Route visual asset work to Özge when available.");
+      expect(context?.text).not.toContain("Do not inject this section.");
+      expect(context?.text).not.toContain("Unrelated secret note.");
+      expect(context?.metadata.mapping_id).toBe("global-preferences");
+    } finally {
+      if (previousGitCeiling === undefined) delete process.env.GIT_CEILING_DIRECTORIES;
+      else process.env.GIT_CEILING_DIRECTORIES = previousGitCeiling;
+    }
   });
 
   it("extracts only selected sections from the project note and Decisions.md", async () => {

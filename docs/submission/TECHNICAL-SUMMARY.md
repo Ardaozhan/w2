@@ -18,7 +18,7 @@ W2 uses one deterministic receipt pipeline for manual task contracts and capture
 
 The Windows `w2` launcher starts the normal Codex TUI with one-run native hook configuration:
 
-- When BrainW2 is enabled, `UserPromptSubmit` stores a bounded excerpt of every user prompt in the Daily note and may route it to deterministic category notes. Likely engineering prompts separately start verification and record a Git baseline; selected project context is optional and only safe reference metadata enters the receipt.
+- When BrainW2 is enabled, interactive turns and manual `w2 run` tasks can receive bounded curated preferences and selected mapped-project reference sections. Separately, `UserPromptSubmit` stores a bounded excerpt of every user prompt in the Daily note and may route it to deterministic category notes. Likely engineering prompts start verification and record a Git baseline; only safe reference metadata enters the receipt.
 - `PreToolUse` and `PostToolUse` capture safe structured activity metadata, correlate by `tool_use_id`, and feed the existing receipt pipeline.
 - `Stop` combines committed changes with current staged, unstaged, and untracked Git state, filters unchanged pre-existing dirt, runs detected project checks, persists the receipt diff, updates a session index, and then attempts an idempotent Dev Log summary. Manual task goals follow the same BrainW2 activity path when the vault is enabled.
 - `Interrupt` and `SessionEnd` preserve unfinished calls as interrupted and finalize pending turns as `ABORTED`.

@@ -2,10 +2,11 @@
 
 ## Unreleased
 
+- Supply bounded, curated BrainW2 preferences and selected mapped-project references to interactive Codex turns and manual `w2 run` tasks; keep reference content out of receipts and acceptance evidence.
 - Capture bounded, common-secret-redacted prompt excerpts in BrainW2 Daily notes and route eligible prompts to deterministic category notes.
 - Append manual task goals and receipt outcomes to the mapped BrainW2 project logs; report writeback targets through the CLI and `w2 doctor`.
 - Initialize Git in a folder with no containing repository when starting the interactive W2 launcher, without creating a commit.
-- Add BrainW2 note templates, deduplication markers, safe-path checks, and non-fatal writeback reporting for the new capture routes.
+- Add BrainW2 note templates, curated reference selection, deduplication markers, safe-path checks, and non-fatal writeback reporting.
 
 ## 0.2.1 - 2026-09-25
 

@@ -98,7 +98,7 @@ Remove-Item $profilePath, $capturePath, $project -Recurse -Force
 `;
       const result = spawnSync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", powershell], {
         encoding: "utf8",
-        env: { ...process.env, W2_TEST_HOME: w2Home },
+        env: { ...process.env, W2_TEST_HOME: w2Home, GIT_CEILING_DIRECTORIES: tempRoot },
         windowsHide: true,
       });
       expect(result.error?.message).toBeUndefined();
