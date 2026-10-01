@@ -169,7 +169,9 @@ export function isMeaningfulEngineeringPrompt(prompt: string, env: NodeJS.Proces
 
 export async function captureProjectSnapshot(workspace: string): Promise<ProjectSnapshot> {
   const absoluteWorkspace = path.resolve(workspace);
-  const result = await execFileAsync("git", ["status", "--porcelain=v1", "--untracked-files=all", "-z"], {
+  const gitPrefix = (await requireGit(absoluteWorkspace, ["rev-parse", "--show-prefix"], "Git project path prefix capture failed")).trim();
+  const pathPrefix = gitPrefix ? (gitPrefix.endsWith("/") ? gitPrefix : `${gitPrefix}/`) : "";
+  const result = await execFileAsync("git", ["status", "--porcelain=v1", "--untracked-files=all", "-z", "--", "."], {
     cwd: absoluteWorkspace,
     encoding: "utf8",
     windowsHide: true,
@@ -182,7 +184,11 @@ export async function captureProjectSnapshot(workspace: string): Promise<Project
     const record = tokens[index]!;
     if (record.length < 4) continue;
     const status = record.slice(0, 2);
-    const relativePath = record.slice(3);
+    const repositoryPath = record.slice(3);
+    if (pathPrefix && !repositoryPath.startsWith(pathPrefix)) {
+      throw new Error(`Git returned a path outside the project workspace: ${repositoryPath}`);
+    }
+    const relativePath = pathPrefix ? repositoryPath.slice(pathPrefix.length) : repositoryPath;
     const absolutePath = path.resolve(absoluteWorkspace, relativePath);
     const relativeCheck = path.relative(absoluteWorkspace, absolutePath);
     if (relativeCheck === ".." || relativeCheck.startsWith(`..${path.sep}`) || path.isAbsolute(relativeCheck)) {

@@ -19,6 +19,22 @@ function temporaryDirectory(prefix: string): string {
   return directory;
 }
 
+function temporaryDirectoryOutsideGitAncestry(prefix: string): string {
+  const parent = process.platform === "win32" ? path.parse(os.tmpdir()).root : os.tmpdir();
+  const directory = mkdtempSync(path.join(parent, prefix));
+  let hasGitAncestry = false;
+  try {
+    execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: directory, stdio: "ignore" });
+    hasGitAncestry = true;
+  } catch {}
+  if (hasGitAncestry) {
+    rmSync(directory, { recursive: true, force: true });
+    throw new Error(`Expected a temporary directory outside Git ancestry: ${directory}`);
+  }
+  temporaryRoots.push(directory);
+  return directory;
+}
+
 function temporaryHome(): string {
   return temporaryDirectory("w2-interactive-home-");
 }
@@ -36,6 +52,18 @@ function gitProject(withTestScript = false, testBody = "import assert from 'node
   }
   execFileSync("git", ["add", "."], { cwd: workspace, stdio: "ignore" });
   execFileSync("git", ["-c", "user.name=W2", "-c", "user.email=w2@example.invalid", "commit", "--quiet", "-m", "baseline"], { cwd: workspace, stdio: "ignore" });
+  return workspace;
+}
+
+function nestedGitProject(): string {
+  const repository = temporaryDirectory("w2-interactive-parent-repository-");
+  const workspace = path.join(repository, "project");
+  execFileSync("git", ["init", "--quiet"], { cwd: repository, stdio: "ignore" });
+  writeFileSync(path.join(repository, "README.md"), "parent baseline\n", "utf8");
+  mkdirSync(path.join(workspace, "src"), { recursive: true });
+  writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = false;\n", "utf8");
+  execFileSync("git", ["add", "."], { cwd: repository, stdio: "ignore" });
+  execFileSync("git", ["-c", "user.name=W2", "-c", "user.email=w2@example.invalid", "commit", "--quiet", "-m", "baseline"], { cwd: repository, stdio: "ignore" });
   return workspace;
 }
 
@@ -196,6 +224,26 @@ describe("interactive Codex hook integration", () => {
     expect(receiptDiff(receipt!)).toContain("This committed change belongs to the turn.");
     expect(receiptDiff(receipt!)).toContain("export const feature = true;");
     expect(receipt?.changes.additions).toBeGreaterThan(0);
+  });
+
+  it("scopes Git snapshots to a project nested inside a larger repository", async () => {
+    const w2Home = temporaryHome();
+    const workspace = nestedGitProject();
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    let receipt: RunReceipt | undefined;
+
+    await submit(w2Home, workspace, "Please implement the feature flag.", "nested-repository-session", "nested-repository-turn");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    writeFileSync(path.join(path.dirname(workspace), "outside-project.txt"), "This sibling change is out of scope.\n", "utf8");
+
+    const result = await stop(w2Home, workspace, "nested-repository-session", "nested-repository-turn", (captured) => { receipt = captured; });
+
+    expect(result?.systemMessage).toContain("W2 RECEIPT\nUNPROVEN");
+    expect(receipt?.task.workspace).toBe(workspace);
+    expect(receipt?.verification.results.find((item) => item.verifier_id === "V-W2-TURN-DIFF")?.status).toBe("PASSED");
+    expect(receipt?.changes.changed_files).toEqual(["src/feature.js"]);
+    expect(receiptDiff(receipt!)).toContain("export const feature = true;");
+    expect(receiptDiff(receipt!)).not.toContain("outside-project.txt");
   });
 
   it("combines committed changes and additional uncommitted work in one turn receipt", async () => {
@@ -502,7 +550,7 @@ describe("interactive Codex hook integration", () => {
 
   it("keeps Git capture failures as infrastructure ERROR", async () => {
     const w2Home = temporaryHome();
-    const workspace = temporaryDirectory("w2-no-git-project-");
+    const workspace = temporaryDirectoryOutsideGitAncestry("w2-no-git-project-");
     runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
     writeFileSync(path.join(workspace, "file.txt"), "no Git here\n", "utf8");
     let receipt: RunReceipt | undefined;
