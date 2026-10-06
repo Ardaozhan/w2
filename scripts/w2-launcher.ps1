@@ -44,6 +44,45 @@ function global:w2 {
     }
 
     $requestedCommand = if ($args.Count -gt 0) { [string]$args[0] } else { "" }
+    if ($requestedCommand -eq "claude") {
+        $claudeBuildFiles = @(
+            (Join-Path $w2Home "dist\src\core\claude-code.js"),
+            (Join-Path $w2Home "dist\src\core\claude-launch.js")
+        )
+        if ($claudeBuildFiles.Where({ !(Test-Path -LiteralPath $_) }).Count -gt 0) {
+            if (!(Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
+                Write-Host "W2 Claude integration is not built and npm.cmd was not found. Run npm run build in $w2Home." -ForegroundColor Red
+                return
+            }
+            Write-Host "Building W2 Claude integration in $w2Home..." -ForegroundColor DarkCyan
+            Push-Location $w2Home
+            try {
+                & npm.cmd run build
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Host "W2 Claude build failed with exit code $LASTEXITCODE." -ForegroundColor Red
+                    return
+                }
+            }
+            finally {
+                Pop-Location
+            }
+        }
+        $claudeCommand = Get-Command claude -ErrorAction SilentlyContinue
+        if (!$claudeCommand) {
+            Write-Host "Claude Code CLI was not found on PATH." -ForegroundColor Red
+            return
+        }
+        $pluginManifest = Join-Path $w2Home ".claude-plugin\plugin.json"
+        if (!(Test-Path -LiteralPath $pluginManifest)) {
+            Write-Host "W2's Claude Code plugin manifest is missing at $pluginManifest" -ForegroundColor Red
+            return
+        }
+        $forwardArgs = @($args | Select-Object -Skip 1)
+        Write-Host "W2 Claude Code" -ForegroundColor Cyan
+        Write-Host "Project: $project"
+        & $claudeCommand.Source --plugin-dir $w2Home @forwardArgs
+        return
+    }
     if ($requestedCommand -in @("run", "receipt", "doctor", "version", "session")) {
         $manualArgs = @($args)
         $previousHome = Get-Item -LiteralPath Env:W2_HOME -ErrorAction SilentlyContinue

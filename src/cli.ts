@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs/promises";
 import { loadTask } from "./core/task.js";
 import { runTaskAndPersistReceipt } from "./core/cli-run.js";
 import { buildRunReceipt, renderReceiptMarkdown } from "./core/evidence.js";
 import { handleInteractiveHook, type CodexHookEvent } from "./core/interactive.js";
+import { handleClaudeCodeHook } from "./core/claude-code.js";
+import { buildClaudeLaunchPlan } from "./core/claude-launch.js";
 import { renderDoctor } from "./core/doctor.js";
 import { findLatestSessionSummary } from "./core/session.js";
 import { RunStore } from "./core/store.js";
 
 function usage(): never {
-  console.error("Usage: w2 run <task.json> [--db <path>] | w2 receipt <run-id> [--db <path>] [--out <dir>] | w2 doctor | w2 version | w2 session latest [<session-id>] | w2 hook --home <W2 path>");
+  console.error("Usage: w2 run <task.json> [--db <path>] | w2 receipt <run-id> [--db <path>] [--out <dir>] | w2 doctor | w2 version | w2 session latest [<session-id>] | w2 claude [Claude Code arguments] | w2 hook --home <W2 path> [--provider codex|claude-code]");
   process.exit(2);
 }
 
@@ -47,27 +50,55 @@ async function main(): Promise<void> {
     console.log(JSON.stringify(summary ?? { message: "No W2 sessions are available." }, null, 2));
     return;
   }
+  if (args[0] === "claude") {
+    const w2Home = getW2Home();
+    const executable = process.env.W2_CLAUDE_EXECUTABLE?.trim() || "claude";
+    const plan = buildClaudeLaunchPlan(w2Home, executable, args.slice(1));
+    const result = spawnSync(plan.executable, plan.args, { cwd: process.cwd(), stdio: "inherit", windowsHide: false });
+    if (result.error) {
+      console.error(`W2 could not start Claude Code: ${result.error.message}`);
+      process.exitCode = 1;
+    } else process.exitCode = result.status ?? 1;
+    return;
+  }
   if (args[0] === "hook") {
-    const w2Home = optionValue(args.slice(1), "--home");
+    const hookArgs = args.slice(1);
+    const w2Home = optionValue(hookArgs, "--home");
+    const provider = optionValue(hookArgs, "--provider") ?? "codex";
     if (!w2Home) usage();
-    let input: CodexHookEvent | undefined;
+    if (provider !== "codex" && provider !== "claude-code") usage();
+    let input: Record<string, unknown> | undefined;
     try {
-      input = JSON.parse(await readStdin()) as CodexHookEvent;
-      const result = await handleInteractiveHook(path.resolve(w2Home), input);
-      if (result?.systemMessage && input.hook_event_name === "SessionEnd") {
-        console.error(result.systemMessage);
-        process.exitCode = 1;
+      input = JSON.parse(await readStdin()) as Record<string, unknown>;
+      if (provider === "claude-code") {
+        const result = await handleClaudeCodeHook(path.resolve(w2Home), input);
+        if (input.hook_event_name === "UserPromptSubmit" && result?.additionalContext) {
+          console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: result.additionalContext } }));
+        } else if (input.hook_event_name === "Stop" && result?.systemMessage) {
+          console.log(JSON.stringify({ systemMessage: result.systemMessage }));
+        } else if (result?.systemMessage && input.hook_event_name !== "SessionEnd" && input.hook_event_name !== "PermissionRequest") {
+          console.log(JSON.stringify({ systemMessage: result.systemMessage }));
+        }
+      } else {
+        const codexInput = input as CodexHookEvent;
+        const result = await handleInteractiveHook(path.resolve(w2Home), codexInput);
+        if (result?.systemMessage && input.hook_event_name === "SessionEnd") {
+          console.error(result.systemMessage);
+          process.exitCode = 1;
+        }
+        else if (input.hook_event_name === "UserPromptSubmit" && result?.additionalContext) {
+          console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: result.additionalContext } }));
+        }
+        else if ((input.hook_event_name === "PreToolUse" || input.hook_event_name === "PostToolUse" || input.hook_event_name === "Stop") && result?.systemMessage) {
+          console.log(JSON.stringify({ systemMessage: result.systemMessage }));
+        }
+        else if (input.hook_event_name === "Stop") console.log("{}");
       }
-      else if (input.hook_event_name === "UserPromptSubmit" && result?.additionalContext) {
-        console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: result.additionalContext } }));
-      }
-      else if ((input.hook_event_name === "PreToolUse" || input.hook_event_name === "PostToolUse" || input.hook_event_name === "Stop") && result?.systemMessage) {
-        console.log(JSON.stringify({ systemMessage: result.systemMessage }));
-      }
-      else if (input.hook_event_name === "Stop") console.log("{}");
     } catch (error) {
       const errorClass = error instanceof SyntaxError ? "SyntaxError" : error instanceof TypeError ? "TypeError" : "Error";
-      if (input?.hook_event_name === "SessionEnd") {
+      if (provider === "claude-code" && input?.hook_event_name !== "SessionEnd" && input?.hook_event_name !== "PermissionRequest") {
+        console.log(JSON.stringify({ systemMessage: `W2 could not process this Claude Code lifecycle event (${errorClass}).` }));
+      } else if (input?.hook_event_name === "SessionEnd") {
         console.error(`W2 SessionEnd hook failed (${errorClass}).`);
         process.exitCode = 1;
       } else if (input?.hook_event_name !== "Interrupt" && input?.hook_event_name !== "PermissionRequest") {

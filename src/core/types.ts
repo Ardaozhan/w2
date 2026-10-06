@@ -11,7 +11,7 @@ export const RUN_STATES = [
 
 export type RunState = (typeof RUN_STATES)[number];
 
-export type AgentExecutionMode = "REAL_CODEX" | "CODEX_TUI_HOOK" | "FAKE_ADAPTER";
+export type AgentExecutionMode = "REAL_CODEX" | "CODEX_TUI_HOOK" | "CLAUDE_CODE_HOOK" | "FAKE_ADAPTER";
 
 export const EVENT_TYPES = [
   "run_created",

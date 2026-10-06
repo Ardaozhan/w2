@@ -5,7 +5,7 @@ import { appendFile, lstat, mkdir, mkdtemp, open, readFile, readlink, readdir, r
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { loadBrainw2ReferenceContext, syncBrainw2Activity, type Brainw2ReferenceMetadata, type Brainw2WritebackResult } from "./brainw2.js";
+import { loadBrainw2ReferenceContext, syncBrainw2Activity, type Brainw2ProjectMapping, type Brainw2ReferenceMetadata, type Brainw2WritebackResult } from "./brainw2.js";
 import type { AgentAdapter, AgentStartInput } from "./agent.js";
 import { runTaskAndPersistReceipt } from "./cli-run.js";
 import { recordSessionReceipt } from "./session.js";
@@ -49,6 +49,7 @@ interface InteractiveTurnState {
   submitted_at: string;
   prompt: string;
   model?: string;
+  provider?: "codex" | "claude-code";
   before_snapshot: ProjectSnapshot | null;
   git_baseline?: GitTurnSnapshot;
   snapshot_error?: string;
@@ -74,6 +75,7 @@ export interface CodexHookEvent {
   stop_hook_active?: boolean;
   last_assistant_message?: string | null;
   reason?: string;
+  provider?: "codex" | "claude-code";
 }
 
 export interface InteractiveHookResult {
@@ -90,10 +92,13 @@ export interface InteractiveHookOptions {
 }
 
 export class InteractiveHookAdapter implements AgentAdapter {
-  readonly provider = "codex" as const;
-  readonly executionMode = "CODEX_TUI_HOOK" as const;
+  readonly provider: "codex" | "claude-code";
+  readonly executionMode: "CODEX_TUI_HOOK" | "CLAUDE_CODE_HOOK";
 
-  constructor(private readonly event: CodexHookEvent, private readonly toolCalls: ToolCallRecord[] = []) {}
+  constructor(private readonly event: CodexHookEvent, private readonly toolCalls: ToolCallRecord[] = []) {
+    this.provider = event.provider ?? "codex";
+    this.executionMode = this.provider === "claude-code" ? "CLAUDE_CODE_HOOK" : "CODEX_TUI_HOOK";
+  }
 
   sendTask(task: TaskDefinition): string {
     return task.goal;
@@ -107,7 +112,7 @@ export class InteractiveHookAdapter implements AgentAdapter {
     const text = typeof (raw as { last_assistant_message?: unknown } | null)?.last_assistant_message === "string"
       ? (raw as { last_assistant_message: string }).last_assistant_message
       : undefined;
-    return { kind: "codex_tui_stop_hook", ...(text ? { text } : {}), raw };
+    return { kind: `${this.provider}_stop_hook`, ...(text ? { text } : {}), raw };
   }
 
   cancel(): void {}
@@ -415,6 +420,7 @@ async function writeHookDiagnostic(input: {
   const errorClass = ["SyntaxError", "TypeError", "RangeError", "Error"].includes(input.errorClass ?? "") ? input.errorClass : undefined;
   const record = {
     timestamp: new Date().toISOString(),
+    provider: input.event.provider ?? "codex",
     event: typeof input.event.hook_event_name === "string" ? input.event.hook_event_name : "Unknown",
     session_id: typeof input.event.session_id === "string" ? input.event.session_id.slice(0, 256) : null,
     turn_id: typeof input.event.turn_id === "string" ? input.event.turn_id.slice(0, 256) : null,
@@ -561,7 +567,7 @@ function buildInteractiveTask(state: InteractiveTurnState, changedPaths: string[
     : "Task-specific behavior has a detectable project verifier.";
   const explicitCriteria = parseExplicitAcceptanceCriteria(state.prompt);
   const acceptanceCriteria = [
-    { id: "AC-01", statement: "At least one project file changed during this Codex turn.", required: true, verification_refs: [diffVerifier.id] },
+    { id: "AC-01", statement: `At least one project file changed during this ${state.provider === "claude-code" ? "Claude Code" : "Codex"} turn.`, required: true, verification_refs: [diffVerifier.id] },
     { id: "AC-02", statement: checkStatement, required: true, verification_refs: checkRefs },
     ...(explicitCriteria.length
       ? explicitCriteria.map((statement, index) => ({
@@ -574,10 +580,10 @@ function buildInteractiveTask(state: InteractiveTurnState, changedPaths: string[
   ];
   return {
     task_id: `interactive-${randomUUID()}`,
-    title: `Codex: ${state.prompt.trim().replace(/\s+/g, " ").slice(0, 112)}`,
+    title: `${state.provider === "claude-code" ? "Claude Code" : "Codex"}: ${state.prompt.trim().replace(/\s+/g, " ").slice(0, 112)}`,
     goal: state.prompt,
     constraints: [
-      "This task was captured from a trusted Codex Stop hook after a meaningful engineering prompt.",
+      `This task was captured from a trusted ${state.provider === "claude-code" ? "Claude Code" : "Codex"} Stop hook after a meaningful engineering prompt.`,
       "W2 records only project paths whose Git state changed between this prompt and its Stop event.",
       "Passing declared project checks proves only those commands passed; it is not a general correctness guarantee.",
     ],
@@ -841,8 +847,13 @@ function interruptToolCalls(calls: ToolCallRecord[] | undefined): ToolCallRecord
 async function capturePrompt(w2Home: string, event: CodexHookEvent, options: InteractiveHookOptions): Promise<InteractiveHookResult | undefined> {
   const prompt = event.prompt?.trim();
   if (!event.session_id || !event.turn_id || !event.cwd) return { systemMessage: "W2 could not capture this engineering turn, so it cannot create a receipt." };
+  const brainw2Options = {
+    env: options.brainw2Env,
+    home: options.brainw2Home,
+    mappingCache: new Map<string, Promise<Brainw2ProjectMapping | undefined>>(),
+  };
   let referenceContext;
-  try { referenceContext = await loadBrainw2ReferenceContext(event.cwd, { env: options.brainw2Env, home: options.brainw2Home }); }
+  try { referenceContext = await loadBrainw2ReferenceContext(event.cwd, brainw2Options); }
   catch { process.stderr.write("W2 brainw2 sync skipped.\n"); }
   const capture = typeof prompt === "string" && isMeaningfulEngineeringPrompt(prompt, options.brainw2Env ?? process.env);
   let activityWriteback: Brainw2WritebackResult | undefined;
@@ -852,10 +863,7 @@ async function capturePrompt(w2Home: string, event: CodexHookEvent, options: Int
       turn_id: event.turn_id,
       prompt: prompt ?? "",
       kind: capture ? "engineering" : "conversation",
-    }, {
-      env: options.brainw2Env,
-      home: options.brainw2Home,
-    });
+    }, brainw2Options);
     if (activityWriteback.status === "failed") process.stderr.write("W2 brainw2 activity writeback failed.\n");
   } catch { process.stderr.write("W2 brainw2 activity sync skipped.\n"); }
   if (!capture) return referenceContext || activityWriteback
@@ -881,6 +889,7 @@ async function capturePrompt(w2Home: string, event: CodexHookEvent, options: Int
     submitted_at: new Date().toISOString(),
     prompt,
     ...(event.model ? { model: event.model } : {}),
+    provider: event.provider ?? "codex",
     before_snapshot: beforeSnapshot,
     ...(gitBaseline ? { git_baseline: gitBaseline } : {}),
     ...(snapshotError ? { snapshot_error: snapshotError } : {}),
@@ -1053,6 +1062,7 @@ function validPermissionMode(value: unknown): value is NonNullable<CodexHookEven
 }
 
 export async function handleInteractiveHook(w2Home: string, event: CodexHookEvent, options: InteractiveHookOptions = {}): Promise<InteractiveHookResult | undefined> {
+  const providerName = event.provider === "claude-code" ? "Claude Code" : "Codex";
   let outcome: HookOutcomeClass = "IGNORED";
   let errorClass: string | undefined;
   let receiptId: string | undefined;
@@ -1063,7 +1073,7 @@ export async function handleInteractiveHook(w2Home: string, event: CodexHookEven
     switch (event.hook_event_name) {
       case "UserPromptSubmit": {
         if (!event.session_id || !event.turn_id || !event.cwd || typeof event.prompt !== "string" || !validPermissionMode(event.permission_mode)) {
-          throw new TypeError("UserPromptSubmit hook payload is missing a required Codex field");
+          throw new TypeError(`UserPromptSubmit hook payload is missing a required ${providerName} field`);
         }
         result = await capturePrompt(w2Home, event, options);
         brainw2ActivityWriteback = result?.brainw2ActivityWriteback;
@@ -1081,14 +1091,14 @@ export async function handleInteractiveHook(w2Home: string, event: CodexHookEven
         break;
       }
       case "PermissionRequest": {
-        // Returning no decision preserves Codex's ordinary permission prompt.
+        // Returning no decision preserves the provider's ordinary permission prompt.
         outcome = "IGNORED";
         break;
       }
       case "Stop": {
         if (event.stop_hook_active === true) break;
         if (!event.session_id || !event.turn_id || !event.cwd || typeof event.stop_hook_active !== "boolean" || !validPermissionMode(event.permission_mode)) {
-          throw new TypeError("Stop hook payload is missing a required Codex field");
+          throw new TypeError(`Stop hook payload is missing a required ${providerName} field`);
         }
         const trackedOptions: InteractiveHookOptions = {
           ...options,
@@ -1130,7 +1140,7 @@ export async function handleInteractiveHook(w2Home: string, event: CodexHookEven
     if (event.hook_event_name === "SessionEnd") {
       result = { systemMessage: "W2 could not finish SessionEnd cleanup." };
     } else {
-      result = { systemMessage: `W2 RECEIPT\nERROR\nW2 could not process this Codex lifecycle event (${errorClass}).` };
+      result = { systemMessage: `W2 RECEIPT\nERROR\nW2 could not process this ${providerName} lifecycle event (${errorClass}).` };
     }
   } finally {
     await writeHookDiagnostic({ w2Home, event, handler: "completed", outcome, ...(errorClass ? { errorClass } : {}), ...(receiptId ? { receiptId } : {}), ...(brainw2ActivityWriteback ? { brainw2ActivityWriteback } : {}) });

@@ -8,6 +8,7 @@ Audit scope: README, judge demo, benchmark report and results, architecture/secu
 | Coding agents can claim they finished; W2 shows evidence | SUPPORTED WITH LIMIT | Receipt outcomes derive from stored run status and verifier-linked deterministic evidence. |
 | No evidence, no PASS | SUPPORTED | Receipt validation rejects missing required criterion evidence; tests cover PASS, FAIL, and UNPROVEN. |
 | W2 automatically maps criteria to evidence in normal CLI runs | SUPPORTED | CLI/RunEngine integration tests and stored REAL_CODEX receipts use task-declared verifier references. |
+| W2 supports Claude Code interactive receipts | SUPPORTED WITH LIMIT | The in-development plugin translates supported main-session hook events into the shared receipt pipeline; lifecycle tests pass, but real Claude Code session behavior is not yet verified. |
 | A verifier supports its declared checks in a stored run | SUPPORTED WITH LIMIT | It is evidence for that verifier and run, not a general correctness guarantee. |
 | A successful test suite proves every task criterion | REMOVE | Only mapped verifier evidence supports the referenced criterion. |
 | W2 proves all requirements are correct | REWRITE | Say that the receipt has deterministic evidence for the declared criterion and verifier in that run. |

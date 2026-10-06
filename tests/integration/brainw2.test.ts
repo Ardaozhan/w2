@@ -94,6 +94,23 @@ describe("optional brainw2 integration", () => {
     expect(mapping?.context_enabled).toBe(true);
   });
 
+  it("shares project mapping work only within a request-scoped cache", async () => {
+    const root = temp("w2-brain-mapping-cache-");
+    const workspace = project();
+    const vaultPath = vault(root);
+    const mappingCache = new Map();
+    const options = { env: environment(vaultPath), home: root, mappingCache };
+
+    expect(await resolveProjectMapping(workspace, { ...options, create: false })).toBeUndefined();
+    const created = await resolveProjectMapping(workspace, options);
+    expect(created).toBeDefined();
+    expect(await resolveProjectMapping(workspace, options)).toBe(created);
+
+    const fresh = await resolveProjectMapping(workspace, { env: options.env, home: root, mappingCache: new Map() });
+    expect(fresh).not.toBe(created);
+    expect(fresh?.mapping_id).toBe(created?.mapping_id);
+  });
+
   it("maps a cloned repository by a normalized Git remote", async () => {
     const root = temp("w2-brain-remote-");
     const sshRemote = `${["git", "github.com"].join("@")}:sample/tool.git`;
@@ -232,6 +249,15 @@ describe("optional brainw2 integration", () => {
     const inbox = await syncBrainw2Activity(workspace, { session_id: "route-session", turn_id: "inbox", prompt: "BrainW2 kategorileri nasıl çalışıyor?", kind: "conversation" }, { env, home: root, now });
     expect(inbox.routes?.some((route) => route.category === "00 Inbox")).toBe(true);
     expect(readFileSync(path.join(vaultPath, "00 Inbox", "Inbox.md"), "utf8")).toContain("W2 Captures");
+
+    const multiRouteActivity = { session_id: "route-session", turn_id: "multi-route", prompt: "Implement the behavior and research this request in AI, Career, Design, and Development.", kind: "engineering" as const };
+    const multiRoute = await syncBrainw2Activity(workspace, multiRouteActivity, { env, home: root, now });
+    expect(multiRoute.routes?.map((route) => route.category)).toEqual([
+      "05 Daily", "01 Projects", "02 Areas", "02 Areas", "02 Areas", "02 Areas", "03 Research",
+    ]);
+    expect(multiRoute.routes?.every((route) => route.status === "written")).toBe(true);
+    const multiRouteRetry = await syncBrainw2Activity(workspace, multiRouteActivity, { env, home: root, now });
+    expect(multiRouteRetry.routes?.every((route) => route.status === "already-recorded")).toBe(true);
   });
 
   it("maps a short Windows repo path to Git's canonical path", async () => {

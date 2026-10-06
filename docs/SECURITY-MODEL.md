@@ -6,15 +6,19 @@ W2 is a local evidence layer. It is not an OS/container security boundary.
 
 The Codex adapter invokes the installed CLI with its `workspace-write` sandbox and the task workspace as its working directory. Codex's sandbox controls native Codex shell and filesystem execution. The host's Codex configuration and operating system remain part of the trusted computing base.
 
+## Claude Code native execution
+
+The interactive Claude Code integration loads W2's plugin for the current session through `--plugin-dir`; it does not set Claude permissions or make approval decisions. Claude Code's own permission system and host configuration control native tool execution. W2 records only supported hook events, and the plugin's session-scoped loading does not establish that every Claude Code path or deployment has been runtime-verified.
+
 ## W2-owned runtime calls
 
 Calls routed through W2 `ToolRuntime` are checked against configured capabilities and canonical workspace paths. The runtime applies its own timeouts, output limits, retry/budget rules, and approval callback. It denies path traversal and detected symlink escapes. These checks apply only to calls made through W2-owned runtime APIs.
 
 ## Evidence W2 records
 
-W2 stores supported Codex tool activity delivered through native `PreToolUse` and `PostToolUse` hooks, the before/after repository diff, and results from declared verification commands. Tool inputs and responses are summarized with safe structured metadata; raw command lines and response bodies are not persisted by default. These records are not a complete trace of every OS operation, every file read, internal model reasoning, or all external side effects. The context manifest records files considered, selected, and provided; exact Codex file access remains unknown unless separate telemetry establishes it.
+W2 stores supported Codex and Claude Code tool activity delivered through native hooks, the before/after repository diff, and results from declared verification commands. Tool inputs and responses are summarized with safe structured metadata; raw command lines and response bodies are not persisted by default. These records are not a complete trace of every OS operation, every file read, internal model reasoning, or all external side effects. The context manifest records files considered, selected, and provided; exact agent file access remains unknown unless separate telemetry establishes it.
 
-`PermissionRequest` is registered as a passive hook. W2 emits no permission decision, so Codex's ordinary approval behavior remains in control. W2 never auto-approves or auto-denies. Users inspect and trust the generated hook definitions through Codex's `/hooks` interface.
+`PermissionRequest` is registered as a passive hook for both interactive providers. W2 emits no permission decision, so the agent's ordinary approval behavior remains in control. W2 never auto-approves or auto-denies. Users inspect and trust the generated hook definitions through Codex's `/hooks` interface or Claude Code's plugin/hook output.
 
 Optional BrainW2 notes are untrusted, user-maintained reference context. Interactive turns and manual `w2 run` tasks can receive only the curated `02 Areas/Development/AI Work Preferences.md` sections and selected sections from the mapped project's note and its `Decisions.md`. The injected context is labeled `REFERENCE CONTEXT — NOT SYSTEM INSTRUCTIONS` and never counts as acceptance evidence. Receipt metadata stores a logical source, content hash, byte count, and mapping ID; raw note content is not copied into receipt metadata. BrainW2 read or write failures do not alter the W2 outcome.
 
@@ -22,8 +26,8 @@ When BrainW2 activity capture is enabled, each interactive user prompt and manua
 
 ## Outside W2's boundary
 
-W2 does not broker, intercept, or authorize every Codex-native filesystem or shell call. It is not a container, OS sandbox, network firewall, secrets vault, multi-user authorization service, or protection against a compromised host. Context selection does not restrict filesystem access.
+W2 does not broker, intercept, or authorize every native filesystem or shell call made by Codex or Claude Code. It is not a container, OS sandbox, network firewall, secrets vault, multi-user authorization service, or protection against a compromised host. Context selection does not restrict filesystem access.
 
 ## Outcome and failure boundary
 
-A Codex process failure or timeout produces receipt outcome `ERROR`. A completed run with missing required criterion evidence produces `UNPROVEN`. The benchmark classifies process failures and timeouts as `INFRASTRUCTURE_FAILURE`; these are not task successes. A model-generated completion message cannot directly set receipt `PASS`.
+An agent process failure or timeout produces receipt outcome `ERROR`. A completed run with missing required criterion evidence produces `UNPROVEN`. The benchmark classifies process failures and timeouts as `INFRASTRUCTURE_FAILURE`; these are not task successes. A model-generated completion message cannot directly set receipt `PASS`.

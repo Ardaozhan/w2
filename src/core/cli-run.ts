@@ -20,9 +20,12 @@ export async function runTaskAndPersistReceipt(input: {
 }) {
   let referenceContext = input.referenceContext;
   let referenceContextText = input.referenceContextText;
-  if (!referenceContext && input.brainw2) {
+  const brainw2Options: Brainw2SyncOptions | undefined = input.brainw2
+    ? { ...input.brainw2, mappingCache: new Map() }
+    : undefined;
+  if (!referenceContext && brainw2Options) {
     try {
-      const context = await loadBrainw2ReferenceContext(path.resolve(input.task.workspace ?? process.cwd()), input.brainw2);
+      const context = await loadBrainw2ReferenceContext(path.resolve(input.task.workspace ?? process.cwd()), brainw2Options);
       if (context) {
         referenceContext = context.metadata;
         referenceContextText = context.text;
@@ -40,8 +43,8 @@ export async function runTaskAndPersistReceipt(input: {
     await fs.mkdir(receiptDirectory, { recursive: true });
     await fs.writeFile(jsonPath, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
     await fs.writeFile(markdownPath, markdown, "utf8");
-    const brainw2Writeback = input.brainw2
-      ? await syncBrainw2Receipt(path.resolve(input.task.workspace ?? process.cwd()), receipt, input.brainw2)
+    const brainw2Writeback = brainw2Options
+      ? await syncBrainw2Receipt(path.resolve(input.task.workspace ?? process.cwd()), receipt, brainw2Options)
       : undefined;
     return { run, receipt, events: engine.store.getEvents(run.run_id), receiptDirectory, jsonPath, markdownPath, brainw2Writeback };
   } finally {

@@ -1,0 +1,8 @@
+{
+  "name": "w2",
+  "version": "0.2.1",
+  "description": "Evidence-backed verification receipts for Claude Code turns.",
+  "author": {
+    "name": "Arda Özhan"
+  }
+}

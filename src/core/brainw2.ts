@@ -40,6 +40,15 @@ export interface Brainw2ProjectMapping {
   context_enabled: boolean;
 }
 
+/** Share only within one prompt/run operation; later hooks resolve fresh Markdown state. */
+export type Brainw2ProjectMappingCache = Map<string, Promise<Brainw2ProjectMapping | undefined>>;
+
+export interface Brainw2MappingOptions {
+  env?: NodeJS.ProcessEnv;
+  home?: string;
+  mappingCache?: Brainw2ProjectMappingCache;
+}
+
 export interface Brainw2ReferenceMetadata {
   logical_source: string;
   content_sha256: string;
@@ -74,9 +83,7 @@ export interface Brainw2WritebackResult {
   routes?: Brainw2CategoryRoute[];
 }
 
-export interface Brainw2SyncOptions {
-  env?: NodeJS.ProcessEnv;
-  home?: string;
+export interface Brainw2SyncOptions extends Brainw2MappingOptions {
   now?: Date;
   captureActivity?: boolean;
 }
@@ -345,20 +352,33 @@ async function findProjectMapping(vaultPath: string, repoPath: string, remote?: 
   return unclaimedExactTitle.length === 1 ? { fallback: unclaimedExactTitle[0] } : {};
 }
 
-export async function resolveProjectMapping(cwd: string, options: { env?: NodeJS.ProcessEnv; home?: string; create?: boolean } = {}): Promise<Brainw2ProjectMapping | undefined> {
+export async function resolveProjectMapping(cwd: string, options: Brainw2MappingOptions & { create?: boolean } = {}): Promise<Brainw2ProjectMapping | undefined> {
   const vault = resolveBrainw2Vault(options.env, options.home);
   if (!vault.enabled || !vault.path) return undefined;
-  let project: { repoPath: string; remote?: string };
-  try { project = await currentGitProject(cwd); } catch { return undefined; }
-  const found = await findProjectMapping(vault.path, project.repoPath, project.remote);
-  if (found.mapping) return found.mapping;
-  if (found.fallback) {
-    if (options.create === false) return mappingFromNote(vault.path, found.fallback, project.repoPath, project.remote);
-    const note = await updateFallbackMetadata(found.fallback, project.repoPath, project.remote);
-    return mappingFromNote(vault.path, note, project.repoPath, project.remote);
+  const cacheKey = [normalizedPath(vault.path), normalizedPath(cwd), options.create === false ? "inspect" : "create"].join("\0");
+  const cached = options.mappingCache?.get(cacheKey);
+  if (cached) return cached;
+
+  const resolution = (async (): Promise<Brainw2ProjectMapping | undefined> => {
+    let project: { repoPath: string; remote?: string };
+    try { project = await currentGitProject(cwd); } catch { return undefined; }
+    const found = await findProjectMapping(vault.path!, project.repoPath, project.remote);
+    if (found.mapping) return found.mapping;
+    if (found.fallback) {
+      if (options.create === false) return mappingFromNote(vault.path!, found.fallback, project.repoPath, project.remote);
+      const note = await updateFallbackMetadata(found.fallback, project.repoPath, project.remote);
+      return mappingFromNote(vault.path!, note, project.repoPath, project.remote);
+    }
+    if (options.create === false) return undefined;
+    return createProjectMapping(vault.path!, path.join(vault.path!, PROJECTS_DIR), project.repoPath, project.remote);
+  })();
+  options.mappingCache?.set(cacheKey, resolution);
+  try {
+    return await resolution;
+  } catch (error) {
+    if (options.mappingCache?.get(cacheKey) === resolution) options.mappingCache.delete(cacheKey);
+    throw error;
   }
-  if (options.create === false) return undefined;
-  return createProjectMapping(vault.path, path.join(vault.path, PROJECTS_DIR), project.repoPath, project.remote);
 }
 
 const contextHeadings = new Map<string, string>([
@@ -408,7 +428,7 @@ function capUtf8(value: string, maxBytes: number): string {
   return clipped;
 }
 
-export async function loadBrainw2ReferenceContext(cwd: string, options: { env?: NodeJS.ProcessEnv; home?: string } = {}): Promise<Brainw2ReferenceContext | undefined> {
+export async function loadBrainw2ReferenceContext(cwd: string, options: Brainw2MappingOptions = {}): Promise<Brainw2ReferenceContext | undefined> {
   const vault = resolveBrainw2Vault(options.env, options.home);
   if (!vault.enabled || !vault.path) return undefined;
   let mapping: Brainw2ProjectMapping | undefined;
@@ -763,35 +783,41 @@ export async function syncBrainw2Activity(workspace: string, activity: Brainw2Ac
     try { mapping = await resolveProjectMapping(workspace, options); }
     catch { /* independent category captures continue even when project mapping fails */ }
   }
+  // Keep the chronological Daily entry durable first; other destinations are independent.
+  const secondaryRoutes: Array<Promise<Brainw2CategoryRoute>> = [];
   if (classification.categories.includes("01 Projects")) {
     if (mapping) {
-      const status = await appendBrainw2Activity(mapping, activity, now);
-      routes.push({ category: "01 Projects", target: path.relative(vault.path, path.join(mapping.project_directory, "Activity Log.md")).replaceAll("\\", "/"), status });
-    } else routes.push({ category: "01 Projects", target: "01 Projects/<unmapped>/Activity Log.md", status: "unmapped" });
+      secondaryRoutes.push(appendBrainw2Activity(mapping, activity, now).then((status) => ({
+        category: "01 Projects",
+        target: path.relative(vault.path!, path.join(mapping!.project_directory, "Activity Log.md")).replaceAll("\\", "/"),
+        status,
+      })));
+    } else secondaryRoutes.push(Promise.resolve({ category: "01 Projects", target: "01 Projects/<unmapped>/Activity Log.md", status: "unmapped" }));
   }
   if (classification.categories.includes("00 Inbox")) {
-    routes.push(await appendCategoryCapture(vault.path, "00 Inbox", path.join("00 Inbox", "Inbox.md"), activity, id, now, "W2 Captures", "# Inbox\n\nUnsorted captures from Codex. Review and promote items into their permanent category."));
+    secondaryRoutes.push(appendCategoryCapture(vault.path, "00 Inbox", path.join("00 Inbox", "Inbox.md"), activity, id, now, "W2 Captures", "# Inbox\n\nUnsorted captures from Codex. Review and promote items into their permanent category."));
   }
   for (const area of classification.areas) {
     const relativeTarget = path.join("02 Areas", area, "W2 Activity.md");
-    routes.push(await appendCategoryCapture(vault.path, "02 Areas", relativeTarget, activity, id, now, "W2 Captures", `# ${area} · W2 Activity`));
+    secondaryRoutes.push(appendCategoryCapture(vault.path, "02 Areas", relativeTarget, activity, id, now, "W2 Captures", `# ${area} · W2 Activity`));
   }
   if (classification.categories.includes("03 Research")) {
-    routes.push(await appendCategoryCapture(vault.path, "03 Research", path.join("03 Research", "Research.md"), activity, id, now, "W2 Captures", "# Research\n\nNew technology, SDK, framework, paper and technical research."));
+    secondaryRoutes.push(appendCategoryCapture(vault.path, "03 Research", path.join("03 Research", "Research.md"), activity, id, now, "W2 Captures", "# Research\n\nNew technology, SDK, framework, paper and technical research."));
   }
   if (classification.categories.includes("04 Dev Library")) {
-    routes.push(await appendCategoryCapture(vault.path, "04 Dev Library", path.join("04 Dev Library", "Dev Library.md"), activity, id, now, "W2 Captures", "# Dev Library\n\nReusable technical knowledge."));
+    secondaryRoutes.push(appendCategoryCapture(vault.path, "04 Dev Library", path.join("04 Dev Library", "Dev Library.md"), activity, id, now, "W2 Captures", "# Dev Library\n\nReusable technical knowledge."));
   }
   if (classification.categories.includes("06 Decisions")) {
     const relativeProject = mapping ? path.relative(vault.path, mapping.note_path) : undefined;
-    routes.push(await writeDecisionCapture(vault.path, relativeProject, activity, id, now));
+    secondaryRoutes.push(writeDecisionCapture(vault.path, relativeProject, activity, id, now));
   }
   if (classification.categories.includes("98 Attachments")) {
-    routes.push(await appendCategoryCapture(vault.path, "98 Attachments", path.join("98 Attachments", "Attachment Index.md"), activity, id, now, "W2 Reference Requests", "# Attachment Index\n\nW2 can record references; attachment bytes are not copied from Codex hook events.", "reference request only; no file bytes copied"));
+    secondaryRoutes.push(appendCategoryCapture(vault.path, "98 Attachments", path.join("98 Attachments", "Attachment Index.md"), activity, id, now, "W2 Reference Requests", "# Attachment Index\n\nW2 can record references; attachment bytes are not copied from Codex hook events.", "reference request only; no file bytes copied"));
   }
   if (classification.categories.includes("99 Archive")) {
-    routes.push(await appendCategoryCapture(vault.path, "99 Archive", path.join("99 Archive", "Archive Index.md"), activity, id, now, "W2 Archive Requests", "# Archive Index\n\nExplicit archive requests are recorded here; source notes are not moved automatically.", "request captured; no source note moved"));
+    secondaryRoutes.push(appendCategoryCapture(vault.path, "99 Archive", path.join("99 Archive", "Archive Index.md"), activity, id, now, "W2 Archive Requests", "# Archive Index\n\nExplicit archive requests are recorded here; source notes are not moved automatically.", "request captured; no source note moved"));
   }
+  routes.push(...await Promise.all(secondaryRoutes));
 
   const status: Brainw2WritebackStatus = routes.some((route) => route.status === "failed")
     ? "failed"

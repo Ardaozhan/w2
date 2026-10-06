@@ -19,6 +19,10 @@ function temporaryDirectory(prefix: string): string {
   return directory;
 }
 
+function removeTemporaryDirectory(directory: string): void {
+  rmSync(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+}
+
 function temporaryDirectoryOutsideGitAncestry(prefix: string): string {
   const parent = process.platform === "win32" ? path.parse(os.tmpdir()).root : os.tmpdir();
   const directory = mkdtempSync(path.join(parent, prefix));
@@ -102,8 +106,8 @@ async function stop(w2Home: string, workspace: string, sessionId: string, turnId
 }
 
 afterEach(() => {
-  for (const directory of temporaryRoots.splice(0)) rmSync(directory, { recursive: true, force: true });
-  for (const directory of runtimeRoots.splice(0)) rmSync(directory, { recursive: true, force: true });
+  for (const directory of temporaryRoots.splice(0)) removeTemporaryDirectory(directory);
+  for (const directory of runtimeRoots.splice(0)) removeTemporaryDirectory(directory);
 });
 
 describe("interactive Codex hook integration", () => {

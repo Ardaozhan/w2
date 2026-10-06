@@ -234,7 +234,7 @@ export function buildRunReceipt(store: RunStore, runId: string, options: Receipt
   const changeIds = derived.filter((item) => item.type === "DIFF_EVIDENCE").map((item) => item.evidence_id);
   const verificationIds = derived.filter((item) => ["TEST_EVIDENCE", "LINT_EVIDENCE", "TYPECHECK_EVIDENCE", "BUILD_EVIDENCE"].includes(item.type) || (item.type === "ASSERTION_EVIDENCE" && item.raw_reference.includes(":verification:"))).map((item) => item.evidence_id);
   const executionMode = events.find((event) => event.type === "agent_started")?.payload as { execution_mode?: unknown } | undefined;
-  const receiptExecutionMode = executionMode?.execution_mode === "REAL_CODEX" || executionMode?.execution_mode === "CODEX_TUI_HOOK"
+  const receiptExecutionMode = executionMode?.execution_mode === "REAL_CODEX" || executionMode?.execution_mode === "CODEX_TUI_HOOK" || executionMode?.execution_mode === "CLAUDE_CODE_HOOK"
     ? executionMode.execution_mode
     : "FAKE_ADAPTER";
   return validateReceipt({
@@ -259,7 +259,7 @@ export function buildRunReceipt(store: RunStore, runId: string, options: Receipt
 
 export function renderReceiptMarkdown(receipt: RunReceipt): string {
   validateReceipt(receipt);
-  const lines = ["# W2 RUN RECEIPT", "", `- Receipt version: ${receipt.receipt_version}`, `- Run: \`${receipt.run_id}\``, `- Execution mode: ${receipt.agent.execution_mode}`, `- Generated: ${receipt.generated_at}`, "", "## Task", `**${receipt.task.title}**`, "", receipt.task.goal, "", "## Context W2 provided", `- ${receipt.context.files_supplied}/${receipt.context.files_considered} files selected for the prompt`, `- ${receipt.context.approximate_tokens} approximate tokens`, "- Exact repository files accessed by Codex: not captured by this adapter", "", "## What the agent did", `- ${receipt.actions.tool_calls} observable tool calls`, `- ${receipt.actions.events} ordered events`, `- ${receipt.changes.changed_files.length} changed files`, "", "## Verification"];
+  const lines = ["# W2 RUN RECEIPT", "", `- Receipt version: ${receipt.receipt_version}`, `- Run: \`${receipt.run_id}\``, `- Execution mode: ${receipt.agent.execution_mode}`, `- Generated: ${receipt.generated_at}`, "", "## Task", `**${receipt.task.title}**`, "", receipt.task.goal, "", "## Context W2 provided", `- ${receipt.context.files_supplied}/${receipt.context.files_considered} files selected for the prompt`, `- ${receipt.context.approximate_tokens} approximate tokens`, "- Exact repository files accessed by the interactive agent: not captured by this adapter", "", "## What the agent did", `- ${receipt.actions.tool_calls} observable tool calls`, `- ${receipt.actions.events} ordered events`, `- ${receipt.changes.changed_files.length} changed files`, "", "## Verification"];
   lines.push(...(receipt.verification.results.length ? receipt.verification.results.map((result) => `- ${result.status === "PASSED" ? "PASS" : "FAIL"} ${result.name} (exit ${result.exit_code ?? "n/a"})`) : ["- UNPROVEN: no verification configured"]));
   const evidenceById = new Map(receipt.evidence.map((item) => [item.evidence_id, item]));
   const acceptanceLines: string[] = [];

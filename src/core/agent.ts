@@ -9,7 +9,7 @@ export interface AgentStartInput {
 }
 
 export interface AgentAdapter {
-  readonly provider: "codex";
+  readonly provider: "codex" | "claude-code";
   readonly executionMode?: AgentExecutionMode;
   startRun(input: AgentStartInput): Promise<AgentRunResult>;
   sendTask(task: TaskDefinition, context: string): string;
