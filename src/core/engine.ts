@@ -40,6 +40,7 @@ export interface RunEngineOptions {
   referenceContext?: ContextManifest["reference_context"];
   referenceContextText?: string;
   interrupted?: boolean;
+  precomputedVerificationResults?: VerificationResult[];
 }
 
 export class RunEngine {
@@ -130,7 +131,10 @@ export class RunEngine {
       }
       this.store.transition(runId, "VERIFYING");
       this.store.appendEvent(runId, "verification_started", { count: task.verification_commands.length });
-      const verificationResults = await runVerifications(task, runtime, baselineVerifications(task, this.options.workspaceBaseline));
+      const verificationResults = await runVerifications(task, runtime, [
+        ...baselineVerifications(task, this.options.workspaceBaseline),
+        ...(this.options.precomputedVerificationResults ?? []),
+      ]);
       persistedRuntimeCalls = this.persistToolCalls(runId, runtime, persistedRuntimeCalls);
       for (const result of verificationResults) {
         this.store.appendVerification(runId, result);
@@ -144,7 +148,7 @@ export class RunEngine {
         this.store.transition(runId, "ERROR", { finishedAt: this.now().toISOString(), error: "Verification infrastructure failed" });
         this.store.appendEvent(runId, "run_failed", { error: "Verification infrastructure failed", infrastructure: true });
         this.store.appendEvent(runId, "run_finished", { status: "ERROR" });
-      } else if (verificationResults.some((result) => result.status !== "PASSED")) {
+      } else if (verificationResults.some((result) => result.status === "FAILED")) {
         await this.finishFailure(runId, "Verification failed", runtime, statusBefore, verificationResults, diff, observedToolCalls);
       } else {
         this.store.transition(runId, "COMPLETED", { finishedAt: this.now().toISOString() });

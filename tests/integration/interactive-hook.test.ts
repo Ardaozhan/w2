@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { getInteractiveRunStorage, handleInteractiveHook, isMeaningfulEngineeringPrompt } from "../../src/core/interactive.js";
+import { getInteractiveRunStorage, handleInteractiveHook, isMeaningfulEngineeringPrompt, projectChecksTrusted, revokeProjectChecksTrust, trustProjectChecks } from "../../src/core/interactive.js";
 import { renderReceiptMarkdown } from "../../src/core/evidence.js";
 import { findLatestSessionSummary } from "../../src/core/session.js";
 import { RunStore } from "../../src/core/store.js";
@@ -150,6 +150,7 @@ describe("interactive Codex hook integration", () => {
     writeFileSync(packagePath, JSON.stringify({ name: "all-verifier-fixture", scripts: { test: command, typecheck: command, lint: command, build: command } }, null, 2), "utf8");
     execFileSync("git", ["add", "package.json"], { cwd: workspace, stdio: "ignore" });
     execFileSync("git", ["-c", "user.name=W2", "-c", "user.email=w2@example.invalid", "commit", "--quiet", "-m", "verifier setup"], { cwd: workspace, stdio: "ignore" });
+    await trustProjectChecks(w2Home, workspace);
     runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
     let receipt: RunReceipt | undefined;
     await submit(w2Home, workspace, [
@@ -196,7 +197,9 @@ describe("interactive Codex hook integration", () => {
     expect(receipt?.agent.execution_mode).toBe("CODEX_TUI_HOOK");
     expect(receipt?.task.workspace).toBe(workspace);
     expect(receipt?.verification.results.map((item) => item.name)).toEqual(["W2 turn diff", "Project tests"]);
-    expect(receipt?.acceptance.map((criterion) => criterion.status)).toEqual(["PASS", "PASS", "UNPROVEN"]);
+    expect(receipt?.verification.results[1]?.status).toBe("SKIPPED");
+    expect(result?.systemMessage).toContain("Project scripts were not run.");
+    expect(receipt?.acceptance.map((criterion) => criterion.status)).toEqual(["PASS", "UNPROVEN", "UNPROVEN"]);
     expect(receipt?.changes.changed_files).toContain("src/feature.js");
     expect(receipt?.changes.changed_files).toContain("new file.txt");
     const diffEvidence = receipt?.evidence.find((item) => item.type === "DIFF_EVIDENCE")?.data as { unified_diff?: string } | undefined;
@@ -290,6 +293,7 @@ describe("interactive Codex hook integration", () => {
   it("records explicit acceptance items separately and maps only directly named passing commands", async () => {
     const w2Home = temporaryHome();
     const workspace = gitProject(true);
+    await trustProjectChecks(w2Home, workspace);
     runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
     let receipt: RunReceipt | undefined;
 
@@ -362,6 +366,7 @@ describe("interactive Codex hook integration", () => {
     const failingTest = "import assert from 'node:assert/strict';\nimport test from 'node:test';\ntest('project check', () => assert.fail('expected failure'));\n";
     const w2Home = temporaryHome();
     const workspace = gitProject(true, failingTest);
+    await trustProjectChecks(w2Home, workspace);
     runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
     let receipt: RunReceipt | undefined;
     await submit(w2Home, workspace, "Implement the new feature flag.", "fail-session", "fail-turn");
@@ -370,6 +375,40 @@ describe("interactive Codex hook integration", () => {
     expect(result?.systemMessage).toContain("W2 RECEIPT\nFAIL");
     expect(receipt?.verification.results.find((item) => item.category === "test")?.status).toBe("FAILED");
     expect(receipt?.outcome).toBe("FAIL");
+  });
+
+  it("runs project scripts only after explicit trust and invalidates trust when project manifests change", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject();
+    const marker = path.join(workspace, "script-ran.txt");
+    const packagePath = path.join(workspace, "package.json");
+    writeFileSync(packagePath, JSON.stringify({ name: "trust-fixture", scripts: { test: `node -e \"require('fs').writeFileSync('${marker.replace(/\\/g, "\\\\")}', 'ran')\"` } }), "utf8");
+    execFileSync("git", ["add", "package.json"], { cwd: workspace, stdio: "ignore" });
+    execFileSync("git", ["-c", "user.name=W2", "-c", "user.email=w2@example.invalid", "commit", "--quiet", "-m", "trust setup"], { cwd: workspace, stdio: "ignore" });
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+    let receipt: RunReceipt | undefined;
+
+    await submit(w2Home, workspace, "Implement the requested feature.", "trust-default-session", "trust-default-turn");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\n", "utf8");
+    const untrustedResult = await stop(w2Home, workspace, "trust-default-session", "trust-default-turn", (value) => { receipt = value; });
+    expect(existsSync(marker)).toBe(false);
+    expect(receipt?.verification.results.find((item) => item.category === "test")?.status).toBe("SKIPPED");
+    expect(receipt?.outcome).toBe("UNPROVEN");
+    expect(untrustedResult?.systemMessage).toContain("w2 trust-checks trust");
+
+    await trustProjectChecks(w2Home, workspace);
+    expect(await projectChecksTrusted(w2Home, workspace)).toBe(true);
+    await submit(w2Home, workspace, "Implement one more feature.", "trust-enabled-session", "trust-enabled-turn");
+    writeFileSync(path.join(workspace, "src", "feature.js"), "export const feature = true;\nexport const enabled = true;\n", "utf8");
+    await stop(w2Home, workspace, "trust-enabled-session", "trust-enabled-turn", (value) => { receipt = value; });
+    expect(readFileSync(marker, "utf8")).toBe("ran");
+    expect(receipt?.verification.results.find((item) => item.category === "test")?.status).toBe("PASSED");
+
+    writeFileSync(packagePath, `${readFileSync(packagePath, "utf8")}\n`, "utf8");
+    expect(await projectChecksTrusted(w2Home, workspace)).toBe(false);
+    await trustProjectChecks(w2Home, workspace);
+    await revokeProjectChecksTrust(w2Home, workspace);
+    expect(await projectChecksTrusted(w2Home, workspace)).toBe(false);
   });
 
   it("skips project scripts that invoke browser automation", async () => {
@@ -401,6 +440,27 @@ describe("interactive Codex hook integration", () => {
     expect(receipt?.outcome).toBe("FAIL");
     expect(receipt?.changes.changed_files).toEqual([]);
     expect(receiptDiff(receipt!)).toBe("");
+  });
+
+  it("does not require file changes for read-only checks but still requires them when a fix is requested", async () => {
+    const w2Home = temporaryHome();
+    const workspace = gitProject();
+    runtimeRoots.push(getInteractiveRunStorage(w2Home, workspace).runtimeDirectory);
+
+    let reviewReceipt: RunReceipt | undefined;
+    await submit(w2Home, workspace, "W2 kaydını kontrol eder misin?", "read-only-session", "review-turn");
+    const reviewResult = await stop(w2Home, workspace, "read-only-session", "review-turn", (captured) => { reviewReceipt = captured; });
+    expect(reviewResult?.systemMessage).toContain("W2 RECEIPT\nUNPROVEN");
+    expect(reviewReceipt?.task.acceptance_criteria.some((criterion) => criterion.statement.startsWith("At least one project file changed"))).toBe(false);
+    expect(reviewReceipt?.outcome).toBe("UNPROVEN");
+    expect(reviewReceipt?.changes.changed_files).toEqual([]);
+
+    let fixReceipt: RunReceipt | undefined;
+    await submit(w2Home, workspace, "Review the repository and fix the configuration default.", "read-only-session", "fix-turn");
+    const fixResult = await stop(w2Home, workspace, "read-only-session", "fix-turn", (captured) => { fixReceipt = captured; });
+    expect(fixResult?.systemMessage).toContain("W2 RECEIPT\nFAIL");
+    expect(fixReceipt?.task.acceptance_criteria.some((criterion) => criterion.statement.startsWith("At least one project file changed"))).toBe(true);
+    expect(fixReceipt?.outcome).toBe("FAIL");
   });
 
   it("excludes unrelated dirty files that predate the turn, including one committed during it", async () => {

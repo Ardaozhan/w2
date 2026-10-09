@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { renderDoctor } from "../../src/core/doctor.js";
-import { getInteractiveRunStorage } from "../../src/core/interactive.js";
+import { getInteractiveRunStorage, trustProjectChecks } from "../../src/core/interactive.js";
 
 const roots: string[] = [];
 function temp(prefix: string): string {
@@ -74,6 +74,7 @@ describe("w2 doctor", () => {
     expect(output).toContain("Working tree: clean");
     expect(output).toContain("W2 build: available");
     expect(output).toContain("Latest current-project receipt: receipt-doctor (UNPROVEN)");
+    expect(output).toContain("Project checks: no supported scripts detected");
     expect(output).not.toContain("foreign-receipt");
     expect(output).toContain("brainw2: enabled");
     expect(output).toContain("brainw2 project mapping: found");
@@ -92,6 +93,29 @@ describe("w2 doctor", () => {
     expect(output).not.toContain("PRIVATE_RECEIPT_PROMPT");
     expect(readFileSync(path.join(vault, "01 Projects", "doctor-project", "W2.md"), "utf8")).toBe(beforeVault);
     expect(execFileSync("git", ["status", "--porcelain=v1"], { cwd: workspace, encoding: "utf8" })).toBe("");
+  });
+
+  it("reports project check trust and notices lockfile changes", async () => {
+    const root = temp("w2-doctor-check-trust-");
+    const w2Home = path.join(root, "w2-home");
+    const workspace = path.join(root, "project");
+    mkdirSync(workspace, { recursive: true });
+    mkdirSync(w2Home, { recursive: true });
+    writeFileSync(path.join(w2Home, "package.json"), '{"version":"test"}\n', "utf8");
+    writeFileSync(path.join(workspace, "package.json"), JSON.stringify({ name: "doctor-trust-fixture", scripts: { test: "node --test" } }), "utf8");
+    writeFileSync(path.join(workspace, "package-lock.json"), '{"lockfileVersion":3}\n', "utf8");
+    const env = { BRAINW2_VAULT: path.join(root, "missing"), HOME: root, USERPROFILE: root };
+
+    const untrusted = await renderDoctor(w2Home, { cwd: workspace, env });
+    expect(untrusted).toContain("Project checks: not trusted; discovered scripts will be skipped");
+
+    await trustProjectChecks(w2Home, workspace);
+    const trusted = await renderDoctor(w2Home, { cwd: workspace, env });
+    expect(trusted).toContain("Project checks: trusted for current package/lockfile state");
+
+    writeFileSync(path.join(workspace, "package-lock.json"), '{"lockfileVersion":3,"changed":true}\n', "utf8");
+    const stale = await renderDoctor(w2Home, { cwd: workspace, env });
+    expect(stale).toContain("Project checks: not trusted; discovered scripts will be skipped");
   });
 
   it("reports brainw2 disabled when no valid vault exists", async () => {

@@ -6,7 +6,7 @@ import fs from "node:fs/promises";
 import { loadTask } from "./core/task.js";
 import { runTaskAndPersistReceipt } from "./core/cli-run.js";
 import { buildRunReceipt, renderReceiptMarkdown } from "./core/evidence.js";
-import { handleInteractiveHook, type CodexHookEvent } from "./core/interactive.js";
+import { handleInteractiveHook, projectChecksTrusted, revokeProjectChecksTrust, trustProjectChecks, type CodexHookEvent } from "./core/interactive.js";
 import { handleClaudeCodeHook } from "./core/claude-code.js";
 import { buildClaudeLaunchPlan } from "./core/claude-launch.js";
 import { renderDoctor } from "./core/doctor.js";
@@ -14,7 +14,7 @@ import { findLatestSessionSummary } from "./core/session.js";
 import { RunStore } from "./core/store.js";
 
 function usage(): never {
-  console.error("Usage: w2 run <task.json> [--db <path>] | w2 receipt <run-id> [--db <path>] [--out <dir>] | w2 doctor | w2 version | w2 session latest [<session-id>] | w2 claude [Claude Code arguments] | w2 hook --home <W2 path> [--provider codex|claude-code]");
+  console.error("Usage: w2 run <task.json> [--db <path>] | w2 receipt <run-id> [--db <path>] [--out <dir>] | w2 trust-checks <trust|status|revoke> | w2 doctor | w2 version | w2 session latest [<session-id>] | w2 claude [Claude Code arguments] | w2 hook --home <W2 path> [--provider codex|claude-code]");
   process.exit(2);
 }
 
@@ -42,6 +42,26 @@ async function main(): Promise<void> {
   }
   if (args[0] === "doctor") {
     console.log(await renderDoctor(getW2Home()));
+    return;
+  }
+  if (args[0] === "trust-checks") {
+    if (args.length !== 2 || !["trust", "status", "revoke"].includes(args[1]!)) usage();
+    const workspace = process.cwd();
+    if (args[1] === "trust") {
+      try {
+        await trustProjectChecks(getW2Home(), workspace);
+        console.log("Project checks trusted for this workspace and its current package.json and lockfiles. Review package scripts before trusting; they run with your normal account permissions.");
+      } catch (error) {
+        console.error(error instanceof Error ? error.message : String(error));
+        process.exitCode = 1;
+      }
+    } else if (args[1] === "revoke") {
+      await revokeProjectChecksTrust(getW2Home(), workspace);
+      console.log("Project check trust revoked for this workspace.");
+    } else {
+      const trusted = await projectChecksTrusted(getW2Home(), workspace);
+      console.log(trusted ? "Trusted: current project check scripts and manifest/lockfile fingerprint match." : "Not trusted: checks will be skipped until trusted for the current project state.");
+    }
     return;
   }
   if (args[0] === "session") {

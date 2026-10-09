@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -43,5 +43,56 @@ describe("W2-owned runtime security boundary", () => {
     const timeout = await runtime.shell(process.execPath, ["-e", "setTimeout(() => {}, 1000)"], 20);
     expect(timeout.exitCode).toBe(124);
     rmSync(workspace, { recursive: true, force: true });
+  });
+
+  it("terminates descendants when a shell command times out", async () => {
+    const workspace = mkdtempSync(path.join(os.tmpdir(), "w2-process-tree-timeout-"));
+    const marker = path.join(workspace, "descendant-survived.txt");
+    const runtime = new ToolRuntime(workspace);
+    const descendant = `setTimeout(() => require("node:fs").writeFileSync(${JSON.stringify(marker)}, "alive"), 700)`;
+    const parent = `require("node:child_process").spawn(process.execPath, ["-e", ${JSON.stringify(descendant)}], { stdio: "ignore" }); setInterval(() => {}, 1000)`;
+
+    try {
+      const result = await runtime.shell(process.execPath, ["-e", parent], 100);
+      expect(result.exitCode).toBe(124);
+      await new Promise((resolve) => setTimeout(resolve, 850));
+      expect(existsSync(marker)).toBe(false);
+    } finally {
+      rmSync(workspace, { recursive: true, force: true });
+    }
+  });
+
+  it.skipIf(process.platform !== "win32")("contains detached Windows descendants after the command exits", async () => {
+    const workspace = mkdtempSync(path.join(os.tmpdir(), "w2-job-object-process-tree-"));
+    const marker = path.join(workspace, "job-descendant-survived.txt");
+    const events: string[] = [];
+    const runtime = new ToolRuntime(workspace, { onSafetyEvent: (_type, payload) => events.push(JSON.stringify(payload)) });
+    const descendant = `setTimeout(() => require("node:fs").writeFileSync(${JSON.stringify(marker)}, "alive"), 900)`;
+    const parent = `const child = require("node:child_process").spawn(process.execPath, ["-e", ${JSON.stringify(descendant)}], { detached: true, stdio: "ignore" }); child.unref();`;
+
+    try {
+      const result = await runtime.shell(process.execPath, ["-e", parent], 3000);
+      expect(result.exitCode).toBe(0);
+      expect(events.some((event) => event.includes("Windows Job Object unavailable"))).toBe(false);
+      await new Promise((resolve) => setTimeout(resolve, 1100));
+      expect(existsSync(marker)).toBe(false);
+    } finally {
+      rmSync(workspace, { recursive: true, force: true });
+    }
+  });
+
+  it("clamps child process timeouts to the remaining total runtime budget", async () => {
+    const workspace = mkdtempSync(path.join(os.tmpdir(), "w2-total-runtime-budget-"));
+    const runtime = new ToolRuntime(workspace, { budget: { max_runtime_ms: 1200 } });
+    Object.defineProperty(runtime, "startedAt", { value: Date.now() - 1000 });
+    const remainingTimeoutMs = (runtime as unknown as { shellTimeoutMs(requested?: number): number }).shellTimeoutMs();
+    expect(remainingTimeoutMs).toBeGreaterThan(0);
+    expect(remainingTimeoutMs).toBeLessThanOrEqual(200);
+    try {
+      const result = await runtime.shell(process.execPath, ["-e", "setTimeout(() => {}, 750)"]);
+      expect(result.exitCode).toBe(124);
+    } finally {
+      rmSync(workspace, { recursive: true, force: true });
+    }
   });
 });

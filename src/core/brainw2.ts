@@ -844,7 +844,7 @@ function devLogEntry(receipt: RunReceipt, now: Date): string {
     lines.push(`- Proven criteria: ${proven}/${required}`);
   }
   const checks = receipt.verification.results;
-  if (checks.length && receipt.outcome !== "ERROR") lines.push(`- Checks: ${checks.map((item) => `${safeLogText(item.name, 60)} ${item.status === "PASSED" ? "PASS" : item.status === "FAILED" ? "FAIL" : "ERROR"}`).join(", ")}`);
+  if (checks.length && receipt.outcome !== "ERROR") lines.push(`- Checks: ${checks.map((item) => `${safeLogText(item.name, 60)} ${item.status === "PASSED" ? "PASS" : item.status === "FAILED" ? "FAIL" : item.status === "SKIPPED" ? "SKIPPED" : "ERROR"}`).join(", ")}`);
   if (receipt.outcome === "FAIL") {
     const failed = checks.filter((item) => item.status === "FAILED").map((item) => safeLogText(item.name, 80));
     if (failed.length) lines.push(`- Failed verifiers: ${failed.join(", ")}`);

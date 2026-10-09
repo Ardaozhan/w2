@@ -104,6 +104,14 @@ async function main() {
   const storage = getInteractiveRunStorage(w2Home, workspace);
   runtimeDirectory = storage.runtimeDirectory;
   const runtimeRoot = getInteractiveRuntimeRoot(w2Home);
+  const trustResult = spawnSync(process.execPath, [path.join(repositoryRoot, "dist", "src", "cli.js"), "trust-checks", "trust"], {
+    cwd: workspace,
+    env: { ...process.env, W2_HOME: w2Home },
+    encoding: "utf8",
+    windowsHide: true,
+  });
+  assert.equal(trustResult.status, 0, `Explicit project-check trust failed: ${trustResult.stderr}`);
+  assert.match(trustResult.stdout, /Project checks trusted/);
   const testRunId = randomUUID();
   const sessionId = `w2-real-hook-boundary-${testRunId}-session`;
   const turnId = `w2-real-hook-boundary-${testRunId}-turn`;
@@ -334,6 +342,9 @@ try {
 } finally {
   const interactiveRoot = path.join(w2Home, ".w2", "interactive");
   if (runtimeDirectory && existsSync(runtimeDirectory)) removeInside(runtimeDirectory, interactiveRoot);
+  const normalizedWorkspace = process.platform === "win32" ? workspace.toLocaleLowerCase("en-US") : workspace;
+  const trustRecordPath = path.join(interactiveRoot, "trusted-checks", `${hash(normalizedWorkspace)}.json`);
+  if (existsSync(trustRecordPath)) removeInside(trustRecordPath, interactiveRoot);
   for (const indexPath of sessionIndexPaths) if (existsSync(indexPath)) removeInside(indexPath, interactiveRoot);
   const diagnosticPath = path.join(interactiveRoot, "hook-diagnostics.jsonl");
   if (existsSync(diagnosticPath)) {

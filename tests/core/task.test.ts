@@ -25,6 +25,11 @@ describe("task contract", () => {
     expect(task.verification_commands[0]?.id).toBe("test");
   });
 
+  it("accepts a bounded total verification timeout", () => {
+    expect(parseTask({ ...base, verification_timeout_ms: 60_000 }).verification_timeout_ms).toBe(60_000);
+    expect(() => parseTask({ ...base, verification_timeout_ms: 30 * 60 * 1000 + 1 })).toThrow();
+  });
+
   it("rejects references to missing verifier IDs", () => {
     expect(() => parseTask({ ...base, acceptance_criteria: [{ ...base.acceptance_criteria[0], verification_refs: ["V99"] }] })).toThrow(/Unknown verifier ID/);
   });

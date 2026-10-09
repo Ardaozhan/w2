@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { appendFile, lstat, mkdir, mkdtemp, open, readFile, readlink, readdir, rename, rm, rmdir, writeFile } from "node:fs/promises";
+import { appendFile, lstat, mkdir, mkdtemp, open, readFile, readlink, readdir, rename, rm, rmdir, unlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -9,7 +9,7 @@ import { loadBrainw2ReferenceContext, syncBrainw2Activity, type Brainw2ProjectMa
 import type { AgentAdapter, AgentStartInput } from "./agent.js";
 import { runTaskAndPersistReceipt } from "./cli-run.js";
 import { recordSessionReceipt } from "./session.js";
-import type { AgentOutput, AgentRunResult, RunReceipt, TaskDefinition, ToolCallRecord, VerificationCommand } from "./types.js";
+import type { AgentOutput, AgentRunResult, RunReceipt, TaskDefinition, ToolCallRecord, VerificationCommand, VerificationResult } from "./types.js";
 
 const execFileAsync = promisify(execFile);
 const SNAPSHOT_VERSION = 1;
@@ -21,6 +21,7 @@ const verificationCategories = [
   { script: "build", id: "V-PROJECT-BUILD", name: "Project build", category: "build" as const },
 ];
 const browserCommandPattern = /\b(?:playwright|cypress|puppeteer|selenium|webdriver|browser|e2e|ui-smoke|screenshot|visual-regression|storybook)\b/i;
+const projectLockfiles = ["npm-shrinkwrap.json", "package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb"];
 
 export interface ProjectSnapshotEntry {
   path: string;
@@ -142,7 +143,7 @@ export function isMeaningfulEngineeringPrompt(prompt: string, env: NodeJS.Proces
   if (override && override !== "auto") return false;
 
   const projectSubject = /\b(?:w2|brainw2|obsidyen|obsidian|repo(?:sitory)?|workspace|proje(?:yi|nin|de|ye)?|uygulama|sistem|kod(?:u|da|un)?|dosya|klasör|modül|paket|api|servis|script)\b/i;
-  const projectReviewOrDiagnosis = /\b(?:incele\w*|gözden\s+geçir\w*|kontrol\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|değerlendir\w*|analiz\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|araştır\w*|test\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|doğrula\w*|denetle\w*|çalışmıyor|girmiyor|yazmıyor|eklenmiyor|kaydetmiyor|oluşmuyor|hata\s+veriyor)\b/i;
+  const projectReviewOrDiagnosis = /\b(?:review|inspect|audit|analy[sz]e|diagnos\w*|investigat\w*|assess|evaluate|incele\w*|gözden\s+geçir\w*|kontrol\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|değerlendir\w*|analiz\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|araştır\w*|test\s+(?:et\w*|eder(?:\s+misin|\s+misiniz)?)|doğrula\w*|denetle\w*|çalışmıyor|girmiyor|yazmıyor|eklenmiyor|kaydetmiyor|oluşmuyor|hata\s+veriyor)\b/i;
   if (projectSubject.test(normalized) && projectReviewOrDiagnosis.test(normalized)) return true;
 
   if (/(?:hallet|çöz|tamamla|bitir|düzelt|uygula|ekle|oluştur|değiştir|güncelle|kaldır|taşı|entegre\s+et|geliştir|iyileştir|kur|sil|yaz|yap)(?:sene|sana)(?:\s*[.!?]|$)/i.test(normalized)) return true;
@@ -388,6 +389,71 @@ function projectRuntimeDirectory(w2Home: string, workspace: string): string {
   return path.join(getInteractiveRuntimeRoot(w2Home), pathHash(normalizedWorkspace));
 }
 
+async function projectCheckFingerprint(workspace: string): Promise<string> {
+  const hash = createHash("sha256");
+  const packageContents = await readFile(path.join(workspace, "package.json"));
+  hash.update("package.json\0").update(packageContents).update("\0");
+  for (const file of projectLockfiles) {
+    try {
+      const contents = await readFile(path.join(workspace, file));
+      hash.update(file).update("\0").update(contents).update("\0");
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+  }
+  return hash.digest("hex");
+}
+
+function projectCheckTrustPath(w2Home: string, workspace: string): string {
+  const absoluteWorkspace = path.resolve(workspace);
+  const normalizedWorkspace = process.platform === "win32" ? absoluteWorkspace.toLocaleLowerCase("en-US") : absoluteWorkspace;
+  return path.join(getInteractiveRuntimeRoot(w2Home), "trusted-checks", `${pathHash(normalizedWorkspace)}.json`);
+}
+
+export async function trustProjectChecks(w2Home: string, workspace: string): Promise<void> {
+  const absoluteWorkspace = path.resolve(workspace);
+  if ((await discoverProjectVerifiers(absoluteWorkspace)).length === 0) throw new Error("No supported project checks were found to trust.");
+  const record = {
+    version: 1,
+    workspace: process.platform === "win32" ? absoluteWorkspace.toLocaleLowerCase("en-US") : absoluteWorkspace,
+    fingerprint: await projectCheckFingerprint(absoluteWorkspace),
+    trusted_at: new Date().toISOString(),
+  };
+  const trustPath = projectCheckTrustPath(w2Home, absoluteWorkspace);
+  await mkdir(path.dirname(trustPath), { recursive: true });
+  const temporaryPath = `${trustPath}.${randomUUID()}.tmp`;
+  try {
+    await writeFile(temporaryPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: "utf8", flag: "wx" });
+    await rename(temporaryPath, trustPath);
+  } finally {
+    await rm(temporaryPath, { force: true }).catch(() => undefined);
+  }
+}
+
+export async function revokeProjectChecksTrust(w2Home: string, workspace: string): Promise<void> {
+  await unlink(projectCheckTrustPath(w2Home, workspace)).catch((error) => {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  });
+}
+
+export async function projectChecksTrusted(w2Home: string, workspace: string): Promise<boolean> {
+  let record: unknown;
+  try { record = JSON.parse(await readFile(projectCheckTrustPath(w2Home, workspace), "utf8")); }
+  catch { return false; }
+  if (!record || typeof record !== "object" || Array.isArray(record)) return false;
+  const trust = record as Record<string, unknown>;
+  const absoluteWorkspace = path.resolve(workspace);
+  const normalizedWorkspace = process.platform === "win32" ? absoluteWorkspace.toLocaleLowerCase("en-US") : absoluteWorkspace;
+  if (trust.version !== 1 || trust.workspace !== normalizedWorkspace || typeof trust.fingerprint !== "string") return false;
+  try { return trust.fingerprint === await projectCheckFingerprint(absoluteWorkspace); }
+  catch { return false; }
+}
+
+export async function projectChecksTrustStatus(w2Home: string, workspace: string): Promise<"NO_CHECKS" | "TRUSTED" | "NOT_TRUSTED"> {
+  if ((await discoverProjectVerifiers(path.resolve(workspace))).length === 0) return "NO_CHECKS";
+  return await projectChecksTrusted(w2Home, workspace) ? "TRUSTED" : "NOT_TRUSTED";
+}
+
 export function getInteractiveRuntimeRoot(w2Home: string): string {
   return path.join(path.resolve(w2Home), ".w2", "interactive");
 }
@@ -532,6 +598,21 @@ function directlyNamesPassingVerifier(statement: string, verifier: VerificationC
   });
 }
 
+function expectsProjectChanges(prompt: string): boolean {
+  const normalized = prompt.trim().replace(/\s+/g, " ");
+  const explicitlyReadOnly = /\b(?:read[- ]only|without (?:making )?(?:any )?(?:changes|edits)|do not (?:make|edit|change|modify|fix|implement|add|create|update|remove)|don't (?:make|edit|change|modify|fix|implement|add|create|update|remove)|no changes required|only review|only analy[sz]e|review only|analyze only|sadece (?:incele\w*|analiz (?:et\w*|eder\w*)|kontrol (?:et\w*|eder\w*))|yalnızca (?:incele\w*|analiz (?:et\w*|eder\w*)|kontrol (?:et\w*|eder\w*))|değişiklik yapma|dosyalara dokunma)\b/i.test(normalized);
+  if (explicitlyReadOnly) return false;
+
+  const mutationVerb = "(?:implement|fix|refactor|add|create|update|change|modify|remove|delete|migrate|build|write|optimi[sz]e|improve|replace|integrate|introduce|generate|convert|port|upgrade|secure|apply|düzelt(?:ir misin|ebilir misin)?|uygula(?:yabilir misin)?|ekle(?:yebilir misin)?|oluştur(?:abilir misin)?|değiştir(?:ebilir misin)?|güncelle(?:yebilir misin)?|kaldır(?:abilir misin)?|taşı(?:yabilir misin)?|yeniden yaz|entegre et|geliştir(?:ebilir misin)?|iyileştir(?:ebilir misin)?|kur(?:abilir misin)?|sil(?:ebilir misin)?|yaz(?:abilir misin)?)";
+  const directMutation = new RegExp(`^(?:(?:please|kindly|lütfen|rica etsem)\\s+)?(?:(?:can|could|would|will)\\s+you\\s+)?(?:(?:please)\\s+)?(?:(?:şu|bu|bunu|şunu|buradaki|ilgili)\\s+)*${mutationVerb}\\b`, "i");
+  const followUpMutation = new RegExp(`(?:^|[.!?;,]\\s*|\\b(?:and|then|also|ve|sonra)\\s+)${mutationVerb}\\b`, "i");
+  const changeRequested = directMutation.test(normalized) || followUpMutation.test(normalized);
+  if (changeRequested) return true;
+
+  const readOnlyRequested = /\b(?:review|analy[sz]e|inspect|audit|diagnos\w*|investigat\w*|assess|evaluate|explain|summari[sz]e|describe|discuss|check|tell me|incele\w*|analiz (?:et\w*|eder\w*)|değerlendir\w*|denetle\w*|araştır\w*|teşhis (?:et\w*|eder\w*)|hata ayıkla\w*|kontrol (?:et\w*|eder\w*)|gözden geçir\w*|özetle\w*|açıkla\w*|anlat\w*|raporla\w*)\b/i.test(normalized);
+  return !readOnlyRequested;
+}
+
 async function discoverProjectVerifiers(workspace: string): Promise<VerificationCommand[]> {
   let packageJson: Record<string, unknown>;
   try {
@@ -566,17 +647,19 @@ function buildInteractiveTask(state: InteractiveTurnState, changedPaths: string[
     ? `All discovered project checks pass: ${discoveredNames.join(", ")}.`
     : "Task-specific behavior has a detectable project verifier.";
   const explicitCriteria = parseExplicitAcceptanceCriteria(state.prompt);
+  const changeRequested = expectsProjectChanges(state.prompt);
+  const criteriaOffset = changeRequested ? 2 : 1;
   const acceptanceCriteria = [
-    { id: "AC-01", statement: `At least one project file changed during this ${state.provider === "claude-code" ? "Claude Code" : "Codex"} turn.`, required: true, verification_refs: [diffVerifier.id] },
-    { id: "AC-02", statement: checkStatement, required: true, verification_refs: checkRefs },
+    ...(changeRequested ? [{ id: "AC-01", statement: `At least one project file changed during this ${state.provider === "claude-code" ? "Claude Code" : "Codex"} turn.`, required: true, verification_refs: [diffVerifier.id] }] : []),
+    { id: `AC-${String(criteriaOffset).padStart(2, "0")}`, statement: checkStatement, required: true, verification_refs: checkRefs },
     ...(explicitCriteria.length
       ? explicitCriteria.map((statement, index) => ({
-          id: `AC-${String(index + 3).padStart(2, "0")}`,
+          id: `AC-${String(index + criteriaOffset + 1).padStart(2, "0")}`,
           statement,
           required: true,
           verification_refs: projectVerifiers.filter((verifier) => directlyNamesPassingVerifier(statement, verifier)).map((verifier) => verifier.id),
         }))
-      : [{ id: "AC-03", statement: "The prompt's task-specific semantic requirements have direct deterministic verifier evidence.", required: true, verification_refs: [] }]),
+      : [{ id: `AC-${String(criteriaOffset + 1).padStart(2, "0")}`, statement: "The prompt's task-specific semantic requirements have direct deterministic verifier evidence.", required: true, verification_refs: [] }]),
   ];
   return {
     task_id: `interactive-${randomUUID()}`,
@@ -593,6 +676,7 @@ function buildInteractiveTask(state: InteractiveTurnState, changedPaths: string[
     workspace: state.workspace,
     ...(state.model ? { model: state.model } : {}),
     timeout_ms: TASK_TIMEOUT_MS,
+    runtime_budget: { max_runtime_ms: TASK_TIMEOUT_MS },
   };
 }
 
@@ -909,8 +993,9 @@ function formatReceiptResult(receipt: RunReceipt, receiptPath: string, brainw2Wr
   const checks = receipt.verification.results;
   for (const category of ["test", "typecheck", "lint", "build"] as const) {
     const categoryResults = checks.filter((item) => item.category === category);
-    if (categoryResults.length) lines.push(`${category[0]!.toUpperCase()}${category.slice(1)}: ${categoryResults.every((item) => item.status === "PASSED") ? "PASS" : categoryResults.some((item) => item.status === "ERROR") ? "ERROR" : "FAIL"}`);
+    if (categoryResults.length) lines.push(`${category[0]!.toUpperCase()}${category.slice(1)}: ${categoryResults.every((item) => item.status === "PASSED") ? "PASS" : categoryResults.some((item) => item.status === "ERROR") ? "ERROR" : categoryResults.some((item) => item.status === "SKIPPED") ? "NOT RUN" : "FAIL"}`);
   }
+  if (checks.some((item) => item.status === "SKIPPED")) lines.push("Project scripts were not run. Review them, then run `w2 trust-checks trust` in this project to allow these exact checks.");
   if (receipt.changes.changed_files.length) lines.push(`Diff: ${receipt.changes.changed_files.length} file${receipt.changes.changed_files.length === 1 ? "" : "s"}`);
   const failedVerifiers = checks.filter((item) => item.status === "FAILED");
   const missing = required.filter((criterion) => criterion.status === "UNPROVEN");
@@ -991,6 +1076,20 @@ async function finishTurn(w2Home: string, event: CodexHookEvent, options: Intera
     };
     await writeState(statePath, completedState);
     const projectVerifiers = interrupted ? [] : await discoverProjectVerifiers(workspace);
+    const projectChecksAreTrusted = projectVerifiers.length > 0 && await projectChecksTrusted(w2Home, workspace);
+    const skippedProjectVerifications: VerificationResult[] = !interrupted && !projectChecksAreTrusted
+      ? projectVerifiers.map((verifier) => ({
+          verifier_id: verifier.id,
+          name: verifier.name,
+          category: verifier.category,
+          command: verifier.command,
+          exit_code: null,
+          stdout: "",
+          stderr: "Not run: this project's package scripts have not been explicitly trusted, or the trust fingerprint is stale.",
+          duration_ms: 0,
+          status: "SKIPPED",
+        }))
+      : [];
     const task = buildInteractiveTask(completedState, changedPaths, projectVerifiers);
     const storage = getInteractiveRunStorage(w2Home, workspace);
     const statusBefore = gitDelta?.statusBefore ?? statusForPaths(state.before_snapshot, changedPaths);
@@ -1009,6 +1108,7 @@ async function finishTurn(w2Home: string, event: CodexHookEvent, options: Intera
       },
       ...(state.brainw2_reference ? { referenceContext: state.brainw2_reference } : {}),
       ...(interrupted ? { interrupted: true } : {}),
+      ...(skippedProjectVerifications.length ? { precomputedVerificationResults: skippedProjectVerifications } : {}),
       brainw2: { env: options.brainw2Env, home: options.brainw2Home, captureActivity: false },
     });
     options.onRun?.(result.receipt);

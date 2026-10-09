@@ -260,7 +260,7 @@ export function buildRunReceipt(store: RunStore, runId: string, options: Receipt
 export function renderReceiptMarkdown(receipt: RunReceipt): string {
   validateReceipt(receipt);
   const lines = ["# W2 RUN RECEIPT", "", `- Receipt version: ${receipt.receipt_version}`, `- Run: \`${receipt.run_id}\``, `- Execution mode: ${receipt.agent.execution_mode}`, `- Generated: ${receipt.generated_at}`, "", "## Task", `**${receipt.task.title}**`, "", receipt.task.goal, "", "## Context W2 provided", `- ${receipt.context.files_supplied}/${receipt.context.files_considered} files selected for the prompt`, `- ${receipt.context.approximate_tokens} approximate tokens`, "- Exact repository files accessed by the interactive agent: not captured by this adapter", "", "## What the agent did", `- ${receipt.actions.tool_calls} observable tool calls`, `- ${receipt.actions.events} ordered events`, `- ${receipt.changes.changed_files.length} changed files`, "", "## Verification"];
-  lines.push(...(receipt.verification.results.length ? receipt.verification.results.map((result) => `- ${result.status === "PASSED" ? "PASS" : "FAIL"} ${result.name} (exit ${result.exit_code ?? "n/a"})`) : ["- UNPROVEN: no verification configured"]));
+  lines.push(...(receipt.verification.results.length ? receipt.verification.results.map((result) => `- ${result.status === "PASSED" ? "PASS" : result.status === "SKIPPED" ? "SKIPPED" : result.status === "ERROR" ? "ERROR" : "FAIL"} ${result.name} (exit ${result.exit_code ?? "n/a"})`) : ["- UNPROVEN: no verification configured"]));
   const evidenceById = new Map(receipt.evidence.map((item) => [item.evidence_id, item]));
   const acceptanceLines: string[] = [];
   for (const criterion of receipt.acceptance) {

@@ -2,11 +2,16 @@
 
 ## Unreleased
 
+## 0.2.2 - 2026-10-09
+
 - Supply bounded, curated BrainW2 preferences and selected mapped-project references to interactive Codex turns and manual `w2 run` tasks; keep reference content out of receipts and acceptance evidence.
 - Capture bounded, common-secret-redacted prompt excerpts in BrainW2 Daily notes and route eligible prompts to deterministic category notes.
 - Append manual task goals and receipt outcomes to the mapped BrainW2 project logs; report writeback targets through the CLI and `w2 doctor`.
 - Initialize Git in a folder with no containing repository when starting the interactive W2 launcher, without creating a commit.
 - Add BrainW2 note templates, curated reference selection, deduplication markers, safe-path checks, and non-fatal writeback reporting.
+- Check GitHub's latest stable W2 release when the interactive launcher is opened, with a 24-hour check interval, clean-checkout protection, and rollback on failed installation.
+- Add `w2 update` and `w2 update --check` for explicit release updates and availability checks.
+- Update the transitive `source-map-js` dependency to 1.2.2 to clear the high-severity npm audit finding.
 
 ## 0.2.1 - 2026-09-25
 

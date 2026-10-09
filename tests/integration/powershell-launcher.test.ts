@@ -21,6 +21,7 @@ describe.runIf(process.platform === "win32")("PowerShell W2 launcher", () => {
       mkdirSync(project, { recursive: true });
       writeFileSync(path.join(w2Home, "package.json"), JSON.stringify({ name: "w2-test" }), "utf8");
       writeFileSync(path.join(w2Home, "dist", "src", "cli.js"), "// test stub\n", "utf8");
+      writeFileSync(path.join(w2Home, "dist", "src", "core", "self-update.js"), "// updater test stub\n", "utf8");
       writeFileSync(path.join(w2Home, "dist", "src", "core", "codex-launch.js"), "// test stub\n", "utf8");
       for (const module of ["doctor.js", "brainw2.js", "session.js"]) writeFileSync(path.join(w2Home, "dist", "src", "core", module), "// test stub\n", "utf8");
       cpSync(path.join(repositoryRoot, "scripts", "w2-launcher.ps1"), path.join(scripts, "w2-launcher.ps1"));
@@ -46,8 +47,23 @@ if ([regex]::Matches($profileContents, [regex]::Escape('# >>> W2 LAUNCHER >>>'))
 if (!$profileContents.Contains('function unrelated')) { throw 'Unrelated profile content was changed.' }
 $project = Join-Path $testRoot ("w2 target project with spaces " + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $project -Force | Out-Null
-function global:codex { $global:CODEX_CALLED = $true }
-function global:node { $global:W2_CAPTURE = [PSCustomObject]@{ cwd = (Get-Location).ProviderPath; args = @($args); home = $env:W2_HOME; target = $env:W2_PROJECT; active = $env:W2_ACTIVE } }
+function global:codex {
+    $global:CODEX_CALLED = $true
+    if ($args.Count -gt 0 -and $args[0] -eq '--version') { "codex-cli $global:W2_INSTALLED_VERSION"; $global:LASTEXITCODE = 0 }
+}
+function global:pwsh { $global:W2_PWSH_CAPTURE = @($args); $global:W2_INSTALLED_VERSION = $global:W2_LATEST_VERSION; $global:LASTEXITCODE = 0 }
+function global:Invoke-RestMethod { param($Uri, $TimeoutSec) [PSCustomObject]@{ tag_name = "rust-v$global:W2_LATEST_VERSION" } }
+function global:Read-Host { $global:W2_UPDATE_ANSWER }
+function global:node {
+    if ($args.Count -gt 0 -and $args[0] -match 'self-update\.js$') {
+        $global:W2_UPDATER_CAPTURE = @($args)
+        $global:LASTEXITCODE = 0
+        return
+    }
+    $global:W2_CAPTURE = [PSCustomObject]@{ cwd = (Get-Location).ProviderPath; args = @($args); home = $env:W2_HOME; target = $env:W2_PROJECT; active = $env:W2_ACTIVE }
+}
+$global:W2_INSTALLED_VERSION = '1.2.0'
+$global:W2_LATEST_VERSION = '1.2.0'
 Push-Location $project
 try { $project = (Get-Location).ProviderPath; w2 --version } finally { Pop-Location }
 if (!(Test-Path -LiteralPath (Join-Path $project '.git'))) { throw 'W2 did not initialize Git for a new project folder.' }
@@ -85,9 +101,31 @@ function Test-W2ManualRoute([string[]]$manual) {
 }
 Test-W2ManualRoute @('run', 'task.json')
 Test-W2ManualRoute @('receipt', 'receipt-id')
+Test-W2ManualRoute @('trust-checks', 'status')
 Test-W2ManualRoute @('doctor')
 Test-W2ManualRoute @('version')
 Test-W2ManualRoute @('session', 'latest')
+w2 update --check
+if ($global:W2_UPDATER_CAPTURE[-1] -ne '--check') { throw 'Manual W2 update check was not routed to the release updater.' }
+w2 update
+if ($global:W2_UPDATER_CAPTURE -contains '--automatic') { throw 'Manual W2 update unexpectedly used the automatic check mode.' }
+$global:W2_UPDATER_CAPTURE = @()
+Push-Location $project
+try { w2 } finally { Pop-Location }
+if ($global:W2_UPDATER_CAPTURE[-1] -ne '--automatic') { throw 'Opening the normal W2 TUI did not check for a W2 release.' }
+if ($global:W2_CAPTURE.args[0] -ne (Join-Path $w2Install 'scripts\codex-tui-launcher.mjs')) { throw 'Automatic W2 updates changed the Codex TUI launch path.' }
+w2 update-codex
+if ($global:W2_PWSH_CAPTURE[0] -ne '-NoLogo' -or $global:W2_PWSH_CAPTURE[1] -ne '-NoProfile' -or $global:W2_PWSH_CAPTURE[2] -ne '-NonInteractive' -or $global:W2_PWSH_CAPTURE[3] -ne '-Command') { throw "Codex update did not use an isolated PowerShell 7 process: $($global:W2_PWSH_CAPTURE -join '|')" }
+if (!$global:W2_PWSH_CAPTURE[4].Contains('CODEX_NON_INTERACTIVE') -or !$global:W2_PWSH_CAPTURE[4].Contains('https://chatgpt.com/codex/install.ps1')) { throw 'Codex update did not use the official non-interactive installer.' }
+$global:W2_INSTALLED_VERSION = '1.2.0'
+$global:W2_LATEST_VERSION = '1.3.0'
+$global:W2_UPDATE_ANSWER = 'Y'
+$global:W2_PWSH_CAPTURE = @()
+Push-Location $project
+try { w2 --model test-model } finally { Pop-Location }
+if ($global:W2_INSTALLED_VERSION -ne $global:W2_LATEST_VERSION) { throw 'W2 did not update Codex through PowerShell 7 before starting the TUI.' }
+if (!$global:W2_PWSH_CAPTURE[4].Contains('https://chatgpt.com/codex/install.ps1')) { throw 'The prelaunch update prompt did not invoke the official Codex installer.' }
+if ($global:W2_CAPTURE.args[-1] -ne 'test-model') { throw 'Codex arguments were not forwarded after the prelaunch update.' }
 codex --version
 if (!$global:CODEX_CALLED) { throw 'The normal codex command was changed by the W2 launcher.' }
 [System.IO.File]::WriteAllText($capturePath, ($global:W2_CAPTURE | ConvertTo-Json -Depth 5), [System.Text.UTF8Encoding]::new($false))

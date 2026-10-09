@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { brainw2Writable, inspectBrainw2Categories, resolveBrainw2Vault, resolveProjectMapping } from "./brainw2.js";
 import { configuredHookEvents } from "./codex-launch.js";
-import { getInteractiveRunStorage, getInteractiveRuntimeRoot } from "./interactive.js";
+import { getInteractiveRunStorage, getInteractiveRuntimeRoot, projectChecksTrustStatus } from "./interactive.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -91,7 +91,7 @@ export async function renderDoctor(w2HomeValue?: string, options: DoctorOptions 
   const w2Home = path.resolve(w2HomeValue ?? process.env.W2_HOME ?? discoveredHome);
   const cwd = path.resolve(options.cwd ?? process.cwd());
   const env = options.env ?? process.env;
-  const [version, nodeVersion, npmVersion, gitVersion, codexVersion, git, latest] = await Promise.all([
+  const [version, nodeVersion, npmVersion, gitVersion, codexVersion, git, latest, projectChecks] = await Promise.all([
     w2Version(w2Home),
     Promise.resolve(process.version),
     shellCommand("npm", env),
@@ -99,6 +99,7 @@ export async function renderDoctor(w2HomeValue?: string, options: DoctorOptions 
     shellCommand("codex", env),
     gitStatus(cwd, env),
     latestReceipt(w2Home, cwd),
+    projectChecksTrustStatus(w2Home, cwd),
   ]);
   const buildFiles = ["dist/src/cli.js", "dist/src/core/interactive.js", "dist/src/core/brainw2.js"];
   const buildAvailable = (await Promise.all(buildFiles.map(async (file) => {
@@ -130,6 +131,7 @@ export async function renderDoctor(w2HomeValue?: string, options: DoctorOptions 
     `W2 build: ${buildAvailable ? "available" : "unavailable"}`,
     `Interactive runtime: ${getInteractiveRuntimeRoot(w2Home)}`,
     `Latest current-project receipt: ${latest ? `${latest.id} (${latest.outcome})` : "none"}`,
+    `Project checks: ${projectChecks === "NO_CHECKS" ? "no supported scripts detected" : projectChecks === "TRUSTED" ? "trusted for current package/lockfile state" : "not trusted; discovered scripts will be skipped (run w2 trust-checks trust to enable)"}`,
     `brainw2: ${vault.enabled ? "enabled" : "disabled"}`,
     `brainw2 vault: ${vault.path ?? "unavailable"}`,
     `brainw2 project mapping: ${vault.enabled ? mapping ? "found" : "not found" : "not applicable"}`,

@@ -1,11 +1,16 @@
-import { execFile } from "node:child_process";
+import { execFile, type ChildProcess } from "node:child_process";
+import { existsSync } from "node:fs";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
+import { fileURLToPath } from "node:url";
 import type { EventType, ToolCallRecord } from "./types.js";
 import { assertCapability, assertWorkspacePath, commandRisk, redactSecrets, SafetyError, type ApprovalRecord, type Capability, type RuntimeBudget } from "./safety.js";
 
 const execFileAsync = promisify(execFile);
+export const DEFAULT_SHELL_TIMEOUT_MS = 5 * 60 * 1000;
+const PROCESS_TREE_KILL_TIMEOUT_MS = 5_000;
+const WINDOWS_JOB_SETUP_FAILED_EXIT_CODE = 97;
 
 export interface ToolRuntimeOptions {
   env?: NodeJS.ProcessEnv;
@@ -62,6 +67,14 @@ export class ToolRuntime {
 
   private safePath(relativePath: string): string { return assertWorkspacePath(this.workspace, relativePath); }
 
+  private shellTimeoutMs(requestedTimeoutMs?: number): number {
+    const requested = Math.max(1, Math.floor(requestedTimeoutMs ?? DEFAULT_SHELL_TIMEOUT_MS));
+    if (this.budget.max_runtime_ms === undefined) return requested;
+    const remaining = this.budget.max_runtime_ms - (Date.now() - this.startedAt);
+    if (remaining <= 0) throw new SafetyError("BUDGET_EXHAUSTED", "Runtime wall-clock budget exhausted");
+    return Math.min(requested, Math.max(1, Math.floor(remaining)));
+  }
+
   private async record<T>(toolName: string, input: unknown, operation: () => Promise<T>): Promise<T> {
     this.checkBudget();
     const startedAt = new Date().toISOString();
@@ -107,22 +120,31 @@ export class ToolRuntime {
     await this.requireApproval(command, args);
     const limit = this.budget.max_output_bytes ?? 1024 * 1024;
     return this.record("shell", { command, args }, async () => {
-      try {
-        const result = await execFileAsync(command, args, { cwd: this.workspace, timeout: timeoutMs ?? this.budget.max_runtime_ms, windowsHide: true, maxBuffer: limit, env: filteredEnvironment(this.options.env) });
-        const stdout = truncate(result.stdout, limit);
-        const stderr = truncate(result.stderr, limit);
-        this.checkBudget(Buffer.byteLength(stdout) + Buffer.byteLength(stderr));
-        return { stdout, stderr, exitCode: 0 };
-      } catch (error) {
-        const failure = error as { stdout?: string; stderr?: string; code?: number | string; killed?: boolean; message?: string };
-        const stdout = truncate(failure.stdout ?? "", limit);
-        const stderr = truncate(failure.stderr ?? failure.message ?? String(error), limit);
-        const timedOut = failure.killed === true || failure.code === "ETIMEDOUT";
-        const outputLimited = /maxbuffer|stdout maxBuffer|stderr maxBuffer/i.test(failure.message ?? "");
-        if (timedOut) this.emit("safety_denied", { reason: "shell timeout", command });
-        if (outputLimited) this.emit("safety_denied", { reason: "shell output limit", command });
-        return { stdout, stderr, exitCode: timedOut ? 124 : outputLimited ? 125 : typeof failure.code === "number" ? failure.code : 1 };
+      const effectiveTimeoutMs = this.shellTimeoutMs(timeoutMs);
+      const environment = filteredEnvironment(this.options.env);
+      const windowsJob = process.platform === "win32"
+        ? windowsJobInvocation(command, args, this.workspace, environment, effectiveTimeoutMs)
+        : undefined;
+      let result = await executeChildProcess(
+        windowsJob?.command ?? command,
+        windowsJob?.args ?? args,
+        this.workspace,
+        environment,
+        limit,
+        effectiveTimeoutMs + (windowsJob ? PROCESS_TREE_KILL_TIMEOUT_MS : 0),
+        process.platform !== "win32",
+      );
+      if (windowsJob && result.exitCode === WINDOWS_JOB_SETUP_FAILED_EXIT_CODE && result.stderr.includes("W2_JOB_SETUP_FAILED")) {
+        this.emit("safety_denied", { reason: "Windows Job Object unavailable; using taskkill process-tree fallback", command });
+        result = await executeChildProcess(command, args, this.workspace, environment, limit, effectiveTimeoutMs, false);
       }
+      if (windowsJob && result.stderr.includes("W2_JOB_TIMED_OUT")) {
+        result = { ...result, stderr: result.stderr.replace(/^W2_JOB_TIMED_OUT\r?\n?/m, ""), exitCode: 124, timedOut: true };
+      }
+      if (result.timedOut) this.emit("safety_denied", { reason: "shell timeout", command });
+      if (result.outputLimited) this.emit("safety_denied", { reason: "shell output limit", command });
+      if (result.exitCode === 0) this.checkBudget(Buffer.byteLength(result.stdout) + Buffer.byteLength(result.stderr));
+      return { stdout: result.stdout, stderr: result.stderr, exitCode: result.exitCode };
     }).then((result) => {
       if (!allowedExitCodes.includes(result.exitCode)) {
         const latest = this.calls[this.calls.length - 1];
@@ -193,4 +215,96 @@ function truncate(value: string, maxBytes: number): string { return Buffer.byteL
 function filteredEnvironment(source: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
   const allowed = new Set(["path", "systemroot", "windir", "comspec", "pathext", "temp", "tmp", "home", "userprofile", "homedrive", "homepath", "appdata", "localappdata", "codex_home", "npm_config_userconfig", "npm_config_cache", "git_config_global", "git_config_nosystem", "username", "userdomain", "node_options"]);
   return Object.fromEntries(Object.entries(source).filter(([key]) => allowed.has(key.toLowerCase())));
+}
+
+function windowsJobInvocation(command: string, args: string[], cwd: string, environment: NodeJS.ProcessEnv, timeoutMs: number): { command: string; args: string[] } {
+  const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
+  const runnerPath = [
+    path.resolve(moduleDirectory, "../../scripts/w2-job-runner.ps1"),
+    path.resolve(moduleDirectory, "../../../scripts/w2-job-runner.ps1"),
+  ].find(existsSync);
+  const bootstrapPath = [
+    path.resolve(moduleDirectory, "../../scripts/w2-job-bootstrap.mjs"),
+    path.resolve(moduleDirectory, "../../../scripts/w2-job-bootstrap.mjs"),
+  ].find(existsSync);
+  if (!runnerPath || !bootstrapPath) throw new Error("W2 Windows Job Object runner files are missing from the installation.");
+  const payload = Buffer.from(JSON.stringify({
+    file: command,
+    args,
+    cwd,
+    nodeExecutable: process.execPath,
+    bootstrapPath,
+    deadlineEpochMs: Date.now() + timeoutMs,
+    environment: Object.entries(environment).map(([key, value]) => `${key}=${value ?? ""}`),
+  }), "utf8").toString("base64");
+  return {
+    command: "powershell.exe",
+    args: ["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", runnerPath, payload],
+  };
+}
+
+interface ChildExecutionResult {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  timedOut: boolean;
+  outputLimited: boolean;
+}
+
+async function executeChildProcess(command: string, args: string[], cwd: string, environment: NodeJS.ProcessEnv, maxBuffer: number, timeoutMs: number, detached: boolean): Promise<ChildExecutionResult> {
+  const childOptions = {
+    cwd,
+    encoding: "utf8",
+    windowsHide: true,
+    maxBuffer,
+    env: environment,
+    detached,
+  } as Parameters<typeof execFileAsync>[2] & { detached: boolean };
+  const execution = execFileAsync(command, args, childOptions);
+  const child = (execution as typeof execution & { child: ChildProcess }).child;
+  let timeoutExpired = false;
+  const timeout = setTimeout(() => {
+    timeoutExpired = true;
+    void terminateProcessTree(child);
+  }, timeoutMs);
+  try {
+    const result = await execution;
+    const stdout = truncate(typeof result.stdout === "string" ? result.stdout : result.stdout.toString("utf8"), maxBuffer);
+    const stderr = truncate(typeof result.stderr === "string" ? result.stderr : result.stderr.toString("utf8"), maxBuffer);
+    if (timeoutExpired) return { stdout, stderr: stderr || `Command timed out after ${timeoutMs} ms`, exitCode: 124, timedOut: true, outputLimited: false };
+    return { stdout, stderr, exitCode: 0, timedOut: false, outputLimited: false };
+  } catch (error) {
+    const failure = error as { stdout?: string | Buffer; stderr?: string | Buffer; code?: number | string; killed?: boolean; message?: string };
+    const stdout = truncate(typeof failure.stdout === "string" ? failure.stdout : failure.stdout?.toString("utf8") ?? "", maxBuffer);
+    const stderr = truncate(typeof failure.stderr === "string" ? failure.stderr : failure.stderr?.toString("utf8") ?? failure.message ?? String(error), maxBuffer);
+    const timedOut = failure.killed === true || failure.code === "ETIMEDOUT" || timeoutExpired;
+    const outputLimited = /maxbuffer|stdout maxBuffer|stderr maxBuffer/i.test(failure.message ?? "");
+    const exitCode = timedOut ? 124 : outputLimited ? 125 : typeof failure.code === "number" ? failure.code : 1;
+    return { stdout, stderr, exitCode, timedOut, outputLimited };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function terminateProcessTree(child: ChildProcess): Promise<void> {
+  if (!child.pid) return;
+  if (process.platform === "win32") {
+    try {
+      await execFileAsync("taskkill.exe", ["/pid", String(child.pid), "/t", "/f"], {
+        windowsHide: true,
+        timeout: PROCESS_TREE_KILL_TIMEOUT_MS,
+        maxBuffer: 64 * 1024,
+        env: filteredEnvironment(),
+      });
+      return;
+    } catch {
+      child.kill("SIGKILL");
+      return;
+    }
+  }
+  try {
+    process.kill(-child.pid, "SIGKILL");
+  } catch {
+    child.kill("SIGKILL");
+  }
 }

@@ -3,15 +3,36 @@ $global:W2_INSTALL_PATH = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot ".
 function global:w2 {
     $project = (Get-Location).ProviderPath
     $w2Home = $global:W2_INSTALL_PATH
+    $requestedCommand = if ($args.Count -gt 0) { [string]$args[0] } else { "" }
+
+    if ($requestedCommand -eq "update-codex") {
+        $pwshCommand = Get-Command pwsh -ErrorAction SilentlyContinue
+        if (!$pwshCommand) {
+            Write-Host "PowerShell 7 (pwsh) was not found on PATH. Install PowerShell 7, then run 'w2 update-codex' again." -ForegroundColor Red
+            return
+        }
+
+        $installerCommand = '$env:CODEX_NON_INTERACTIVE = ''1''; irm https://chatgpt.com/codex/install.ps1 | iex'
+        $pwshExecutable = if ($pwshCommand.CommandType -eq "Application" -and $pwshCommand.Source) { $pwshCommand.Source } else { $pwshCommand.Name }
+        Write-Host "Updating Codex with the official installer through PowerShell 7..." -ForegroundColor DarkCyan
+        & $pwshExecutable -NoLogo -NoProfile -NonInteractive -Command $installerCommand
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Codex update failed with exit code $LASTEXITCODE." -ForegroundColor Red
+        }
+        return
+    }
+
     $packagePath = Join-Path $w2Home "package.json"
     if (!(Test-Path -LiteralPath $packagePath)) {
         Write-Host "W2 installation is not available at $w2Home" -ForegroundColor Red
         return
     }
     $cliPath = Join-Path $w2Home "dist\src\cli.js"
+    $updaterPath = Join-Path $w2Home "dist\src\core\self-update.js"
     $launchModulePath = Join-Path $w2Home "dist\src\core\codex-launch.js"
     $requiredBuildFiles = @(
         $cliPath,
+        $updaterPath,
         $launchModulePath,
         (Join-Path $w2Home "dist\src\core\doctor.js"),
         (Join-Path $w2Home "dist\src\core\brainw2.js"),
@@ -43,7 +64,28 @@ function global:w2 {
         return
     }
 
-    $requestedCommand = if ($args.Count -gt 0) { [string]$args[0] } else { "" }
+    if ($requestedCommand -eq "update") {
+        if ($args.Count -gt 2 -or ($args.Count -eq 2 -and $args[1] -ne "--check")) {
+            Write-Host "Usage: w2 update [--check]" -ForegroundColor Red
+            return
+        }
+        $updateArguments = @($updaterPath, "--w2-home", $w2Home)
+        if ($args.Count -eq 2) { $updateArguments += "--check" }
+        & node @updateArguments
+        return
+    }
+
+    if ($args.Count -eq 0) {
+        & node $updaterPath --w2-home $w2Home --automatic
+        if ($LASTEXITCODE -eq 2) {
+            Write-Host "W2 could not safely recover its installation; Codex was not started." -ForegroundColor Red
+            return
+        }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "W2 automatic update check failed; continuing with the installed version." -ForegroundColor DarkYellow
+        }
+    }
+
     if ($requestedCommand -eq "claude") {
         $claudeBuildFiles = @(
             (Join-Path $w2Home "dist\src\core\claude-code.js"),
@@ -83,7 +125,7 @@ function global:w2 {
         & $claudeCommand.Source --plugin-dir $w2Home @forwardArgs
         return
     }
-    if ($requestedCommand -in @("run", "receipt", "doctor", "version", "session")) {
+    if ($requestedCommand -in @("run", "receipt", "trust-checks", "doctor", "version", "session")) {
         $manualArgs = @($args)
         $previousHome = Get-Item -LiteralPath Env:W2_HOME -ErrorAction SilentlyContinue
         $env:W2_HOME = $w2Home
@@ -101,6 +143,49 @@ function global:w2 {
     if (!$codexCommand) {
         Write-Host "Codex CLI was not found on PATH." -ForegroundColor Red
         return
+    }
+
+    $codexExecutable = if ($codexCommand.CommandType -eq "Application" -and $codexCommand.Source) { $codexCommand.Source } else { "codex" }
+    try {
+        $installedVersionOutput = @(& $codexExecutable --version 2>$null) -join " "
+        $installedVersionMatch = [regex]::Match($installedVersionOutput, '(?<!\d)(\d+\.\d+\.\d+)(?!\d)')
+        if ($LASTEXITCODE -eq 0 -and $installedVersionMatch.Success) {
+            $releaseMetadata = Invoke-RestMethod -Uri "https://releases.openai.com/codex/channels/latest" -TimeoutSec 10
+            $latestVersionMatch = [regex]::Match([string]$releaseMetadata.tag_name, '(?<!\d)(\d+\.\d+\.\d+)(?!\d)')
+            if ($latestVersionMatch.Success) {
+                $installedVersion = [version]::Parse($installedVersionMatch.Groups[1].Value)
+                $latestVersion = [version]::Parse($latestVersionMatch.Groups[1].Value)
+                if ($latestVersion -gt $installedVersion) {
+                    $answer = Read-Host "Codex update available ($installedVersion -> $latestVersion). Update before starting W2? [Y/n]"
+                    if ($answer -notmatch '^(?i:n|no)$') {
+                        $pwshCommand = Get-Command pwsh -ErrorAction SilentlyContinue
+                        if (!$pwshCommand) {
+                            Write-Host "PowerShell 7 (pwsh) was not found. Install it or run 'w2 update-codex' after it is available." -ForegroundColor Red
+                            return
+                        }
+
+                        $installerCommand = '$env:CODEX_NON_INTERACTIVE = ''1''; irm https://chatgpt.com/codex/install.ps1 | iex'
+                        $pwshExecutable = if ($pwshCommand.CommandType -eq "Application" -and $pwshCommand.Source) { $pwshCommand.Source } else { $pwshCommand.Name }
+                        Write-Host "Updating Codex with the official installer through PowerShell 7..." -ForegroundColor DarkCyan
+                        & $pwshExecutable -NoLogo -NoProfile -NonInteractive -Command $installerCommand
+                        if ($LASTEXITCODE -ne 0) {
+                            Write-Host "Codex update failed with exit code $LASTEXITCODE; W2 did not start the outdated CLI." -ForegroundColor Red
+                            return
+                        }
+
+                        $updatedVersionOutput = @(& $codexExecutable --version 2>$null) -join " "
+                        $updatedVersionMatch = [regex]::Match($updatedVersionOutput, '(?<!\d)(\d+\.\d+\.\d+)(?!\d)')
+                        if ($LASTEXITCODE -ne 0 -or !$updatedVersionMatch.Success -or [version]::Parse($updatedVersionMatch.Groups[1].Value) -lt $latestVersion) {
+                            Write-Host "Codex installer completed, but the selected Codex command is still below $latestVersion. Check PATH and the active Codex installation." -ForegroundColor Red
+                            return
+                        }
+                    }
+                }
+            }
+        }
+    }
+    catch {
+        Write-Host "Codex update check could not reach release metadata; continuing without an update check." -ForegroundColor DarkYellow
     }
 
     $launcherPath = Join-Path $w2Home "scripts\codex-tui-launcher.mjs"
@@ -183,8 +268,6 @@ function global:w2 {
         }
         $gitRoot = [System.IO.Path]::GetFullPath(($gitRootResult.Output -join [Environment]::NewLine).Trim())
     }
-
-    $codexExecutable = if ($codexCommand.CommandType -eq "Application" -and $codexCommand.Source) { $codexCommand.Source } else { "codex" }
 
     $names = @("W2_HOME", "W2_ACTIVE", "W2_PROJECT")
     $previous = @{}

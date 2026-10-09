@@ -4,7 +4,7 @@ import type { AgentAdapter } from "./agent.js";
 import { loadBrainw2ReferenceContext, syncBrainw2Receipt, type Brainw2SyncOptions } from "./brainw2.js";
 import { buildRunReceipt, renderReceiptMarkdown } from "./evidence.js";
 import { RunEngine, type RunEngineOptions } from "./engine.js";
-import type { TaskDefinition } from "./types.js";
+import type { TaskDefinition, VerificationResult } from "./types.js";
 
 export async function runTaskAndPersistReceipt(input: {
   task: TaskDefinition;
@@ -16,6 +16,7 @@ export async function runTaskAndPersistReceipt(input: {
   referenceContext?: RunEngineOptions["referenceContext"];
   referenceContextText?: string;
   interrupted?: boolean;
+  precomputedVerificationResults?: VerificationResult[];
   brainw2?: Brainw2SyncOptions;
 }) {
   let referenceContext = input.referenceContext;
@@ -32,7 +33,7 @@ export async function runTaskAndPersistReceipt(input: {
       }
     } catch { /* optional BrainW2 context must not change the W2 run */ }
   }
-  const engine = new RunEngine({ databasePath: input.databasePath, adapter: input.adapter, runtime: input.runtime, workspaceBaseline: input.workspaceBaseline, referenceContext, referenceContextText, interrupted: input.interrupted });
+  const engine = new RunEngine({ databasePath: input.databasePath, adapter: input.adapter, runtime: input.runtime, workspaceBaseline: input.workspaceBaseline, referenceContext, referenceContextText, interrupted: input.interrupted, precomputedVerificationResults: input.precomputedVerificationResults });
   try {
     const run = await engine.run(input.task);
     const receipt = buildRunReceipt(engine.store, run.run_id);

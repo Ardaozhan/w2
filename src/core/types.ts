@@ -64,6 +64,7 @@ export interface TaskDefinition {
   workspace?: string;
   model?: string;
   timeout_ms?: number;
+  verification_timeout_ms?: number;
   capabilities?: import("./safety.js").Capability[];
   runtime_budget?: import("./safety.js").RuntimeBudget;
 }
@@ -115,7 +116,7 @@ export interface VerificationResult {
   stdout: string;
   stderr: string;
   duration_ms: number;
-  status: "PASSED" | "FAILED" | "ERROR";
+  status: "PASSED" | "FAILED" | "ERROR" | "SKIPPED";
 }
 
 export interface ToolCallRecord {

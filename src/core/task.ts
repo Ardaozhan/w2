@@ -34,6 +34,7 @@ export const taskSchema = z.object({
   workspace: z.string().min(1).optional(),
   model: z.string().min(1).optional(),
   timeout_ms: z.number().int().positive().max(30 * 60 * 1000).optional(),
+  verification_timeout_ms: z.number().int().positive().max(30 * 60 * 1000).optional(),
   capabilities: z.array(z.enum(["fs.read", "fs.write", "fs.delete", "shell.execute", "git.read", "git.write", "network.read", "network.write", "secret.read", "external.write"])).optional(),
   runtime_budget: runtimeBudgetSchema.optional(),
 }).strict().superRefine((task, context) => {

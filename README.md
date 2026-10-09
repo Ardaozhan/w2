@@ -14,9 +14,9 @@ W2 computes one of `PASS`, `FAIL`, `UNPROVEN`, `ABORTED`, or `ERROR` from determ
 ## Current release
 
 - Public repository: [Ardaozhan/w2](https://github.com/Ardaozhan/w2)
-- Latest stable release: [v0.2.1](https://github.com/Ardaozhan/w2/releases/tag/v0.2.1)
-- The `main` branch includes post-v0.2.1 BrainW2 reference-context, activity-capture, and launcher changes; they are unreleased and listed in [CHANGELOG.md](CHANGELOG.md).
-- Windows 11 with Node.js 22.13+: live Codex TUI integration verified. Claude Code hook integration is in development on `main` and is not part of the v0.2.1 stable release.
+- Latest stable release: [v0.2.2](https://github.com/Ardaozhan/w2/releases/tag/v0.2.2)
+- This release adds optional BrainW2 reference-context and activity capture, Codex and Claude Code workflow improvements, bounded child-process handling, and stable-release self-updates.
+- Windows 11 with Node.js 22.13+: live Codex TUI integration verified. Claude Code hook integration remains in development; see its [integration notes](docs/CLAUDE-CODE.md) for current boundaries.
 - Ubuntu Linux with Node.js 22: core automated suite verified by independent Camber Cloud validation and GitHub Actions CI.
 - The PowerShell launcher and Windows `command_windows` behavior are Windows-specific. Live Codex TUI hook trust on Linux is not independently verified.
 
@@ -41,6 +41,8 @@ npm run build
 Install or update the PowerShell profile launcher once from the W2 checkout. The `w2` function does not replace the normal `codex` command.
 The installer adds a W2 block to your PowerShell profile; open a new PowerShell session afterward. The launcher is Windows-specific. Ubuntu has core automated-suite coverage, but live Codex TUI hook trust on Linux has not been independently verified.
 
+Bare `w2` checks for a newer stable GitHub release at most once every 24 hours and installs it before opening Codex. The updater only changes a clean checkout of the official W2 repository, builds the release, and restores the prior Git revision if installation fails. A successful update checks out the published release commit, so the W2 installation clone is left in detached-HEAD mode; keep development work in a separate clone. If you installed W2 before v0.2.2, run `git pull` once in the W2 checkout and open a new PowerShell session to activate the updater.
+
 Obsidian is not installed and is not required. BrainW2 is an optional Markdown vault: W2 uses an existing folder named by `BRAINW2_VAULT`, or an existing `$HOME\brainw2` folder when that variable is unset. If neither folder exists, BrainW2 stays disabled. To select a BrainW2 folder for the current PowerShell session, set its path before launching W2:
 
 ```powershell
@@ -56,9 +58,13 @@ cd C:\work\my-project
 w2
 ```
 
-This opens the normal Codex TUI and supplies one-run native hook definitions. If the current folder is outside every Git repository, W2 initializes Git there automatically without creating a commit. Review and trust changed W2 hooks with `/hooks` as described in the [Codex hooks guide](https://developers.openai.com/codex/hooks). Codex arguments can be forwarded: `w2 --model <model>`.
+This checks the installed Codex version against the official latest-release metadata before opening the TUI. If a newer version is available, W2 asks whether to update first and uses PowerShell 7 (`pwsh`) to run the official installer. This avoids the Windows PowerShell 5.1 compatibility issue in Codex's in-session updater. W2 then opens the normal Codex TUI and supplies one-run native hook definitions. If the current folder is outside every Git repository, W2 initializes Git there automatically without creating a commit. Review and trust changed W2 hooks with `/hooks` as described in the [Codex hooks guide](https://developers.openai.com/codex/hooks). Codex arguments can be forwarded: `w2 --model <model>`.
 
-When BrainW2 is enabled, `UserPromptSubmit` records a bounded activity excerpt for every prompt and may route it to matching notes. Separately, W2 conservatively captures likely engineering requests for verification, discovers or creates an optional project mapping, and supplies selected reference context when enabled. `PreToolUse` and `PostToolUse` record safe tool metadata and correlate events by `tool_use_id`. `Stop` runs supported project checks, captures the turn diff, writes a receipt, updates the session index, and then attempts a short Dev Log entry. `Interrupt` and `SessionEnd` preserve unfinished activity as interrupted and close pending state. `PermissionRequest` is observed passively; it never approves or denies.
+If you need to update Codex separately, run `w2 update-codex`. PowerShell 7 (`pwsh`) must be installed and available on `PATH`.
+
+To check or install a W2 release manually, run `w2 update --check` or `w2 update`. W2 updates follow published stable GitHub releases; pushing an unreleased commit to `main` does not publish an update.
+
+When BrainW2 is enabled, `UserPromptSubmit` records a bounded activity excerpt for every prompt and may route it to matching notes. Separately, W2 conservatively captures likely engineering requests for verification, discovers or creates an optional project mapping, and supplies selected reference context when enabled. `PreToolUse` and `PostToolUse` record safe tool metadata and correlate events by `tool_use_id`. `Stop` runs only explicitly trusted supported project checks, captures the turn diff, writes a receipt, updates the session index, and then attempts a short Dev Log entry. Untrusted checks are recorded as `SKIPPED` and do not count as evidence. `Interrupt` and `SessionEnd` preserve unfinished activity as interrupted and close pending state. `PermissionRequest` is observed passively; it never approves or denies.
 
 Tool activity proves that activity was observed. It does not prove task correctness. W2 does not claim to observe every OS operation, every file read, internal model reasoning, or all external side effects. It does not scrape transcripts or terminals.
 
@@ -79,9 +85,12 @@ w2 doctor
 w2 version
 w2 session latest
 w2 claude
+w2 update --check
+w2 update
+w2 update-codex
 ```
 
-`w2 doctor` is read-only and reports local runtime, Git, build, hook, current-project receipt, platform, and optional BrainW2 availability. When mapped, it shows the current project's BrainW2 note, Dev Log, and Activity Log targets. Hook trust must be checked inside the relevant agent session (`/hooks` in Codex; Claude Code's plugin listing and hook output for Claude).
+`w2 doctor` is read-only and reports local runtime, Git, build, hook, current-project receipt, project-check trust, platform, and optional BrainW2 availability. When mapped, it shows the current project's BrainW2 note, Dev Log, and Activity Log targets. Hook trust must be checked inside the relevant agent session (`/hooks` in Codex; Claude Code's plugin listing and hook output for Claude).
 
 Manual `task.json` runs remain supported. A contract links each acceptance criterion to verifier IDs; only passing referenced evidence can prove that criterion. If no suitable verifier exists, the result stays `UNPROVEN`.
 
@@ -97,7 +106,7 @@ See [brainw2 integration](docs/BRAINW2.md) for discovery, privacy, and disable i
 
 ## Verification model
 
-Interactive project discovery runs only conventional `test`, `typecheck`, `lint`, and `build` scripts and excludes scripts that directly or transitively invoke browser, E2E, screenshot, or visual tooling. W2 does not run arbitrary unknown scripts.
+Interactive project discovery considers only conventional `test`, `typecheck`, `lint`, and `build` scripts and excludes scripts that directly or transitively invoke browser, E2E, screenshot, or visual tooling. Scripts are skipped by default because package scripts can execute arbitrary commands with the user's normal permissions. Review the project scripts, then run `w2 trust-checks trust` from the project folder to allow the discovered checks for the current manifest and lockfiles. Use `w2 trust-checks status` to inspect the state and `w2 trust-checks revoke` to remove trust. Manifest or supported lockfile changes invalidate the trust fingerprint.
 
 An explicit criterion such as `npm run typecheck passes` can map to that discovered command. A generic test suite does not prove a behavioral statement such as `total = 0 throws RangeError`. Semantic requirements without a deterministic link remain `UNPROVEN`. Manual task contracts can declare their verifier IDs explicitly.
 
