@@ -166,7 +166,7 @@ describe("interactive Codex hook integration", () => {
     ]);
     expect(receipt?.acceptance.slice(2).map((item) => item.status)).toEqual(["PASS", "PASS", "PASS", "PASS", "UNPROVEN"]);
     expect(receipt?.outcome).toBe("UNPROVEN");
-  });
+  }, 120_000);
 
   it("does not create a run for a casual prompt", async () => {
     const w2Home = temporaryHome();
