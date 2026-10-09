@@ -252,6 +252,41 @@ interface ChildExecutionResult {
 }
 
 async function executeChildProcess(command: string, args: string[], cwd: string, environment: NodeJS.ProcessEnv, maxBuffer: number, timeoutMs: number, detached: boolean): Promise<ChildExecutionResult> {
+  if (process.platform === "win32") {
+    const windowsExecOptions = {
+      cwd,
+      encoding: "utf8",
+      windowsHide: true,
+      maxBuffer,
+      env: environment,
+      detached: false,
+    } as Parameters<typeof execFileAsync>[2] & { detached: boolean };
+    const execution = execFileAsync(command, args, windowsExecOptions);
+    const child = (execution as typeof execution & { child: ChildProcess }).child;
+    let timeoutExpired = false;
+    const timeout = setTimeout(() => {
+      timeoutExpired = true;
+      void terminateProcessTree(child);
+    }, timeoutMs);
+    try {
+      const result = await execution;
+      const stdout = truncate(typeof result.stdout === "string" ? result.stdout : result.stdout.toString("utf8"), maxBuffer);
+      const stderr = truncate(typeof result.stderr === "string" ? result.stderr : result.stderr.toString("utf8"), maxBuffer);
+      if (timeoutExpired) return { stdout, stderr: stderr || `Command timed out after ${timeoutMs} ms`, exitCode: 124, timedOut: true, outputLimited: false };
+      return { stdout, stderr, exitCode: 0, timedOut: false, outputLimited: false };
+    } catch (error) {
+      const failure = error as { stdout?: string | Buffer; stderr?: string | Buffer; code?: number | string; killed?: boolean; message?: string };
+      const stdout = truncate(typeof failure.stdout === "string" ? failure.stdout : failure.stdout?.toString("utf8") ?? "", maxBuffer);
+      const stderr = truncate(typeof failure.stderr === "string" ? failure.stderr : failure.stderr?.toString("utf8") ?? failure.message ?? String(error), maxBuffer);
+      const timedOut = failure.killed === true || failure.code === "ETIMEDOUT" || timeoutExpired;
+      const outputLimited = /maxbuffer|stdout maxBuffer|stderr maxBuffer/i.test(failure.message ?? "");
+      const exitCode = timedOut ? 124 : outputLimited ? 125 : typeof failure.code === "number" ? failure.code : 1;
+      return { stdout, stderr, exitCode, timedOut, outputLimited };
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
   const child = spawn(command, args, { cwd, env: environment, windowsHide: true, detached, stdio: ["ignore", "pipe", "pipe"] });
   const stdout: Buffer[] = [];
   const stderr: Buffer[] = [];
