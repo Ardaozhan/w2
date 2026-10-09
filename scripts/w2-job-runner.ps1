@@ -273,25 +273,27 @@ namespace W2 {
   [IO.Directory]::CreateDirectory($cacheRoot) | Out-Null
   $assemblyPath = Join-Path $cacheRoot "w2-job-runner-$sourceHash.dll"
   $lockPath = Join-Path $cacheRoot "w2-job-runner-$sourceHash.lock"
-  $lock = $null
-  for ($attempt = 0; $attempt -lt 400 -and !$lock; $attempt++) {
-    try { $lock = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None) }
-    catch [IO.IOException] { Start-Sleep -Milliseconds 25 }
-  }
-  if (!$lock) { throw 'Timed out waiting for the W2 Job Object helper cache lock.' }
-  try {
-    if (!(Test-Path -LiteralPath $assemblyPath -PathType Leaf)) {
-      $temporaryAssembly = Join-Path $cacheRoot "w2-job-runner-$sourceHash-$([guid]::NewGuid().ToString('N')).dll"
-      try {
-        Add-Type -TypeDefinition $source -OutputAssembly $temporaryAssembly -ErrorAction Stop | Out-Null
-        [IO.File]::Move($temporaryAssembly, $assemblyPath)
-      }
-      finally {
-        if (Test-Path -LiteralPath $temporaryAssembly) { Remove-Item -LiteralPath $temporaryAssembly -Force -ErrorAction SilentlyContinue }
+  if (!(Test-Path -LiteralPath $assemblyPath -PathType Leaf)) {
+    $lock = $null
+    for ($attempt = 0; $attempt -lt 400 -and !$lock; $attempt++) {
+      try { $lock = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None) }
+      catch [IO.IOException] { Start-Sleep -Milliseconds 25 }
+    }
+    if (!$lock) { throw 'Timed out waiting for the W2 Job Object helper cache lock.' }
+    try {
+      if (!(Test-Path -LiteralPath $assemblyPath -PathType Leaf)) {
+        $temporaryAssembly = Join-Path $cacheRoot "w2-job-runner-$sourceHash-$([guid]::NewGuid().ToString('N')).dll"
+        try {
+          Add-Type -TypeDefinition $source -OutputAssembly $temporaryAssembly -ErrorAction Stop | Out-Null
+          [IO.File]::Move($temporaryAssembly, $assemblyPath)
+        }
+        finally {
+          if (Test-Path -LiteralPath $temporaryAssembly) { Remove-Item -LiteralPath $temporaryAssembly -Force -ErrorAction SilentlyContinue }
+        }
       }
     }
+    finally { $lock.Dispose() }
   }
-  finally { $lock.Dispose() }
   [Reflection.Assembly]::LoadFrom($assemblyPath) | Out-Null
   $environment = @($payload.environment | ForEach-Object { [string]$_ })
   $timedOut = $false
