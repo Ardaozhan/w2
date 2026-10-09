@@ -295,7 +295,8 @@ namespace W2 {
   [Reflection.Assembly]::LoadFrom($assemblyPath) | Out-Null
   $environment = @($payload.environment | ForEach-Object { [string]$_ })
   $timedOut = $false
-  $exitCode = [W2.JobRunner]::Run([string]$payload.nodeExecutable, [string]$payload.bootstrapPath, $PayloadBase64, [string]$payload.cwd, $environment, [long]$payload.deadlineEpochMs, [ref]$timedOut)
+  $deadlineEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() + [long]$payload.timeoutMs
+  $exitCode = [W2.JobRunner]::Run([string]$payload.nodeExecutable, [string]$payload.bootstrapPath, $PayloadBase64, [string]$payload.cwd, $environment, $deadlineEpochMs, [ref]$timedOut)
   if ($timedOut) { [Console]::Error.WriteLine("W2_JOB_TIMED_OUT") }
   exit $exitCode
 } catch {

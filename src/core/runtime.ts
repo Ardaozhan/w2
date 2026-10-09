@@ -10,6 +10,7 @@ import { assertCapability, assertWorkspacePath, commandRisk, redactSecrets, Safe
 const execFileAsync = promisify(execFile);
 export const DEFAULT_SHELL_TIMEOUT_MS = 5 * 60 * 1000;
 const PROCESS_TREE_KILL_TIMEOUT_MS = 5_000;
+const WINDOWS_JOB_SETUP_GRACE_MS = 30_000;
 const WINDOWS_JOB_SETUP_FAILED_EXIT_CODE = 97;
 
 export interface ToolRuntimeOptions {
@@ -131,7 +132,7 @@ export class ToolRuntime {
         this.workspace,
         environment,
         limit,
-        effectiveTimeoutMs + (windowsJob ? PROCESS_TREE_KILL_TIMEOUT_MS : 0),
+        effectiveTimeoutMs + (windowsJob ? WINDOWS_JOB_SETUP_GRACE_MS + PROCESS_TREE_KILL_TIMEOUT_MS : 0),
         process.platform !== "win32",
       );
       if (windowsJob && result.exitCode === WINDOWS_JOB_SETUP_FAILED_EXIT_CODE && result.stderr.includes("W2_JOB_SETUP_FAILED")) {
@@ -234,7 +235,7 @@ function windowsJobInvocation(command: string, args: string[], cwd: string, envi
     cwd,
     nodeExecutable: process.execPath,
     bootstrapPath,
-    deadlineEpochMs: Date.now() + timeoutMs,
+    timeoutMs,
     environment: Object.entries(environment).map(([key, value]) => `${key}=${value ?? ""}`),
   }), "utf8").toString("base64");
   return {
