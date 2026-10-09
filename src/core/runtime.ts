@@ -1,4 +1,4 @@
-import { execFile, type ChildProcess } from "node:child_process";
+import { execFile, spawn, type ChildProcess } from "node:child_process";
 import { existsSync } from "node:fs";
 import { promises as fs } from "node:fs";
 import path from "node:path";
@@ -252,38 +252,56 @@ interface ChildExecutionResult {
 }
 
 async function executeChildProcess(command: string, args: string[], cwd: string, environment: NodeJS.ProcessEnv, maxBuffer: number, timeoutMs: number, detached: boolean): Promise<ChildExecutionResult> {
-  const childOptions = {
-    cwd,
-    encoding: "utf8",
-    windowsHide: true,
-    maxBuffer,
-    env: environment,
-    detached,
-  } as Parameters<typeof execFileAsync>[2] & { detached: boolean };
-  const execution = execFileAsync(command, args, childOptions);
-  const child = (execution as typeof execution & { child: ChildProcess }).child;
-  let timeoutExpired = false;
+  const child = spawn(command, args, { cwd, env: environment, windowsHide: true, detached, stdio: ["ignore", "pipe", "pipe"] });
+  const stdout: Buffer[] = [];
+  const stderr: Buffer[] = [];
+  let stdoutBytes = 0;
+  let stderrBytes = 0;
+  let timedOut = false;
+  let outputLimited = false;
+  let spawnError: Error | undefined;
+  let termination: Promise<void> | undefined;
+  const terminate = () => {
+    termination ??= terminateProcessTree(child);
+    return termination;
+  };
+  const capture = (chunks: Buffer[], stream: "stdout" | "stderr", chunk: Buffer) => {
+    const currentBytes = stream === "stdout" ? stdoutBytes : stderrBytes;
+    const remainingBytes = Math.max(0, maxBuffer - currentBytes);
+    if (remainingBytes > 0) chunks.push(chunk.subarray(0, remainingBytes));
+    const nextBytes = currentBytes + chunk.byteLength;
+    if (stream === "stdout") stdoutBytes = nextBytes;
+    else stderrBytes = nextBytes;
+    if (nextBytes > maxBuffer && !outputLimited) {
+      outputLimited = true;
+      void terminate();
+    }
+  };
+  child.stdout?.on("data", (chunk: Buffer | string) => capture(stdout, "stdout", Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+  child.stderr?.on("data", (chunk: Buffer | string) => capture(stderr, "stderr", Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+  child.once("error", (error) => { spawnError = error; });
   const timeout = setTimeout(() => {
-    timeoutExpired = true;
-    void terminateProcessTree(child);
+    timedOut = true;
+    void terminate();
   }, timeoutMs);
-  try {
-    const result = await execution;
-    const stdout = truncate(typeof result.stdout === "string" ? result.stdout : result.stdout.toString("utf8"), maxBuffer);
-    const stderr = truncate(typeof result.stderr === "string" ? result.stderr : result.stderr.toString("utf8"), maxBuffer);
-    if (timeoutExpired) return { stdout, stderr: stderr || `Command timed out after ${timeoutMs} ms`, exitCode: 124, timedOut: true, outputLimited: false };
-    return { stdout, stderr, exitCode: 0, timedOut: false, outputLimited: false };
-  } catch (error) {
-    const failure = error as { stdout?: string | Buffer; stderr?: string | Buffer; code?: number | string; killed?: boolean; message?: string };
-    const stdout = truncate(typeof failure.stdout === "string" ? failure.stdout : failure.stdout?.toString("utf8") ?? "", maxBuffer);
-    const stderr = truncate(typeof failure.stderr === "string" ? failure.stderr : failure.stderr?.toString("utf8") ?? failure.message ?? String(error), maxBuffer);
-    const timedOut = failure.killed === true || failure.code === "ETIMEDOUT" || timeoutExpired;
-    const outputLimited = /maxbuffer|stdout maxBuffer|stderr maxBuffer/i.test(failure.message ?? "");
-    const exitCode = timedOut ? 124 : outputLimited ? 125 : typeof failure.code === "number" ? failure.code : 1;
-    return { stdout, stderr, exitCode, timedOut, outputLimited };
-  } finally {
-    clearTimeout(timeout);
-  }
+  return new Promise((resolve) => {
+    child.once("close", async (code) => {
+      clearTimeout(timeout);
+      if (termination) await termination.catch(() => undefined);
+      const stdoutText = truncate(Buffer.concat(stdout).toString("utf8"), maxBuffer);
+      let stderrText = truncate(Buffer.concat(stderr).toString("utf8"), maxBuffer);
+      if (spawnError) stderrText ||= spawnError.message;
+      if (timedOut) stderrText ||= `Command timed out after ${timeoutMs} ms`;
+      if (outputLimited) stderrText ||= `Command output exceeded ${maxBuffer} byte limit`;
+      resolve({
+        stdout: stdoutText,
+        stderr: stderrText,
+        exitCode: timedOut ? 124 : outputLimited ? 125 : code ?? 1,
+        timedOut,
+        outputLimited,
+      });
+    });
+  });
 }
 
 async function terminateProcessTree(child: ChildProcess): Promise<void> {
