@@ -1,5 +1,6 @@
 import { execFile, spawn, type ChildProcess } from "node:child_process";
 import { existsSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -12,6 +13,7 @@ export const DEFAULT_SHELL_TIMEOUT_MS = 5 * 60 * 1000;
 const PROCESS_TREE_KILL_TIMEOUT_MS = 5_000;
 const WINDOWS_JOB_SETUP_GRACE_MS = 30_000;
 const WINDOWS_JOB_SETUP_FAILED_EXIT_CODE = 97;
+const WINDOWS_JOB_RUNNER_NAME = "w2-job-runner-v3.exe";
 
 export interface ToolRuntimeOptions {
   env?: NodeJS.ProcessEnv;
@@ -132,7 +134,7 @@ export class ToolRuntime {
         this.workspace,
         environment,
         limit,
-        effectiveTimeoutMs + (windowsJob ? WINDOWS_JOB_SETUP_GRACE_MS + PROCESS_TREE_KILL_TIMEOUT_MS : 0),
+        effectiveTimeoutMs + (windowsJob ? (windowsJob.setupRequired ? WINDOWS_JOB_SETUP_GRACE_MS : 0) + PROCESS_TREE_KILL_TIMEOUT_MS : 0),
         process.platform !== "win32",
       );
       if (windowsJob && result.exitCode === WINDOWS_JOB_SETUP_FAILED_EXIT_CODE && result.stderr.includes("W2_JOB_SETUP_FAILED")) {
@@ -218,30 +220,50 @@ function filteredEnvironment(source: NodeJS.ProcessEnv = process.env): NodeJS.Pr
   return Object.fromEntries(Object.entries(source).filter(([key]) => allowed.has(key.toLowerCase())));
 }
 
-function windowsJobInvocation(command: string, args: string[], cwd: string, environment: NodeJS.ProcessEnv, timeoutMs: number): { command: string; args: string[] } {
+function windowsJobInvocation(command: string, args: string[], cwd: string, environment: NodeJS.ProcessEnv, timeoutMs: number): { command: string; args: string[]; setupRequired: boolean } {
+  const runnerExecutable = path.join(tmpdir(), "w2-job-runner-cache", WINDOWS_JOB_RUNNER_NAME);
+  const environmentEntries = Object.entries(environment).map(([key, value]) => `${key}=${value ?? ""}`);
+  const packedArgs = [
+    encodeRunnerValue(command),
+    encodeRunnerList(args),
+    encodeRunnerValue(cwd),
+    encodeRunnerList(environmentEntries),
+    String(timeoutMs),
+  ];
+  if (existsSync(runnerExecutable)) return { command: runnerExecutable, args: packedArgs, setupRequired: false };
+
   const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
   const runnerPath = [
     path.resolve(moduleDirectory, "../../scripts/w2-job-runner.ps1"),
     path.resolve(moduleDirectory, "../../../scripts/w2-job-runner.ps1"),
   ].find(existsSync);
-  const bootstrapPath = [
-    path.resolve(moduleDirectory, "../../scripts/w2-job-bootstrap.mjs"),
-    path.resolve(moduleDirectory, "../../../scripts/w2-job-bootstrap.mjs"),
-  ].find(existsSync);
-  if (!runnerPath || !bootstrapPath) throw new Error("W2 Windows Job Object runner files are missing from the installation.");
+  if (!runnerPath) throw new Error("W2 Windows Job Object runner files are missing from the installation.");
   const payload = Buffer.from(JSON.stringify({
     file: command,
     args,
     cwd,
-    nodeExecutable: process.execPath,
-    bootstrapPath,
     timeoutMs,
-    environment: Object.entries(environment).map(([key, value]) => `${key}=${value ?? ""}`),
+    environment: environmentEntries,
   }), "utf8").toString("base64");
   return {
     command: "powershell.exe",
     args: ["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", runnerPath, payload],
+    setupRequired: true,
   };
+}
+
+function encodeRunnerValue(value: string): string {
+  return Buffer.from(value, "utf8").toString("base64");
+}
+
+function encodeRunnerList(values: string[]): string {
+  const entries = values.map((value) => {
+    const bytes = Buffer.from(value, "utf8");
+    const length = Buffer.allocUnsafe(4);
+    length.writeUInt32LE(bytes.length);
+    return Buffer.concat([length, bytes]);
+  });
+  return Buffer.concat(entries).toString("base64");
 }
 
 interface ChildExecutionResult {

@@ -12,11 +12,11 @@ try {
 
   $source = @'
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.IO;
 
 namespace W2 {
   public sealed class JobSetupException : Exception {
@@ -27,6 +27,7 @@ namespace W2 {
     private const uint CreateBreakawayFromJob = 0x01000000;
     private const uint CreateNoWindow = 0x08000000;
     private const uint CreateUnicodeEnvironment = 0x00000400;
+    private const uint CreateSuspended = 0x00000004;
     private const uint StartfUseStdHandles = 0x00000100;
     private const uint JobObjectExtendedLimitInformation = 9;
     private const uint JobObjectLimitKillOnJobClose = 0x00002000;
@@ -112,6 +113,9 @@ namespace W2 {
     private static extern uint WaitForSingleObject(IntPtr handle, uint milliseconds);
 
     [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern uint ResumeThread(IntPtr thread);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GetExitCodeProcess(IntPtr process, out uint exitCode);
 
@@ -126,7 +130,40 @@ namespace W2 {
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr GetStdHandle(int standardHandle);
 
-    public static int Run(string nodeExecutable, string bootstrapPath, string payloadBase64, string currentDirectory, string[] environment, long deadlineEpochMs, out bool timedOut) {
+    public static int Main(string[] args) {
+      if (args.Length != 5) { Console.Error.WriteLine("W2 Windows Job Object runner received an invalid launch contract."); return 1; }
+      try {
+        bool timedOut;
+        int exitCode = Run(Decode(args[0]), DecodeList(args[1]), Decode(args[2]), DecodeList(args[3]), Int64.Parse(args[4]), out timedOut);
+        if (timedOut) Console.Error.WriteLine("W2_JOB_TIMED_OUT");
+        return exitCode;
+      } catch (JobSetupException error) {
+        Console.Error.WriteLine(error.ToString());
+        Console.Error.WriteLine("W2_JOB_SETUP_FAILED");
+        return 97;
+      } catch (Exception error) {
+        Console.Error.WriteLine(error.ToString());
+        return 1;
+      }
+    }
+
+    private static string Decode(string value) { return Encoding.UTF8.GetString(Convert.FromBase64String(value)); }
+    private static string[] DecodeList(string value) {
+      byte[] bytes = Convert.FromBase64String(value);
+      List<string> values = new List<string>();
+      int offset = 0;
+      while (offset < bytes.Length) {
+        if (bytes.Length - offset < 4) throw new FormatException("Invalid W2 runner list payload");
+        int length = BitConverter.ToInt32(bytes, offset);
+        offset += 4;
+        if (length < 0 || length > bytes.Length - offset) throw new FormatException("Invalid W2 runner list entry length");
+        values.Add(Encoding.UTF8.GetString(bytes, offset, length));
+        offset += length;
+      }
+      return values.ToArray();
+    }
+
+    private static int Run(string executable, string[] args, string currentDirectory, string[] environment, long timeoutMs, out bool timedOut) {
       timedOut = false;
       IntPtr job = CreateJobObjectW(IntPtr.Zero, null);
       if (job == IntPtr.Zero) throw new JobSetupException("CreateJobObjectW failed: " + LastError());
@@ -135,11 +172,7 @@ namespace W2 {
       IntPtr environmentBuffer = IntPtr.Zero;
       ProcessInformation process = new ProcessInformation();
       bool processCreated = false;
-      string tempDirectory = Path.Combine(Path.GetTempPath(), "w2-job-" + Guid.NewGuid().ToString("N"));
-      string readyPath = Path.Combine(tempDirectory, "ready");
-      string gatePath = Path.Combine(tempDirectory, "gate");
       try {
-        Directory.CreateDirectory(tempDirectory);
         ExtendedLimitInformation limits = new ExtendedLimitInformation();
         limits.basicLimitInformation.limitFlags = JobObjectLimitKillOnJobClose;
         limitBuffer = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(ExtendedLimitInformation)));
@@ -159,10 +192,10 @@ namespace W2 {
         startup.stdOutput = GetStdHandle(-11);
         startup.stdError = GetStdHandle(-12);
 
-        string commandLineText = Quote(nodeExecutable) + " " + Quote(bootstrapPath) + " " + Quote(payloadBase64) + " " + Quote(readyPath) + " " + Quote(gatePath);
+        string commandLineText = Quote(executable) + (args.Length == 0 ? "" : " " + String.Join(" ", args.Select(Quote)));
         StringBuilder commandLine = new StringBuilder(commandLineText);
-        string resolvedFile = ResolveExecutable(nodeExecutable);
-        uint baseFlags = CreateNoWindow | CreateUnicodeEnvironment;
+        string resolvedFile = ResolveExecutable(executable);
+        uint baseFlags = CreateNoWindow | CreateUnicodeEnvironment | CreateSuspended;
         if (!CreateProcessW(resolvedFile, commandLine, IntPtr.Zero, IntPtr.Zero, true, baseFlags | CreateBreakawayFromJob, environmentBuffer, currentDirectory, ref startup, out process)) {
           int breakawayError = Marshal.GetLastWin32Error();
           commandLine = new StringBuilder(commandLineText);
@@ -171,30 +204,14 @@ namespace W2 {
           }
         }
         processCreated = true;
-
-        while (!File.Exists(readyPath)) {
-          uint startupWait = WaitForSingleObject(process.process, 10);
-          if (startupWait == 0) {
-            uint bootstrapExit;
-            if (!GetExitCodeProcess(process.process, out bootstrapExit)) throw new Win32Exception(Marshal.GetLastWin32Error(), "GetExitCodeProcess failed before bootstrap readiness");
-            return unchecked((int)bootstrapExit);
-          }
-          if (startupWait != 258) throw new Win32Exception(Marshal.GetLastWin32Error(), "Waiting for bootstrap readiness failed");
-          if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() >= deadlineEpochMs) {
-            timedOut = true;
-            TerminateProcess(process.process, 124);
-            WaitForSingleObject(process.process, 5000);
-            return 124;
-          }
-        }
-
         if (!AssignProcessToJobObject(job, process.process)) {
           TerminateProcess(process.process, 1);
           WaitForSingleObject(process.process, 5000);
           throw new JobSetupException("AssignProcessToJobObject failed: " + LastError());
         }
-        File.WriteAllText(gatePath, "run");
+        if (ResumeThread(process.thread) == UInt32.MaxValue) throw new Win32Exception(Marshal.GetLastWin32Error(), "Resuming the assigned process failed");
 
+        long deadlineEpochMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + timeoutMs;
         long remainingMs = deadlineEpochMs - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         uint waitResult = remainingMs <= 0
           ? 258
@@ -219,7 +236,6 @@ namespace W2 {
         }
         if (environmentBuffer != IntPtr.Zero) Marshal.FreeHGlobal(environmentBuffer);
         if (limitBuffer != IntPtr.Zero) Marshal.FreeHGlobal(limitBuffer);
-        try { if (Directory.Exists(tempDirectory)) Directory.Delete(tempDirectory, true); } catch { }
       }
     }
 
@@ -265,14 +281,10 @@ namespace W2 {
 }
 '@
 
-  $sourceBytes = [Text.Encoding]::UTF8.GetBytes($source)
-  $sha256 = [Security.Cryptography.SHA256]::Create()
-  try { $sourceHash = [BitConverter]::ToString($sha256.ComputeHash($sourceBytes)).Replace('-', '').ToLowerInvariant() }
-  finally { $sha256.Dispose() }
   $cacheRoot = Join-Path ([IO.Path]::GetTempPath()) 'w2-job-runner-cache'
   [IO.Directory]::CreateDirectory($cacheRoot) | Out-Null
-  $assemblyPath = Join-Path $cacheRoot "w2-job-runner-$sourceHash.dll"
-  $lockPath = Join-Path $cacheRoot "w2-job-runner-$sourceHash.lock"
+  $assemblyPath = Join-Path $cacheRoot 'w2-job-runner-v3.exe'
+  $lockPath = Join-Path $cacheRoot 'w2-job-runner-v3.lock'
   if (!(Test-Path -LiteralPath $assemblyPath -PathType Leaf)) {
     $lock = $null
     for ($attempt = 0; $attempt -lt 400 -and !$lock; $attempt++) {
@@ -282,9 +294,9 @@ namespace W2 {
     if (!$lock) { throw 'Timed out waiting for the W2 Job Object helper cache lock.' }
     try {
       if (!(Test-Path -LiteralPath $assemblyPath -PathType Leaf)) {
-        $temporaryAssembly = Join-Path $cacheRoot "w2-job-runner-$sourceHash-$([guid]::NewGuid().ToString('N')).dll"
+        $temporaryAssembly = Join-Path $cacheRoot "w2-job-runner-v3-$([guid]::NewGuid().ToString('N')).exe"
         try {
-          Add-Type -TypeDefinition $source -OutputAssembly $temporaryAssembly -ErrorAction Stop | Out-Null
+          Add-Type -TypeDefinition $source -OutputAssembly $temporaryAssembly -OutputType ConsoleApplication -ErrorAction Stop | Out-Null
           [IO.File]::Move($temporaryAssembly, $assemblyPath)
         }
         finally {
@@ -294,18 +306,32 @@ namespace W2 {
     }
     finally { $lock.Dispose() }
   }
-  [Reflection.Assembly]::LoadFrom($assemblyPath) | Out-Null
-  $environment = @($payload.environment | ForEach-Object { [string]$_ })
-  $timedOut = $false
-  $deadlineEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() + [long]$payload.timeoutMs
-  $exitCode = [W2.JobRunner]::Run([string]$payload.nodeExecutable, [string]$payload.bootstrapPath, $PayloadBase64, [string]$payload.cwd, $environment, $deadlineEpochMs, [ref]$timedOut)
-  if ($timedOut) { [Console]::Error.WriteLine("W2_JOB_TIMED_OUT") }
-  exit $exitCode
+  function ConvertTo-RunnerListBase64([string[]]$values) {
+    $stream = [IO.MemoryStream]::new()
+    $writer = [IO.BinaryWriter]::new($stream)
+    try {
+      foreach ($value in $values) {
+        $bytes = [Text.Encoding]::UTF8.GetBytes([string]$value)
+        $writer.Write([int]$bytes.Length)
+        $writer.Write($bytes)
+      }
+      $writer.Flush()
+      return [Convert]::ToBase64String($stream.ToArray())
+    }
+    finally { $writer.Dispose(); $stream.Dispose() }
+  }
+
+  $argumentValues = [string[]]@(
+    [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([string]$payload.file)),
+    (ConvertTo-RunnerListBase64 ([string[]]$payload.args)),
+    [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([string]$payload.cwd)),
+    (ConvertTo-RunnerListBase64 ([string[]]$payload.environment)),
+    [string]$payload.timeoutMs
+  )
+  & $assemblyPath @argumentValues
+  exit $LASTEXITCODE
 } catch {
   [Console]::Error.WriteLine($_.Exception.ToString())
-  if ($_.Exception.GetType().FullName -eq "W2.JobSetupException") {
-    [Console]::Error.WriteLine("W2_JOB_SETUP_FAILED")
-    exit 97
-  }
-  exit 1
+  [Console]::Error.WriteLine("W2_JOB_SETUP_FAILED")
+  exit 97
 }
